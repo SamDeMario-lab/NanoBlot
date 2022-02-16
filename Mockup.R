@@ -59,4 +59,6 @@ exon3exon <- ggplot(data = blot_data, aes(x = sample_pos, y = qwidth))+
   labs(title = "RPL18A 3'Exon Probe - \"Nanoblot\"")
 
 print(exon3exon)
+ggsave(plot = exon3exon,filename = "exon2_probe.png", device = "png")
 print(coding)
+ggsave(plot = coding,filename = "wholegene_probe.png", device = "png")
