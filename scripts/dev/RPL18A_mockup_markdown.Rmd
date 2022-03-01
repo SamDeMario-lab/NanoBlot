@@ -1,0 +1,152 @@
+
+```{r}
+library(ggplot2)
+library(ggblur)
+```
+
+```{r}
+RPL18A_data <- readRDS(file = "./RPL18A_data")
+```
+
+```{r}
+raster_plot <- ggplot(data = RPL18A_data, aes(x = sample_pos, y = qwidth))+
+  stat_density_2d(aes(fill = ..density..), geom = "raster", contour = FALSE)+
+  scale_fill_distiller(palette=2, direction=1) +
+  scale_x_continuous(limits = c(0,3))+
+  scale_y_continuous(limits = c(0,800))+
+  ylab(label = "Size in nts")+
+  labs(title = "RPL18A - \"Nanoblot\"")
+
+print(raster_plot)
+```
+
+```{r}
+violin_plot <- ggplot(data = RPL18A_data, aes(x = sample_ID, y = qwidth, fill = sample_ID))+
+  geom_violin(aes(group = sample_ID))+
+  scale_y_continuous(limits = c(0,800))+
+  ylab(label = "Size in nts")+
+  labs(title = "RPL18A - \"Nanoblot\"")
+
+print(violin_plot)
+```
+
+```{r}
+heatmap_plot <- ggplot(data = RPL18A_data, aes(x = sample_ID, y = qwidth))+
+  geom_tile()+
+  scale_y_continuous(limits = c(0,800))+
+  ylab(label = "Size in nts")+
+  labs(title = "RPL18A - \"Nanoblot\"")
+
+print(heatmap_plot)
+```
+
+```{r}
+
+scatter_plot <- ggplot(data = RPL18A_data, aes(x = sample_pos, y = qwidth))+
+  geom_point(alpha = 0.01)+
+  scale_y_continuous(limits = c(0,800))+
+  scale_x_continuous(limits = c(0,20))+
+  ylab(label = "Size in nts")+
+  labs(title = "RPL18A - \"Nanoblot\"")+
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    panel.background = element_blank())
+
+print(scatter_plot)
+```
+
+```{r}
+RPL18A_data_bands <- RPL18A_data
+RPL18A_data_bands$sample_pos_bands <- RPL18A_data$sample_pos + runif(nrow(RPL18A_data), min = -0.25, max = 0.25)
+
+scatter_plot_bands <- ggplot(data = RPL18A_data_bands, aes(x = sample_pos_bands, y = qwidth))+
+  geom_point(alpha = 0.1, color = "black")+
+  scale_y_continuous(limits = c(0,800))+
+  ylab(label = "Size in nts")+
+  labs(title = "RPL18A - \"Nanoblot\"")
+
+print(scatter_plot_bands)
+```
+
+```{r}
+RPL18A_data_fuzz <- do.call("rbind", replicate(10, RPL18A_data, simplify = FALSE))
+RPL18A_data_fuzz$sample_pos_bands <- RPL18A_data_fuzz$sample_pos + runif(nrow(RPL18A_data_fuzz), min = -0.25, max = 0.25)
+
+scatter_plot_fuzz <- ggplot(data = RPL18A_data_fuzz, aes(x = sample_pos_bands, y = qwidth))+
+  geom_point(alpha = 0.01, color = "black", size = 2)+
+  scale_y_continuous(limits = c(0,800))+
+  ylab(label = "Size in nts")+
+  labs(title = "RPL18A - \"Nanoblot\"")
+
+print(scatter_plot_fuzz)
+
+```
+
+```{r}
+RPL18A_data_fuzz <- do.call("rbind", replicate(10, RPL18A_data, simplify = FALSE))
+RPL18A_data_fuzz$sample_pos_bands <- RPL18A_data_fuzz$sample_pos + runif(nrow(RPL18A_data_fuzz), min = -0.25, max = 0.25)
+
+raster_plot_fuzz <- ggplot(data = RPL18A_data_fuzz, aes(x = sample_pos_bands, y = qwidth))+
+  stat_density_2d(aes(fill = ..density..), geom = "raster", contour = FALSE)+
+  scale_fill_distiller(palette=2, direction=1) +
+  scale_x_continuous(limits = c(0,3))+
+  scale_y_continuous(limits = c(0,800))+
+  ylab(label = "Size in nts")+
+  labs(title = "RPL18A - \"Nanoblot\"")
+
+print(raster_plot_fuzz)
+```
+```{r}
+RPL18A_data_blur <- do.call("rbind", replicate(5, RPL18A_data, simplify = FALSE))
+RPL18A_data_blur$sample_pos_bands <- RPL18A_data_blur$sample_pos + runif(nrow(RPL18A_data_blur), min = -0.25, max = 0.25)
+
+scatter_plot_blur <- ggplot(data = RPL18A_data_blur, aes(x = sample_pos_bands, y = qwidth))+
+  geom_point_blur(color = "#000000", size = 2 , blur_size = 1)+
+  scale_y_continuous(limits = c(0,800))+
+  ylab(label = "Size in nts")+
+  labs(title = "RPL18A - \"Nanoblot\"")
+
+print(scatter_plot_blur)
+```
+
+```{r}
+RPL18A_data_fuzz <- do.call("rbind", replicate(5, RPL18A_data, simplify = FALSE))
+RPL18A_data_fuzz$sample_pos_bands <- RPL18A_data_fuzz$sample_pos + runif(nrow(RPL18A_data_fuzz), min = -0.25, max = 0.25)
+
+scatter_plot_fuzz <- ggplot(data = RPL18A_data_fuzz, aes(x = sample_pos_bands, y = qwidth))+
+  geom_point(alpha = 0.01, color = "black", size = 2)+
+  scale_y_continuous(limits = c(0,800))+
+  ylab(label = "Size in nts")+
+  labs(title = "RPL18A - \"Nanoblot\"")+
+    theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    panel.background = element_blank()) 
+
+print(scatter_plot_fuzz)
+```
+
+```{r}
+RPL18A_data_fuzz <- do.call("rbind", replicate(2, RPL18A_data, simplify = FALSE))
+RPL18A_data_fuzz$sample_pos_bands <- RPL18A_data_fuzz$sample_pos + runif(nrow(RPL18A_data_fuzz), min = -0.25, max = 0.25)
+
+scatter_plot_fuzz_zoom <- ggplot(data = RPL18A_data_fuzz, aes(x = sample_pos_bands, y = qwidth))+
+  geom_point(alpha = 0.01, color = "black", size = 1)+
+  scale_y_continuous(limits = c(0,800))+
+  ylab(label = "Size in nts")+
+  labs(title = "RPL18A - \"Nanoblot\"")+
+    theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    panel.background = element_blank()) +
+  scale_x_continuous(limits = c(0,10))
+
+print(scatter_plot_fuzz_zoom)
+
+ggsave(plot = scatter_plot_fuzz_zoom, filename = "./plots/RPL18A_fuzz_zoom.png", units = "in", width = 6, height = 4)
+```
+

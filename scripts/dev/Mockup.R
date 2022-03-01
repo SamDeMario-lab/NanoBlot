@@ -9,6 +9,8 @@ Make_probe <- function(chr, start_pos, stop_pos, strand) {
   return(probe)
 }
 
+#Make_probe is a basic function that takes 4 inputs and returns a GRange object based on the inputs. 
+
 RPL18A <- Make_probe("chrXV", 93395, 94402, "-")
 RPL18A_3Exon <- Make_probe("chrXV", 93395, 93843, "-")
 
@@ -55,12 +57,20 @@ blot_data_imd4[1:length(wt_IVP_IMD4_snR54$`chrXIII:163535-163620`$qname),"sample
 blot_data_imd4[((length(wt_IVP_IMD4_snR54$`chrXIII:163535-163620`$qname)+1):(length(slu7_IVP_IMD4_snR54$`chrXIII:163535-163620`$qname)+length(wt_IVP_IMD4_snR54$`chrXIII:163535-163620`$qname))),"sample_ID"] <- "slu7"
 blot_data_imd4[((length(wt_IVP_IMD4_snR54$`chrXIII:163535-163620`$qname)+1):(length(slu7_IVP_IMD4_snR54$`chrXIII:163535-163620`$qname)+length(wt_IVP_IMD4_snR54$`chrXIII:163535-163620`$qname))),"sample_pos"] <- 2
 
+saveRDS(object = blot_data_wt, file = "./RPL18A_data")
+saveRDS(object = blot_data_imd4, file = "./IMD4_data")
+
 test <- rbind(blot_data_imd4, blot_data_imd4, blot_data_imd4, blot_data_imd4, blot_data_imd4, blot_data_imd4, blot_data_imd4, blot_data_imd4)
 blot_data_imd4_spag <- rbind(test, test, test, test, test, test, test, test)
 
 IMD4 <- ggplot(data = blot_data_imd4)+
+  scale_y_continuous(limits = c(0,800))+
+  geom_tile(aes(x = sample_pos, y = qwidth))+
+  ylab(label = "Size in nts")+
+  labs(title = "IMD4 5'Exon + snR54 - \"Nanoblot\"")
+
+IMD4 <- ggplot(data = blot_data_imd4)+
   geom_point(aes(x = sample_pos, y = qwidth))+
-  geom_density_2d_filled(aes(x = sample_pos, y = qwidth),)+
   ylab(label = "Size in nts")+
   labs(title = "IMD4 5'Exon + snR54 - \"Nanoblot\"")
 
