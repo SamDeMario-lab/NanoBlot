@@ -1,6 +1,7 @@
 #!/bin/bash
 
 PLOTS="./plots_example.csv"
+<<<<<<< HEAD
 META_DATA= "./data/Data_metadata.csv"
 
 while read plot_name loading_order probe_black probe_red probe_blue probe_yellow
@@ -10,6 +11,12 @@ do
   echo "Loading order : $loading_order"
   echo "Probe : $probe_black"
   echo "---"
+=======
+
+while read plot_name loading_order probe_black probe_red probe_blue probe_yellow
+do
+  echo "Plot Name : $plot_name"
+>>>>>>> b89364d5b7a8057d2bffa1b4ed78e3b3f4b305bf
 done < $PLOTS
 
 #read in data
