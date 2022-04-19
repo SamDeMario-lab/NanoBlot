@@ -27,22 +27,28 @@ do
      
      IFS=$'\t'; read -a feels <<<"$PR_LINE"
      TARGET_PROBE=${feels[3]}
-#     echo "CHECKING TARGET:"$TARGET
-#     echo "CHECKING PROBE:"$TARGET_PROBE
      
      if [[ "$TARGET_PROBE" == "$TARGET" ]]
      then
-      echo "FOUND THAT SHIT"
+      echo ${feels[0]}:${feels[1]}-${feels[2]}
+
+      declare -i END_META=$(wc -l < $META_DATA)
+      IFS=','; read -a samples <<<"$BAMS"
+      
+      for (( e=2; e<=$END_META; e++ ))
+      do
+        DATA_LINE=$(head -n $e $META_DATA | tail -n -1)
+        IFS=$'\t'; read -a EELS <<<"$DATA_LINE"
+        DATA_LOCATION=${EELS[1]}
+        echo $DATA_LOCATION
+        
+        TEMP_NAME=${EELS[0]}_$TARGET_PROBE.bam
+        echo $TEMP_NAME
+        
+        samtools view $DATA_LOCATION ${feels[0]}:${feels[1]}-${feels[2]} > "./temp/$TEMP_NAME"
+      done
      fi
   done 
-  
-  declare -i END_META=$(wc -l < $META_DATA)
-  IFS=','; read -a samples <<<"$BAMS"
-  
-  for (( e=1; e<=$END_META; e++ ))
-  do
-    DATA_LINE=$(head -n $e $META_DATA | tail -n -1)
-    echo $DATA_LINE
-  done
+  ###INSET RSCRIPT### $BAMS $TARGET
 done 
 
