@@ -45,7 +45,7 @@ do
         TEMP_NAME=${EELS[0]}_$TARGET_PROBE.bam
         echo $TEMP_NAME
         
-        samtools view $DATA_LOCATION ${feels[0]}:${feels[1]}-${feels[2]} > "./temp/$TEMP_NAME"
+        samtools view -b $DATA_LOCATION ${feels[0]}:${feels[1]}-${feels[2]} > "./temp/$TEMP_NAME"
       done
      fi
   done 
