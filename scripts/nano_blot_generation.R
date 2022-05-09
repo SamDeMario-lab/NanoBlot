@@ -77,4 +77,3 @@ ggplot(data = blot_data, aes(x = row_number_fuzz, y = qwidth))+
         panel.background = element_blank())+
   ylab(label = "Size in nts")+
   xlab(label = "")
-
