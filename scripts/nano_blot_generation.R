@@ -80,7 +80,6 @@ plot_fuzzed <- ggplot(data = blot_data, aes(x = row_number_fuzz, y = qwidth))+
 
 pre_plot_name <- paste("_" ,c(strsplit(args[1], split = ",")[[1]]), sep = "", collapse = "")
 
-
 plot_name <- paste("./plots/nanoblot__", args[2] ,"_",pre_plot_name, ".png", sep = "")
 
 ggsave(filename = plot_name ,plot = plot_fuzzed)
