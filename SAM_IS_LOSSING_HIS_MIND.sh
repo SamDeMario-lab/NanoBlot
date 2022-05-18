@@ -49,6 +49,6 @@ do
       done
      fi
   done 
-  ###INSET RSCRIPT### $BAMS $TARGET
+   $BAMS $TARGET
 done 
 
