@@ -21,6 +21,7 @@ Nanoblot can be run in its entirety via the included bash script "Master.sh"
 
 It requires 3 inputs:
 
+
 ## 1) A set of probes to be used in standard bed format "example.bed" 
 
   chrIV	1359922	1359969	RPS18A_Exon1	.	+
@@ -28,10 +29,12 @@ It requires 3 inputs:
   chrIV	1236558	1236842	YRA1_Exon1	.	+
   chrXI	431906	432034	RPL14A_Exon1	.	+
 
+
 ## 2) A csv file listing the plots to be produced 
 
   plot_name	loading_order	probe_black	probe_red	probe_blue	probe_yellow
   ACT1_5exon	WT,RRP6,SLU7,RRP6SLU7	ACT1_Exon1	
+
 
 ## 3) A csv listing the names of input data file and their locations
 
