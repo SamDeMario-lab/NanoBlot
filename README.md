@@ -14,7 +14,7 @@ easily customizable.
 
 Nanoblot is in active development. 
 
-# Usage:
+## Usage:
 
 Nanoblot can be run in its entirety via the included bash script "Master.sh"
 
@@ -22,7 +22,7 @@ Nanoblot can be run in its entirety via the included bash script "Master.sh"
 It requires 3 inputs:
 
 
-## 1) A set of probes to be used in standard bed format "example.bed" 
+##### 1) A set of probes to be used in standard bed format "example.bed" 
 
   chrIV	1359922	1359969	RPS18A_Exon1	.	+
   chrVI	54686	54696	ACT1_Exon1	.	-
@@ -30,13 +30,13 @@ It requires 3 inputs:
   chrXI	431906	432034	RPL14A_Exon1	.	+
 
 
-## 2) A csv file listing the plots to be produced 
+##### 2) A csv file listing the plots to be produced 
 
   plot_name	loading_order	probe_black	probe_red	probe_blue	probe_yellow
   ACT1_5exon	WT,RRP6,SLU7,RRP6SLU7	ACT1_Exon1	
 
 
-## 3) A csv listing the names of input data file and their locations
+##### 3) A csv listing the names of input data file and their locations
 
   Sample_name (This must be unique for each sample)	Type (FAST5 or BAM)	Location (For FAST5 inputs this should be a directory ending in a /, For BAM inputs the path to the bam file should be given.)
   WT		/home/guillaume-chanfreau/Sequencing_Data/slu7_rrp6/pass/barcode01/sorted_merged.bam
