@@ -3,10 +3,11 @@ library(ggplot2)
 library(ggblur)
 library(ggpubr)
 library(png)
+library(ggridges)
 ```
 
 ```{r}
-RPL18A_data <- readRDS(file = "./IMD4_data")
+RPL18A_data <- readRDS(file = "C:/SMD/Nano_blot/data/dev/IMD4_data")
 ```
 
 ```{r}
@@ -26,9 +27,16 @@ violin_plot <- ggplot(data = RPL18A_data, aes(x = sample_ID, y = qwidth, fill = 
   geom_violin(aes(group = sample_ID))+
 #  scale_y_continuous(limits = c(0,800))+
   ylab(label = "Size in nts")+
-  labs(title = "IMD4 - \"Nanoblot\"")
+  labs(title = "Violin \"Nanoblot\"")+
+  theme(axis.line = element_line(colour = "white"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())+
+  xlab(label = "")
 
 print(violin_plot)
+ggsave(filename = "C:/SMD/Nano_blot/plots/Mockups_IMD4/Violin_blot.png", units = "in", width = 4, height = 4)
 ```
 
 ```{r}
@@ -59,7 +67,13 @@ scatter_plot_bands <- ggplot(data = RPL18A_data_bands, aes(x = sample_pos_bands,
   geom_point(alpha = 0.1, color = "black")+
 #  scale_y_continuous(limits = c(0,800))+
   ylab(label = "Size in nts")+
-  labs(title = "IMD4 - \"Nanoblot\"")
+  labs(title = "IMD4 - \"Nanoblot\"")+
+  theme(axis.line = element_line(colour = "white"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())+
+  xlab(label = "")
 
 print(scatter_plot_bands)
 ```
@@ -69,12 +83,20 @@ RPL18A_data_fuzz <- do.call("rbind", replicate(10, RPL18A_data, simplify = FALSE
 RPL18A_data_fuzz$sample_pos_bands <- RPL18A_data_fuzz$sample_pos + runif(nrow(RPL18A_data_fuzz), min = -0.25, max = 0.25)
 
 scatter_plot_fuzz <- ggplot(data = RPL18A_data_fuzz, aes(x = sample_pos_bands, y = qwidth))+
-  geom_point(alpha = 0.01, color = "black", size = 2)+
+  geom_point(alpha = 0.05, color = "black", size = 2)+
 #  scale_y_continuous(limits = c(0,800))+
   ylab(label = "Size in nts")+
-  labs(title = "IMD4 - \"Nanoblot\"")
+  labs(title = "IMD4 - Scattered Bands \"Nanoblot\"")+
+  theme(axis.line = element_line(colour = "white"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())+
+  xlab(label = "")
 
 print(scatter_plot_fuzz)
+ggsave(plot = scatter_plot_fuzz, filename = "C:/SMD/Nano_blot/plots/Mockups_IMD4/Scatter_blot_fuzz.png", units = "in", width = 4, height = 4)
+
 
 ```
 
@@ -84,13 +106,20 @@ RPL18A_data_fuzz$sample_pos_bands <- RPL18A_data_fuzz$sample_pos + runif(nrow(RP
 
 raster_plot_fuzz <- ggplot(data = RPL18A_data_fuzz, aes(x = sample_pos_bands, y = qwidth))+
   stat_density_2d(aes(fill = ..density..), geom = "raster", contour = FALSE)+
-  scale_fill_distiller(palette=2, direction=1) +
+  scale_fill_distiller(palette=6, direction=1) +
   scale_x_continuous(limits = c(0,3))+
 #  scale_y_continuous(limits = c(0,800))+
   ylab(label = "Size in nts")+
-  labs(title = "IMD4 - \"Nanoblot\"")
+  labs(title = "Raster \"Nanoblot\"")+
+  theme(axis.line = element_line(colour = "white"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank())+
+  xlab(label = "")
 
 print(raster_plot_fuzz)
+ggsave(plot = raster_plot_fuzz, filename = "C:/SMD/Nano_blot/plots/Mockups_IMD4/raster_blot_fuzz.png", units = "in", width = 4, height = 4)
 ```
 ```{r}
 RPL18A_data_blur <- do.call("rbind", replicate(5, RPL18A_data, simplify = FALSE))
@@ -141,14 +170,33 @@ scatter_plot_fuzz_zoom <- ggplot(data = RPL18A_data_fuzz, aes(x = sample_pos_ban
 
 print(scatter_plot_fuzz_zoom)
 
-ggsave(plot = scatter_plot_fuzz_zoom, filename = "./IMD4_fuzz_zoom.png", units = "in", width = 6, height = 4)
+#ggsave(plot = scatter_plot_fuzz_zoom, filename = "./IMD4_fuzz_zoom.png", units = "in", width = 6, height = 4)
 ```
+
+```{r}
+
+
+ridge <- ggplot(data = RPL18A_data, aes(x = qwidth, y = sample_ID, fill = sample_ID))+
+geom_density_ridges(alpha=0.6, stat="binline", bins=20)+
+  ylab(label = "")+
+  xlab(label = "Size in nts")+
+    theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    panel.background = element_blank())
+
+print(ridge)
+
+ggsave(plot = ridge, filename = "C:/SMD/Nano_blot/plots/Mockups_IMD4/ridge_blot.png", units = "in", width = 4, height = 4)
+```
+
 
 ```{r}
 RPL18A_data_fuzz <- do.call("rbind", replicate(10, RPL18A_data, simplify = FALSE))
 RPL18A_data_fuzz$sample_pos_bands <- RPL18A_data_fuzz$sample_pos + runif(nrow(RPL18A_data_fuzz), min = -0.25, max = 0.25)
 
-img <- png::readPNG("./Zoidberg.png")
+img <- png::readPNG("C:/SMD/Nano_blot/plots/Zoidberg.png")
 
 WHYNOT_ZOIDBERG <- ggplot(data = RPL18A_data_fuzz, aes(x = sample_pos_bands, y = qwidth, color = qwidth, size = (sample_pos_bands + 10)))+
   background_image(img)+
