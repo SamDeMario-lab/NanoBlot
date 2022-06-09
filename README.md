@@ -14,6 +14,12 @@ easily customizable.
 
 Nanoblot is in active development. 
 
+## Dependencies 
+
+Samtools (> v1.15.1)
+R (> v4.1.2)
+  
+
 ## Usage:
 
 Nanoblot can be run in its entirety via the included bash script "Master.sh"
