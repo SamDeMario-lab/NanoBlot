@@ -1,8 +1,8 @@
 #!/bin/bash
 
-PLOTS="./user_input_files/plots_example.csv"
-PROBES="./user_input_files/example.bed"
-META_DATA="./user_input_files/Data_metadata.csv"
+PLOTS="./user_input_files/plot_data.csv"
+PROBES="./user_input_files/probes.bed"
+META_DATA="./user_input_files/data_metadata.csv"
 
 declare -i END_PLOT=$(wc -l < $PLOTS)
 
