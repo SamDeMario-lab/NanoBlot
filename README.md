@@ -26,6 +26,12 @@ R (> v4.1.2)
 
 Nanoblot can be run in its entirety via the included bash script "Master.sh"
 
+Nanoblot (Version 1.0)
+
+-H  |  Print help menu
+-F  |  Filter BAM files for plot generation
+-P  |  Generate nanoblots
+
 
 It requires 3 inputs:
 

@@ -7,8 +7,20 @@ DUP_FACTOR="1"
 
 NANO_BLOT_RSCRIPT="./scripts/nano_blot_generation.R"
 
+PRINT_HELP=TRUE
 SUBSET_BAMS=TRUE
 MAKE_PLOT=TRUE
+
+if [[ "$PRINT_HELP" == TRUE ]]
+then
+	echo "
+Nanoblot (Version 1.0)
+==========================================
+-H  |  Print help menu
+-F  |  Filter BAM files for plot generation
+-P  |  Generate nanoblots
+=========================================="
+fi
 
 declare -i END_PLOT=$(wc -l < $PLOTS)
 
@@ -53,7 +65,13 @@ do
         TEMP_NAME=${EELS[0]}_$TARGET_PROBE.bam
         echo $TEMP_NAME
         
-        samtools view -b $DATA_LOCATION ${feels[0]}:${feels[1]}-${feels[2]} > "./temp/$TEMP_NAME"
+        if [[ "$SUBSET_BAMS" == TRUE ]]
+				then
+        	samtools view -b $DATA_LOCATION ${feels[0]}:${feels[1]}-${feels[2]} > "./temp/$TEMP_NAME"
+        else 
+        	echo "Skipping filtering BAM files. If filtering is desired use -F."
+        fi
+        
       done
      fi
   done 
@@ -61,6 +79,8 @@ do
   then
   	echo "Making plots --- WIP"
   	#Rscript $NANO_BLOT_RSCRIPT $BAMS $TARGET $DUP_FACTOR
+  else
+  	echo "Skipping plot generation. If plot generation is desired use -P."
   fi
 
 done 

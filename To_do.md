@@ -11,14 +11,10 @@ I also want the R script to make a folder for each plot produced.
 
 ### Add example datasets
 
-ideally they would be small and approximatly the same sequencing depth.
+ideally they would be small and approximately the same sequencing depth.
+I'm regenrating data from WT and rrp6 directRNA sequencing. 
 
-### Add amplification factor to plot names
-
-### Add user FLAGs to the master script
-
-Right now I only really need to add 1 for creating subset data and one for
-making the plots.
+### Allow the user to pass OPTAGS to the masterscript
 
 ### Make trailing args work for R script
 
