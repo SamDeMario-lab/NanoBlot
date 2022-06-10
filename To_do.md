@@ -22,8 +22,6 @@ making the plots.
 
 ### Make trailing args work for R script
 
-### Add mutiplication factor to Master script
-
 ## Impossible probes 
 
 ## Make multiplexing work

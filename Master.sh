@@ -3,6 +3,12 @@
 PLOTS="./user_input_files/plot_data.csv"
 PROBES="./user_input_files/probes.bed"
 META_DATA="./user_input_files/data_metadata.csv"
+DUP_FACTOR="1"
+
+NANO_BLOT_RSCRIPT="./scripts/nano_blot_generation.R"
+
+SUBSET_BAMS=TRUE
+MAKE_PLOT=TRUE
 
 declare -i END_PLOT=$(wc -l < $PLOTS)
 
@@ -15,6 +21,8 @@ do
   
   IFS=$'\t'; read -a fields <<<"$P_LINE"
   echo 'Getting Probe:'${fields[2]}
+  
+  DUP_FACTOR=${fields[3]}
   TARGET=${fields[2]}
   BAMS=${fields[1]}
 #  echo $TARGET
@@ -49,6 +57,11 @@ do
       done
      fi
   done 
-   $BAMS $TARGET
+  if [[ "$MAKE_PLOT" == TRUE ]]
+  then
+  	echo "Making plots --- WIP"
+  	#Rscript $NANO_BLOT_RSCRIPT $BAMS $TARGET $DUP_FACTOR
+  fi
+
 done 
 
