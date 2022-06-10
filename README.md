@@ -18,6 +18,8 @@ Nanoblot is in active development.
 
 Samtools (> v1.15.1)
 R (> v4.1.2)
+  ggplot2
+  Rsamtools
   
 
 ## Usage:
@@ -41,6 +43,8 @@ It requires 3 inputs:
   plot_name	loading_order	probe_black	probe_red	probe_blue	probe_yellow
   ACT1_5exon	WT,RRP6,SLU7,RRP6SLU7	ACT1_Exon1	
 
+  As of now the "probe_red", "probe_blue" and "probe_yellow" do nothing. 
+  Eventually I want them to allow multiplexing.
 
 ##### 3) A csv listing the names of input data file and their locations
 

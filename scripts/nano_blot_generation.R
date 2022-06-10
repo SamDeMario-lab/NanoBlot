@@ -1,12 +1,11 @@
 library(ggplot2)
 library(Rsamtools)
 
-#Default Parameters
-duplication_factor <- 1
-
+#The 3 args are currently 1) loading order 2) probe 3) duplication factor
 #args = commandArgs(trailingOnly=TRUE)
 args <- "WT,RRP6,SLU7,RRP6SLU7"
 args[2] <- "RPL14A_Exon1"
+args[3] <- 1
 
 if (length(args)==0) {
   stop("This script requires 2 inputs. None detected.", call.=FALSE)
@@ -60,7 +59,7 @@ for (i in 2:length(bio_samples[[1]])) {
 }
 
 #Increase depth
-for (i in 1:duplication_factor) {
+for (i in 1:args[3]) {
   blot_data <- rbind(blot_data,blot_data)
 }
 
