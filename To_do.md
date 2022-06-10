@@ -2,8 +2,7 @@
 
 ### Make R script creates all plot types
 
-Right now I think it only makes I type. I need to get 
-example data for this.
+Right now I think it only makes I type. I need to get example data for this.
 
 ### Add example datasets
 
