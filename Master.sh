@@ -33,6 +33,7 @@ do
   
   IFS=$'\t'; read -a fields <<<"$P_LINE"
   echo 'Getting Probe:'${fields[2]}
+  echo 'Duplication Factor:'${fields[3]}
   
   DUP_FACTOR=${fields[3]}
   TARGET=${fields[2]}
