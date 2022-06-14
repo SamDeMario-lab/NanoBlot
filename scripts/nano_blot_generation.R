@@ -1,17 +1,19 @@
-library(ggplot2)
-library(Rsamtools)
+#Load libraries 
+
+suppressPackageStartupMessages(library("ggplot2", quietly = TRUE))
+suppressPackageStartupMessages(library("Rsamtools", quietly = TRUE))
+suppressPackageStartupMessages(library("ggridges", quietly = TRUE))
 
 #The 3 args are currently 1) loading order 2) probe 3) duplication factor
-#args = commandArgs(trailingOnly=TRUE)
-args <- "WT,RRP6,SLU7,RRP6SLU7"
-args[2] <- "RPL14A_Exon1"
-args[3] <- 1
+args = commandArgs(trailingOnly=TRUE)
 
 if (length(args)==0) {
-  stop("This script requires 2 inputs. None detected.", call.=FALSE)
+  stop("This script requires 3 inputs. None detected.", call.=FALSE)
 } else if (length(args)==1) {
-  stop("This script requires 2 inputs. Only one detected.", call.=FALSE)
+  stop("This script requires 3 inputs. Only one detected.", call.=FALSE)
 } else if (length(args)==2) {
+	stop("This script requires 3 inputs. Only two detected.", call.=FALSE)
+} else if (length(args)==3) {
   sample_msg <- paste("Sample loading order:", args[1])
   probe_msg <- paste("Probe:", args[2])
   print("Starting plot generation.")
@@ -74,12 +76,36 @@ folder_name <-
 				pre_plot_name,
 				"_",
 				args[3],
+				"/",
 				sep = "")
 
-###MAKE FOLDER###
+dir.create(folder_name)
 
-plot_name <-
-	paste("./plots/nanoblot__",
+plot_name_nano <-
+	paste(folder_name,
+				"nanoblot__",
+				args[2],
+				"_",
+				pre_plot_name,
+				"_",
+				args[3],
+				".png",
+				sep = "")
+
+plot_name_ridge <-
+	paste(folder_name,
+				"nanoridge__",
+				args[2],
+				"_",
+				pre_plot_name,
+				"_",
+				args[3],
+				".png",
+				sep = "")
+
+plot_name_violin <-
+	paste(folder_name,
+				"nanoviolin__",
 				args[2],
 				"_",
 				pre_plot_name,
@@ -102,7 +128,31 @@ plot_fuzzed <- ggplot(data = blot_data, aes(x = row_number_fuzz, y = qwidth))+
   ylab(label = "Size in nts")+
   xlab(label = "")
 
-ggsave(filename = plot_name ,plot = plot_fuzzed)
+plot_ridge <- ggplot(data = blot_data)+
+	geom_density_ridges2(aes(x = qwidth, y = row_number, group = row_number, fill = row_number), show.legend = FALSE)+
+	theme(axis.line = element_line(colour = "white"),
+				panel.grid.major = element_blank(),
+				panel.grid.minor = element_blank(),
+				panel.border = element_blank(),
+				panel.background = element_blank(),
+				axis.ticks.y = element_blank())+
+	xlab(label = "Size in nts")+
+	ylab(label = "")
+
+plot_violin <- ggplot(data = blot_data)+
+	geom_violin(aes(x = row_number, y = qwidth, group = row_number, fill = row_number), show.legend = FALSE)+
+	theme(axis.line = element_line(colour = "white"),
+				panel.grid.major = element_blank(),
+				panel.grid.minor = element_blank(),
+				panel.border = element_blank(),
+				panel.background = element_blank(),
+				axis.ticks.x = element_blank())+
+	ylab(label = "Size in nts")+
+	xlab(label = "")
+
+ggsave(filename = plot_name_nano ,plot = plot_fuzzed)
+ggsave(filename = plot_name_ridge ,plot = plot_ridge)
+ggsave(filename = plot_name_violin ,plot = plot_violin)
 # ggplot(data = blot_data, aes(x = row_number_fuzz, y = qwidth))+
 #   stat_density_2d(aes(fill = ..density..), geom = "raster", contour = FALSE)+
 #   theme(axis.line = element_line(colour = "white"),

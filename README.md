@@ -20,6 +20,7 @@ Samtools (> v1.15.1)
 R (> v4.1.2)
   ggplot2
   Rsamtools
+  ggridges
   
 
 ## Usage:

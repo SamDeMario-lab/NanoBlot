@@ -65,8 +65,8 @@ do
         TEMP_NAME=${EELS[0]}_$TARGET_PROBE.bam
         echo $TEMP_NAME
         
-        if [[ "$SUBSET_BAMS" == TRUE ]]
-				then
+        if [[ "$SUBSET_BAMS" ]]
+          then
         	samtools view -b $DATA_LOCATION ${feels[0]}:${feels[1]}-${feels[2]} > "./temp/$TEMP_NAME"
         else 
         	echo "Skipping filtering BAM files. If filtering is desired use -F."
@@ -77,8 +77,8 @@ do
   done 
   if [[ "$MAKE_PLOT" == TRUE ]]
   then
-  	echo "Making plots --- WIP"
-  	#Rscript $NANO_BLOT_RSCRIPT $BAMS $TARGET $DUP_FACTOR
+  	echo "Making plots"
+  	Rscript $NANO_BLOT_RSCRIPT $BAMS $TARGET $DUP_FACTOR
   else
   	echo "Skipping plot generation. If plot generation is desired use -P."
   fi
