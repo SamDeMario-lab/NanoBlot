@@ -1,25 +1,85 @@
 #!/bin/bash
 
+#Default Values 
 PLOTS="./user_input_files/plot_data.csv"
 PROBES="./user_input_files/probes.bed"
 META_DATA="./user_input_files/data_metadata.csv"
-DUP_FACTOR="1"
+PRINT_HELP=FALSE
+SUBSET_BAMS=TRUE
+MAKE_PLOT=TRUE
+CDNA=FALSE
 
 NANO_BLOT_RSCRIPT="./scripts/nano_blot_generation.R"
 
-PRINT_HELP=TRUE
-SUBSET_BAMS=TRUE
-MAKE_PLOT=TRUE
+while getopts ":HFPC" opt; do
+  case ${opt} in
+    H ) 
+    PRINT_HELP=TRUE
+      ;;
+    F ) 
+    SUBSET_BAMS=FLASE
+    echo "THIS AINT DO SHIT RIGHT NOW"
+      ;;
+    P ) 
+    MAKE_PLOT=FALSE
+    echo "THIS AINT DO SHIT RIGHT NOW"
+      ;;
+    C ) 
+    CDNA=TRUE
+    echo "THIS AINT DO SHIT RIGHT NOW"
+      ;;
+    \? ) echo "Usage: "
+      ;;
+  esac
+done
 
+#Check if user asked for the help text and echo the help text.
 if [[ "$PRINT_HELP" == TRUE ]]
 then
 	echo "
 Nanoblot (Version 1.0)
+
+O       o O       o O       o O       o
+| O   o | | O   o | | O   o | | O   o |
+| | O | | | | O | | | | O | | | | O | |
+| o   O | | o   O | | o   O | | o   O |
+o       O o       O o       O o       O
+             xxxxxxx
+         x xxxxxxxxxxxxx x
+      x     xxxxxxxxxxx     x
+            xxxxxxxxx
+  x          xxxxxxx          x
+              xxxxx
+ x             xxx             x
+                x
+xxxxxxxxxxxxxxx   xxxxxxxxxxxxxxx
+ xxxxxxxxxxxxx     xxxxxxxxxxxxx
+  xxxxxxxxxxx       xxxxxxxxxxx
+   xxxxxxxxx         xxxxxxxxx
+     xxxxxx           xxxxxx
+       xxx             xxx
+            x         x
+                 x
+O       o O       o O       o O       o
+| O   o | | O   o | | O   o | | O   o |
+| | O | | | | O | | | | O | | | | O | |
+| o   O | | o   O | | o   O | | o   O |
+o       O o       O o       O o       O
+
+For an explanation of the required input files see the README.md
+
 ==========================================
 -H  |  Print help menu
--F  |  Filter BAM files for plot generation
--P  |  Generate nanoblots
-=========================================="
+-P  |  Probes bed file
+-B  |  Blots metadata file
+-M  |  Location of metadata file
+-C  |  Treat reads as cDNA (disregard strand)
+-F  |  Skip subsetting BAM files for plot generation
+-P  |  Skip nanoblots generation
+==========================================
+"
+
+exit
 fi
 
 declare -i END_PLOT=$(wc -l < $PLOTS)
