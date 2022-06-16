@@ -68,10 +68,11 @@ For an explanation of the required input files see the README.md
 
 ==========================================
 -H  |  Print help menu
--P  |  Probes bed file
--B  |  Blots metadata file
--M  |  Location of metadata file
--C  |  Treat reads as cDNA (disregard strand)
+-P  |  Probes bed file (WIP)
+-B  |  Blots metadata file (WIP)
+-M  |  Location of metadata file (WIP)
+-R  |  Use custem R script (WIP)
+-C  |  Treat reads as cDNA (disregard strand) (WIP)
 -F  |  Skip subsetting BAM files for plot generation
 -P  |  Skip nanoblots generation
 ==========================================
@@ -85,8 +86,7 @@ declare -i END_PLOT=$(wc -l < $PLOTS)
 for (( c=2; c<=$END_PLOT; c++ ))
 do
   P_LINE=$(head -n $c $PLOTS | tail -n -1)
-  echo "======="
-  echo "======="
+  echo "=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~="
   PLOT_NUM=$((c-1))
   echo "Generating plot" $PLOT_NUM
   echo "======="
@@ -118,7 +118,7 @@ do
      
      if [[ "$TARGET_PROBE" == "$TARGET" ]]
      then
-       echo ${feels[0]}:${feels[1]}-${feels[2]}
+       echo ${fields[2]}": "${feels[0]}:${feels[1]}-${feels[2]}
 
        declare -i END_META=$(wc -l < $META_DATA)
        IFS=','; read -a samples <<<"$BAMS"
@@ -143,11 +143,17 @@ Naming Subset: " $TEMP_NAME
   done 
   if [[ "$MAKE_PLOT" == TRUE ]]
   then
-  	echo "Making plots"
+  	echo ""
+  	echo "======="
+  	echo "Running R script"
+  	echo "======="
   	Rscript $NANO_BLOT_RSCRIPT $BAMS $TARGET $DUP_FACTOR
+  	echo "======="
+  	echo "======="
   else
   	echo "Skipping plot generation. If plot generation is desired remove -P flag."
   fi
-
+echo "=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~="
+echo ""
 done 
 
