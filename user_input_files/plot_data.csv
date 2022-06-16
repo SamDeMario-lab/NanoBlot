@@ -1,6 +1,6 @@
 plot_name	loading_order	probe_black	duplication_factor_black	probe_red	probe_blue	probe_yellow
 ACT1_5exon	WT,RRP6	ACT1_Exon1	1			
 RPS18A_5exon	WT,RRP6	RPS18A_Exon1	1			
-ACT1_RPS18A_5exon	WT,RRP6	RPS18A_Exon1	ACT1_Exon1	1		
+ACT1_RPS18A_5exon	WT,RRP6	RPS18A_Exon1	1		
 YRA1_5exon	WT,RRP6	YRA1_Exon1	1			
 RPL14A_5Exon	WT,RRP6	RPL14A_Exon1	1			
