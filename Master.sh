@@ -17,12 +17,10 @@ while getopts ":HFPC" opt; do
     PRINT_HELP=TRUE
       ;;
     F ) 
-    SUBSET_BAMS=FLASE
-    echo "THIS AINT DO SHIT RIGHT NOW"
+    SUBSET_BAMS=FALSE
       ;;
     P ) 
     MAKE_PLOT=FALSE
-    echo "THIS AINT DO SHIT RIGHT NOW"
       ;;
     C ) 
     CDNA=TRUE
@@ -70,10 +68,11 @@ For an explanation of the required input files see the README.md
 
 ==========================================
 -H  |  Print help menu
--P  |  Probes bed file
--B  |  Blots metadata file
--M  |  Location of metadata file
--C  |  Treat reads as cDNA (disregard strand)
+-P  |  Probes bed file (WIP)
+-B  |  Blots metadata file (WIP)
+-M  |  Location of metadata file (WIP)
+-R  |  Use custem R script (WIP)
+-C  |  Treat reads as cDNA (disregard strand) (WIP)
 -F  |  Skip subsetting BAM files for plot generation
 -P  |  Skip nanoblots generation
 ==========================================
@@ -87,23 +86,31 @@ declare -i END_PLOT=$(wc -l < $PLOTS)
 for (( c=2; c<=$END_PLOT; c++ ))
 do
   P_LINE=$(head -n $c $PLOTS | tail -n -1)
-#  echo $P_LINE
-  echo "======="  
-  echo "Generating plot" $c
+  echo "=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~="
+  PLOT_NUM=$((c-1))
+  echo "Generating plot" $PLOT_NUM
+  echo "======="
   
   IFS=$'\t'; read -a fields <<<"$P_LINE"
+  
   echo 'Getting Probe:'${fields[2]}
   echo 'Duplication Factor:'${fields[3]}
   
   DUP_FACTOR=${fields[3]}
   TARGET=${fields[2]}
   BAMS=${fields[1]}
-#  echo $TARGET
   
   declare -i END_PROBE=$(wc -l < $PROBES)
+  END_PROBE=$((END_PROBE+1))
   
   for (( d=1; d<=$END_PROBE; d++ ))
   do
+     if [[ $d == $END_PROBE ]]
+     then
+       echo "Probe not found. Check bed file and blots metadata file."
+       break
+     fi
+     
      PR_LINE=$(head -n $d $PROBES | tail -n -1)
      
      IFS=$'\t'; read -a feels <<<"$PR_LINE"
@@ -111,38 +118,42 @@ do
      
      if [[ "$TARGET_PROBE" == "$TARGET" ]]
      then
-      echo ${feels[0]}:${feels[1]}-${feels[2]}
+       echo ${fields[2]}": "${feels[0]}:${feels[1]}-${feels[2]}
 
-      declare -i END_META=$(wc -l < $META_DATA)
-      IFS=','; read -a samples <<<"$BAMS"
+       declare -i END_META=$(wc -l < $META_DATA)
+       IFS=','; read -a samples <<<"$BAMS"
       
-      for (( e=2; e<=$END_META; e++ ))
-      do
-        DATA_LINE=$(head -n $e $META_DATA | tail -n -1)
-        IFS=$'\t'; read -a EELS <<<"$DATA_LINE"
-        DATA_LOCATION=${EELS[1]}
-        echo $DATA_LOCATION
-        
-        TEMP_NAME=${EELS[0]}_$TARGET_PROBE.bam
-        echo $TEMP_NAME
-        
-        if [[ "$SUBSET_BAMS" ]]
-          then
-        	samtools view -b $DATA_LOCATION ${feels[0]}:${feels[1]}-${feels[2]} > "./temp/$TEMP_NAME"
-        else 
-        	echo "Skipping filtering BAM files. If filtering is desired use -F."
-        fi
-        
-      done
+       if [[ "$SUBSET_BAMS"  == TRUE ]]
+       then
+	       for (( e=2; e<=$END_META; e++ ))
+	       do
+	         DATA_LINE=$(head -n $e $META_DATA | tail -n -1)
+	         IFS=$'\t'; read -a EELS <<<"$DATA_LINE"
+	         DATA_LOCATION=${EELS[1]}
+	         TEMP_NAME=${EELS[0]}_$TARGET_PROBE.bam
+	         echo "Subsetting: "$DATA_LOCATION"
+Naming Subset: " $TEMP_NAME
+	         samtools view -b $DATA_LOCATION ${feels[0]}:${feels[1]}-${feels[2]} > "./temp/$TEMP_NAME"
+	       done
+       else 
+         echo "Skipping filtering BAM files. If filtering is desired remove -F flag."
+       fi
+       break
      fi
   done 
   if [[ "$MAKE_PLOT" == TRUE ]]
   then
-  	echo "Making plots"
+  	echo ""
+  	echo "======="
+  	echo "Running R script"
+  	echo "======="
   	Rscript $NANO_BLOT_RSCRIPT $BAMS $TARGET $DUP_FACTOR
+  	echo "======="
+  	echo "======="
   else
-  	echo "Skipping plot generation. If plot generation is desired use -P."
+  	echo "Skipping plot generation. If plot generation is desired remove -P flag."
   fi
-
+echo "=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~="
+echo ""
 done 
 

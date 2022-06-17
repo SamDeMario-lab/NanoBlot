@@ -6,8 +6,9 @@ ideally they would be small and approximately the same sequencing depth.
 I'm regenrating data from WT and rrp6 directRNA sequencing. 
 
 ### Allow the user to pass OPTAGS to the masterscript
+CUSTEM R SCRIPT
 
-### Clean up the outputs from the master script
+### Add strand specificity
 
 ### Allow FLAG in master script for direct RNA vs cDNA
 
