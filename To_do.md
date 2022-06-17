@@ -9,6 +9,8 @@ I'm regenrating data from WT and rrp6 directRNA sequencing.
 
 ### Clean up the outputs from the master script
 
+### Allow FLAG in master script for direct RNA vs cDNA
+
 ## Impossible probes 
 
 ## Make multiplexing work
