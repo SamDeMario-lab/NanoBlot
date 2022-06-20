@@ -36,6 +36,7 @@ Nanoblot (Version 1.0)
 
 It requires 3 inputs:
 
+./Master.sh -FP -R 'Test1' -M 'Test2' -B 'Test3' -T 'Test4'
 
 ##### 1) A set of probes to be used in standard bed format "example.bed" 
 
