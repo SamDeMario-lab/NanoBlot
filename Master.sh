@@ -9,10 +9,10 @@ PRINT_HELP=FALSE
 SUBSET_BAMS=TRUE
 MAKE_PLOT=TRUE
 CDNA=FALSE
+NORM=TRUE
 
 
-
-while getopts ":HFPCR:M:B:T:" opt; do
+while getopts ":HFPCNR:M:B:T:" opt; do
   case ${opt} in
     H ) 
     PRINT_HELP=TRUE
@@ -25,7 +25,6 @@ while getopts ":HFPCR:M:B:T:" opt; do
       ;;
     C ) 
     CDNA=TRUE
-    echo "THIS AINT DO SHIT RIGHT NOW"
       ;;
     R ) 
     	NANO_BLOT_RSCRIPT=${OPTARG}
@@ -39,6 +38,9 @@ while getopts ":HFPCR:M:B:T:" opt; do
     T ) 
     	PROBES=${OPTARG}
     	;;
+    N ) 
+			NORM=FALSE
+			;;
     \? ) echo "Usage: "
       ;;
   esac
@@ -90,8 +92,8 @@ For an explanation of the required input files see the README.md
 -B  |  Blots metadata file
 -M  |  Location of metadata file
 -R  |  Use custem R script
--N  |  Normalize Data (Work in progress)
--C  |  Treat reads as cDNA (disregard strand) (WIP)
+-N  |  Skip data normalization (Work in progress)
+-C  |  Treat reads as cDNA (disregard strand) 
 -F  |  Skip subsetting BAM files for plot generation
 -P  |  Skip nanoblots generation
 ==========================================
@@ -101,6 +103,19 @@ exit
 fi
 
 declare -i END_PLOT=$(wc -l < $PLOTS)
+
+if [[ $NORM == TRUE ]]
+then
+	for (( c=2; c<=$END_PLOT; c++ ))
+	do
+		P_LINE=$(head -n $c $PLOTS | tail -n -1)
+		IFS=$'\t'; read -a fields <<<"$P_LINE"
+		BAMS=${fields[1]}
+		echo "Starting Normalization"
+		echo "Samples: "$BAMS
+		IFS=','; read -a samples <<<"$BAMS"
+	done
+fi
 
 for (( c=2; c<=$END_PLOT; c++ ))
 do
@@ -140,7 +155,7 @@ do
        echo ${fields[2]}": "${feels[0]}:${feels[1]}-${feels[2]}
 
        declare -i END_META=$(wc -l < $META_DATA)
-       IFS=','; read -a samples <<<"$BAMS"
+       IFS=','; read -a samples <<<"$BAMS" #I'm like 80% sure I don't need this line
       
        if [[ "$SUBSET_BAMS"  == TRUE ]]
        then
@@ -152,22 +167,12 @@ do
 	         TEMP_NAME=${EELS[0]}_$TARGET_PROBE.bam
 	         echo "Subsetting: "$DATA_LOCATION"
 Naming Subset: " $TEMP_NAME
-					 
-					 #Get number of reads and write to a file.
-					 if [[ "$NORM_DATA"  == TRUE ]]
-					 then
-						READ_NUM=$(samtools view -c -F 260 $DATA_LOCATION) #This line should output the number of reads in a bam file
-						echo "Number of reads in orgnial file: "$READ_NUM
-					 fi
-					 
-					 #Check if data should be treated as strand specific
+	
 					 if [[ "$CDNA"  == TRUE ]]
 					 then
 			         samtools view -b $DATA_LOCATION ${feels[0]}:${feels[1]}-${feels[2]} > "./temp/$TEMP_NAME"
 					 else
 							 echo "Strand: "${feels[5]}
-							 echo "Yell at sam to figure out how to filter by strand"
-							 #There gunna have to be an if statement here checking the strand of the probe
 							 if [[ "${feels[5]}"  == "+" ]]
 							 then
 							   samtools view -F 20 -b $DATA_LOCATION ${feels[0]}:${feels[1]}-${feels[2]} > "./temp/$TEMP_NAME"

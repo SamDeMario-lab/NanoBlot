@@ -1,3 +1,3 @@
 Sample_name (This must be unique for each sample)	Type (FAST5 or BAM)	Location (For FAST5 inputs this should be a directory ending in a /, For BAM inputs the path to the bam file should be given.)
-WT		/home/chanfreaulab2/TRAMP_Direct/WT/sorted_merged.bam
-RRP6		/home/chanfreaulab2/TRAMP_Direct/rrp6/sorted_merged.bam
+WT		/var/lib/minknow/data/11-17-2021_WT_direct_RNA_for_SAM/11-17-2021_WT/20211117_1637_MN36788_FAQ93339_102dd49a/fastq/pass/sorted_merged.bam
+RRP6		/var/lib/minknow/data/11-18-2021_rrp6d_RNA_seq_for_SAM/11-18-2021_rrp6d/20211118_1508_MN36788_FAQ91220_398a4946/fastq/pass/sorted_merged.bam
