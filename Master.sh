@@ -48,6 +48,7 @@ done
 
 echo "R Script: $NANO_BLOT_RSCRIPT";
 echo "Meta Data File: $META_DATA";
+declare -i END_META=$(wc -l < $META_DATA)
 echo "Probes Bed File: $PROBES";
 echo "Plots File: $PLOTS";
 
@@ -112,8 +113,26 @@ then
 		IFS=$'\t'; read -a fields <<<"$P_LINE"
 		BAMS=${fields[1]}
 		echo "Starting Normalization"
+		declare -A count_array
 		echo "Samples: "$BAMS
-		IFS=','; read -a samples <<<"$BAMS"
+		IFS=','
+		for f in $BAMS;
+		do
+			for (( e=2; e<=$END_META; e++ ))
+			do
+				DATA_LINE=$(head -n $e $META_DATA | tail -n -1)
+				IFS=$'\t'; read -a EELS <<<"$DATA_LINE"
+				DATA_LOCATION=${EELS[1]}
+				SAMP_NAME=${EELS[0]}
+				if [[ $f == $SAMP_NAME ]]
+				then
+					echo "Shit worked BB. Found "$f
+					READ_COUNT=$DATA_LOCATION"	""TEST_THIS_NEEDS_TO_BE_A_NUMBER"
+					count_array[$DATA_LOCATION]=$READ_COUNT
+				fi
+			done
+		done
+		echo ${count_array[*]}
 	done
 fi
 
@@ -153,8 +172,6 @@ do
      if [[ "$TARGET_PROBE" == "$TARGET" ]]
      then
        echo ${fields[2]}": "${feels[0]}:${feels[1]}-${feels[2]}
-
-       declare -i END_META=$(wc -l < $META_DATA)
        IFS=','; read -a samples <<<"$BAMS" #I'm like 80% sure I don't need this line
       
        if [[ "$SUBSET_BAMS"  == TRUE ]]
