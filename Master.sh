@@ -112,27 +112,63 @@ then
 		P_LINE=$(head -n $c $PLOTS | tail -n -1)
 		IFS=$'\t'; read -a fields <<<"$P_LINE"
 		BAMS=${fields[1]}
-		echo "Starting Normalization"
-		declare -A count_array
-		echo "Samples: "$BAMS
-		IFS=','
-		for f in $BAMS;
-		do
-			for (( e=2; e<=$END_META; e++ ))
+    NORM_FOLDER="./temp/"$(echo "$BAMS" | sed -e 's/,/_/g')"_NORM"
+    if [ ! -d "$NORM_FOLDER" ]
+    then
+	  # script statements if $DIR doesn't exist.
+			echo $NORM_FOLDER " not found"
+	#If folder alread exists then basically skip all this shit
+	    mkdir -p $NORM_FOLDER;
+			NORM_METADATA_FILE=$NORM_FOLDER"/data_metadata.csv"
+			NORM_METADATA_HEADER="Sample_name (This must be unique for each sample)  Type (FAST5 or BAM)  Location (For BAM inputs the path to the bam file should be given.)"
+			echo "Starting Normalization"
+			echo "Samples: "$BAMS
+			IFS=','
+      echo ${NORM_METADATA_HEADER} >$NORM_METADATA_FILE
+	    COMPARE=999999999999999 #This is probobly not the best way to do this
+			for f in $BAMS;
 			do
-				DATA_LINE=$(head -n $e $META_DATA | tail -n -1)
-				IFS=$'\t'; read -a EELS <<<"$DATA_LINE"
-				DATA_LOCATION=${EELS[1]}
-				SAMP_NAME=${EELS[0]}
-				if [[ $f == $SAMP_NAME ]]
-				then
-					echo "Shit worked BB. Found "$f
-					READ_COUNT=$DATA_LOCATION"	""TEST_THIS_NEEDS_TO_BE_A_NUMBER"
-					count_array[$DATA_LOCATION]=$READ_COUNT
-				fi
+				for (( e=2; e<=$END_META; e++ ))
+				do
+					DATA_LINE=$(head -n $e $META_DATA | tail -n -1)
+					IFS=$'\t'; read -a EELS <<<"$DATA_LINE"
+					DATA_LOCATION=${EELS[1]}
+					SAMP_NAME=${EELS[0]}
+					if [[ $f == $SAMP_NAME ]]
+					then
+						echo "Shit worked BB. Found "$f
+	          READ_COUNT=$(samtools view -c -F 260 $DATA_LOCATION)
+	          if [[ $READ_COUNT -lt $COMPARE ]]
+	          then
+	            COMPARE=$READ_COUNT
+	          fi
+					fi
+				done
 			done
-		done
-		echo ${count_array[*]}
+			echo $COMPARE
+	    IFS=','
+	    for f in $BAMS;
+			do
+				for (( e=2; e<=$END_META; e++ ))
+				do
+					DATA_LINE=$(head -n $e $META_DATA | tail -n -1)
+					IFS=$'\t'; read -a EELS <<<"$DATA_LINE"
+					DATA_LOCATION=${EELS[1]}
+					SAMP_NAME=${EELS[0]}
+					if [[ $f == $SAMP_NAME ]]
+					then
+					  echo "Subsetting "$SAMP_NAME" to "$COMPARE" reads."
+			      OUTPUT_NORM_SAM=$NORM_FOLDER"/"$f"_NORM.sam"
+			      OUTPUT_NORM_BAM=$NORM_FOLDER"/"$f"_NORM.bam"
+	          cat <(samtools view -H $DATA_LOCATION) <(samtools view ${DATA_LOCATION} | shuf -n $COMPARE) > $OUTPUT_NORM_SAM #THIS TAKES A LOT OF RAM
+	          samtools view -S -b $OUTPUT_NORM_SAM > $OUTPUT_NORM_BAM
+	          samtools sort $OUTPUT_NORM_BAM -o $OUTPUT_NORM_BAM
+	          samtools index $OUTPUT_NORM_BAM
+	          echo $SAMP_NAME"		"$OUTPUT_NORM_BAM >> $NORM_METADATA_FILE
+					fi
+				done
+			done
+		fi
 	done
 fi
 
@@ -152,7 +188,12 @@ do
   DUP_FACTOR=${fields[3]}
   TARGET=${fields[2]}
   BAMS=${fields[1]}
-  
+	if [[ $NORM == "TRUE" ]]
+	then
+	  NORM_FOLDER="./temp/"$(echo "$BAMS" | sed -e 's/,/_/g')"_NORM"
+	  NORM_METADATA_FILE=$NORM_FOLDER"/data_metadata.csv"
+	  META_DATA=$NORM_METADATA_FILE
+  fi
   declare -i END_PROBE=$(wc -l < $PROBES)
   END_PROBE=$((END_PROBE+1))
   
@@ -172,7 +213,6 @@ do
      if [[ "$TARGET_PROBE" == "$TARGET" ]]
      then
        echo ${fields[2]}": "${feels[0]}:${feels[1]}-${feels[2]}
-       IFS=','; read -a samples <<<"$BAMS" #I'm like 80% sure I don't need this line
       
        if [[ "$SUBSET_BAMS"  == TRUE ]]
        then
@@ -217,6 +257,7 @@ Naming Subset: " $TEMP_NAME
   	echo "======="
   	echo "Running R script"
   	echo "======="
+  	BAMS=${fields[1]} #I dont know why I need this but I do
   	Rscript $NANO_BLOT_RSCRIPT $BAMS $TARGET $DUP_FACTOR
   	echo "======="
   	echo "======="

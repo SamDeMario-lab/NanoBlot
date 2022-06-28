@@ -8,12 +8,9 @@
 
 One simple idea would be to randomly sample reads from the larger data set until it is the size of the smaller dataset
 
-THIS IS BREAKING MY BRAIN!? HOW DO I DO THIS?
+This is almost done. They way I'm making the files now has the problem of using a lot of RAM.
 
-STEP 1) For loop through plots and figure out what data is grouped together
-STEP 2) For loop through data and find the lowest number of reads
-
-Can I bootstrap it? Will that break things?
+It would be cool to fix the RAM usage thing but otherwize this is done. 
 
 ## Negative probes 
 
