@@ -16,6 +16,8 @@ It would be cool to fix the RAM usage thing but otherwize this is done.
 
 ## Make multiplexing work
 
+## Clean temp data option
+
 ## Write a manuscript + ReadMe
 
 Describe limitations

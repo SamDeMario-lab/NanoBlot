@@ -27,19 +27,19 @@ while getopts ":HFPCNR:M:B:T:" opt; do
     CDNA=TRUE
       ;;
     R ) 
-    	NANO_BLOT_RSCRIPT=${OPTARG}
+   	NANO_BLOT_RSCRIPT=${OPTARG}
     	;;
     M ) 
-    	META_DATA=${OPTARG}
+    META_DATA=${OPTARG}
     	;;
     B ) 
-    	PLOTS=${OPTARG}
+    PLOTS=${OPTARG}
     	;;
     T ) 
-    	PROBES=${OPTARG}
+    PROBES=${OPTARG}
     	;;
     N ) 
-			NORM=FALSE
+		NORM=FALSE
 			;;
     \? ) echo "Usage: "
       ;;
@@ -183,10 +183,16 @@ do
   IFS=$'\t'; read -a fields <<<"$P_LINE"
   
   echo 'Getting Probe:'${fields[2]}
+  if [ -z "${fields[4]}" ]
+  then
+    echo "No Negative Probe Used"
+  else
+    echo 'Negative Probe:'${fields[4]}
+  fi
   echo 'Duplication Factor:'${fields[3]}
-  
   DUP_FACTOR=${fields[3]}
   TARGET=${fields[2]}
+  TARG_NEGS=${fields[4]}
   BAMS=${fields[1]}
 	if [[ $NORM == "TRUE" ]]
 	then
@@ -224,7 +230,6 @@ do
 	         TEMP_NAME=${EELS[0]}_$TARGET_PROBE.bam
 	         echo "Subsetting: "$DATA_LOCATION"
 Naming Subset: " $TEMP_NAME
-	
 					 if [[ "$CDNA"  == TRUE ]]
 					 then
 			         samtools view -b $DATA_LOCATION ${feels[0]}:${feels[1]}-${feels[2]} > "./temp/$TEMP_NAME"
@@ -249,7 +254,41 @@ Naming Subset: " $TEMP_NAME
      fi
   done
   
-  #Normalize Reads if desired
+  declare -i END_PROBE=$(wc -l < $PROBES)
+  END_PROBE=$((END_PROBE+1))
+  
+  for (( d=1; d<=$END_PROBE; d++ ))
+  do
+    if [[ $d == $END_PROBE ]]
+    then
+      echo "Negative probe not found. Check bed file and blots metadata file."
+		  break
+    fi
+    PR_LINE=$(head -n $d $PROBES | tail -n -1)
+    IFS=$'\t'; read -a feels <<<"$PR_LINE"
+    TARGET_NEG_PROBE=${feels[3]}
+    if [[ "$TARGET_NEG_PROBE" == "$TARG_NEGS" ]]
+    then
+      echo ${fields[4]}": "${feels[0]}:${feels[1]}-${feels[2]}
+       if [[ "$SUBSET_BAMS"  == TRUE ]]
+       then
+         for (( e=2; e<=$END_META; e++ ))
+         do
+           DATA_LINE=$(head -n $e $META_DATA | tail -n -1)
+           IFS=$'\t'; read -a EELS <<<"$DATA_LINE"
+           DATA_LOCATION=${EELS[1]}
+           TEMP_NAME=${EELS[0]}_$TARGET_PROBE.bam
+           TEMP_NAME_NEG=${EELS[0]}_$TARGET_PROBE"_ANTI_"$TARGET_NEG_PROBE.bam
+           echo "Subsetting: "$TEMP_NAME"
+Naming Subset: " $TEMP_NAME_NEG
+           samtools view -b "./temp/"$TEMP_NAME ${feels[0]}:${feels[1]}-${feels[2]} -U "./temp/$TEMP_NAME_NEG"
+	       done
+       else 
+         echo "Skipping negative filtering BAM files. If filtering is desired remove -F flag."
+       fi
+       break
+     fi
+  done
   
   if [[ "$MAKE_PLOT" == TRUE ]]
   then
@@ -267,4 +306,3 @@ Naming Subset: " $TEMP_NAME
 echo "=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~="
 echo ""
 done 
-
