@@ -128,10 +128,10 @@ then
 	    COMPARE=999999999999999 #This is probobly not the best way to do this
 			for f in $BAMS;
 			do
-				for (( e=2; e<=$END_META; e++ ))
+				for (( o=2; o<=$END_META; o++ ))
 				do
-					DATA_LINE=$(head -n $e $META_DATA | tail -n -1)
-					IFS=$'\t'; read -a EELS <<<"$DATA_LINE"
+					DATA_LINE_o=$(head -n $o $META_DATA | tail -n -1)
+					IFS=$'\t'; read -a EELS <<<"$DATA_LINE_o"
 					DATA_LOCATION=${EELS[1]}
 					SAMP_NAME=${EELS[0]}
 					if [[ $f == $SAMP_NAME ]]
@@ -172,11 +172,11 @@ then
 	done
 fi
 
-for (( c=2; c<=$END_PLOT; c++ ))
+for (( j=2; j<=$END_PLOT; j++ ))
 do
-  P_LINE=$(head -n $c $PLOTS | tail -n -1)
+  P_LINE=$(head -n $j $PLOTS | tail -n -1)
   echo "=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~="
-  PLOT_NUM=$((c-1))
+  PLOT_NUM=$((j-1))
   echo "Generating plot" $PLOT_NUM
   echo "======="
   
@@ -202,15 +202,18 @@ do
 	  META_DATA=$NORM_METADATA_FILE
   fi
   
+#Apply the first filter
   declare -i END_PROBE=$(wc -l < $PROBES)
   END_PROBE=$((END_PROBE+1))
   
   for (( d=1; d<=$END_PROBE; d++ ))
   do
+     echo "D is at "$d
+     echo "END_PROBE is at "$END_PROBE
+     echo "Target "$TARGET
      if [[ $d == $END_PROBE ]]
      then
        echo "Probe not found. Check bed file and blots metadata file."
-       break
      fi
      
      PR_LINE=$(head -n $d $PROBES | tail -n -1)
@@ -224,10 +227,11 @@ do
       
        if [[ "$SUBSET_BAMS"  == TRUE ]]
        then
-	       for (( e=2; e<=$END_META; e++ ))
+	       for (( t=2; t<=$END_META; t++ ))
 	       do
-	         DATA_LINE=$(head -n $e $META_DATA | tail -n -1)
-	         IFS=$'\t'; read -a EELS <<<"$DATA_LINE"
+	      	 echo "Target "$TARGET
+	         DATA_LINE_T=$(head -n $t $META_DATA | tail -n -1)
+	         IFS=$'\t'; read -a EELS <<<"$DATA_LINE_T"
 	         DATA_LOCATION=${EELS[1]}
 	         TEMP_NAME=${EELS[0]}_$TARGET_PROBE.bam
 	         echo "Subsetting: "$DATA_LOCATION"
@@ -251,46 +255,57 @@ Naming Subset: " $TEMP_NAME
        else 
          echo "Skipping filtering BAM files. If filtering is desired remove -F flag."
        fi
-       break
      fi
   done
   
-  declare -i END_PROBE=$(wc -l < $PROBES)
-  END_PROBE=$((END_PROBE+1))
-  
-  for (( g=1; g<=$END_PROBE; g++ ))
-  do
-  	echo "G IS HERE"
-    if [[ $g == $END_PROBE ]]
-    then
-      echo "Negative probe not found. Check bed file and blots metadata file."
-		  break
-    fi
-    PR_LINE=$(head -n $g $PROBES | tail -n -1)
-    IFS=$'\t'; read -a feels <<<"$PR_LINE"
-    TARGET_NEG_PROBE=${feels[3]}
-    if [[ "$TARGET_NEG_PROBE" == "$TARG_NEGS" ]]
-    then
-      echo ${fields[4]}": "${feels[0]}:${feels[1]}-${feels[2]}
-       if [[ "$SUBSET_BAMS"  == TRUE ]]
-       then
-         for (( h=2; h<=$END_META; h++ ))
-         do
-           DATA_LINE=$(head -n $h $META_DATA | tail -n -1)
-           IFS=$'\t'; read -a EELS <<<"$DATA_LINE"
-           DATA_LOCATION=${EELS[1]}
-           TEMP_NAME=${EELS[0]}_$TARGET_PROBE".bam"
-           TEM_NAME_NEG=${EELS[0]}_$TARGET_PROBE"_anti_"$TARGET_NEG_PROBE".bam"
-           echo "Subsetting: "$TEMP_NAME
-           echo "Naming Subset: "$TEM_NAME_NEG
-           samtools view -b "./temp/"$TEMP_NAME ${feels[0]}:${feels[1]}-${feels[2]} -U "./temp/$TEM_NAME_NEG"
-	       done
-       else 
-         echo "Skipping negative filtering BAM files. If filtering is desired remove -F flag."
-       fi
-       break
-     fi
-  done
+# #Apply the second filter
+#   
+#   declare -i END_PROBE=$(wc -l < $PROBES)
+#   END_PROBE=$((END_PROBE+1))
+#   
+#   echo "Checking if "${fields[4]}" exitst."
+#   if [ -z ${fields[4]} ]
+#   then
+#   	echo "No negative probe provided skipping."
+#   else
+# 	  for (( g=1; g<=$END_PROBE; g++ ))
+# 	  do
+# 	  	echo "G IS HERE:"$g
+# 	  	echo "Endprobe is here:"$END_PROBE
+# 	    if [[ $g == $END_PROBE ]]
+# 	    then
+# 	      echo "Negative probe not found. Check bed file and blots metadata file."
+# 			  break
+# 	    fi
+# 	    PR_LINE=$(head -n $g $PROBES | tail -n -1)
+# 	    IFS=$'\t'; read -a feels <<<"$PR_LINE"
+# 	    TARGET_NEG_PROBE=${feels[3]}
+# 	    if [[ "$TARGET_NEG_PROBE" == ${fields[4]} ]]
+# 	    then
+# 	      echo ${fields[4]}": "${feels[0]}:${feels[1]}-${feels[2]}
+# 	       if [[ "$SUBSET_BAMS"  == TRUE ]]
+# 	       then
+# 	         for (( h=2; h<=$END_META; h++ ))
+# 	         do
+# 	           DATA_LINE=$(head -n $h $META_DATA | tail -n -1)
+# 	           IFS=$'\t'; read -a EELS <<<"$DATA_LINE"
+# 	           DATA_LOCATION=${EELS[1]}
+# 	           TEMP_NAME=${EELS[0]}_$TARGET".bam"
+# 	           TEM_NAME_NEG=${EELS[0]}_$TARGET"_anti_"$TARGET_NEG_PROBE".bam"
+# 	           echo "Subsetting: "$TEMP_NAME
+# 	           echo "Naming Subset: "$TEM_NAME_NEG
+# 	           samtools view -b "./temp/"$TEMP_NAME ${feels[0]}:${feels[1]}-${feels[2]} -U "./temp/$TEM_NAME_NEG"
+# 		       done
+# 	       else 
+# 	         echo "Skipping negative filtering BAM files. If filtering is desired remove -F flag."
+# 	       fi
+# 	#       break
+# 	     fi
+# 	  done
+#   fi
+########THISIHIHIHISHIHSIHISHIHSIHSIHISHFIHIHISHISHFISHFISHIFHSIFHSIFHSIF
+########THIS CODE IS NOT WORKING AND I DONT KNOW WHY?
+########WHY CANT YOU LIGHT CODE ON FIRE????
   
   if [[ "$MAKE_PLOT" == TRUE ]]
   then
