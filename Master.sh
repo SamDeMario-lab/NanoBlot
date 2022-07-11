@@ -255,8 +255,17 @@ Naming Subset: " $TEMP_NAME
        else 
          echo "Skipping filtering BAM files. If filtering is desired remove -F flag."
        fi
+       break
      fi
   done
+  
+  if [ -z "${fields[4]}" ]
+  then
+    echo "SKIPPING, THIS IS FOR TESTING THIS LINE DOES NOT NEED TO EXIST"
+  else
+    echo 'Generating plot '$PLOT_NUM' it has a negative probe'
+    echo 'Negative Probe:'${fields[4]}
+  fi
   
 # #Apply the second filter
 #   
