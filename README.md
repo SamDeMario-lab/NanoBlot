@@ -17,6 +17,7 @@ Nanoblot is in active development.
 ## Dependencies 
 
 Samtools (> v1.15.1)
+Bedtools (> v2.30.0)
 R (> v4.1.2)
   ggplot2
   Rsamtools

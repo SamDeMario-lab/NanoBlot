@@ -1,7 +1,5 @@
 # To Do
 
-### Check strandedness
-
 ### Reflow masterscript so it has standard spacing conventions
 
 ## Come up with a normalization technique

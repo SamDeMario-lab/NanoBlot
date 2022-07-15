@@ -208,15 +208,13 @@ do
   
   for (( d=1; d<=$END_PROBE; d++ ))
   do
-     echo "D is at "$d
-     echo "END_PROBE is at "$END_PROBE
-     echo "Target "$TARGET
      if [[ $d == $END_PROBE ]]
      then
        echo "Probe not found. Check bed file and blots metadata file."
      fi
      
      PR_LINE=$(head -n $d $PROBES | tail -n -1)
+     echo $PR_LINE > "./temp/temp_bed.bed"
      
      IFS=$'\t'; read -a feels <<<"$PR_LINE"
      TARGET_PROBE=${feels[3]}
@@ -229,7 +227,6 @@ do
        then
 	       for (( t=2; t<=$END_META; t++ ))
 	       do
-	      	 echo "Target "$TARGET
 	         DATA_LINE_T=$(head -n $t $META_DATA | tail -n -1)
 	         IFS=$'\t'; read -a EELS <<<"$DATA_LINE_T"
 	         DATA_LOCATION=${EELS[1]}
@@ -239,16 +236,20 @@ Naming Subset: " $TEMP_NAME
 					 if [[ "$CDNA"  == TRUE ]]
 					 then
 			         samtools view -b $DATA_LOCATION ${feels[0]}:${feels[1]}-${feels[2]} > "./temp/$TEMP_NAME"
+			         samtools index "./temp/$TEMP_NAME"
 					 else
 							 if [[ "${feels[5]}"  == "+" ]]
 							 then
 							   samtools view -F 20 -b $DATA_LOCATION ${feels[0]}:${feels[1]}-${feels[2]} > "./temp/$TEMP_NAME"
+							   samtools index "./temp/$TEMP_NAME"
 							 elif [[ "${feels[5]}"  == "-" ]]
 							 then
 							   samtools view -f 16 -b $DATA_LOCATION ${feels[0]}:${feels[1]}-${feels[2]} > "./temp/$TEMP_NAME"
+							   samtools index "./temp/$TEMP_NAME"
 							 else
 							   echo "Warning: No strand found for probe treating region disregarding strand information"
 							   samtools view -b $DATA_LOCATION ${feels[0]}:${feels[1]}-${feels[2]} > "./temp/$TEMP_NAME"
+							   samtools index "./temp/$TEMP_NAME"
 							 fi
 					 fi
 	       done
@@ -263,8 +264,48 @@ Naming Subset: " $TEMP_NAME
   then
     echo "SKIPPING, THIS IS FOR TESTING THIS LINE DOES NOT NEED TO EXIST"
   else
-    echo 'Generating plot '$PLOT_NUM' it has a negative probe'
+    echo ""
     echo 'Negative Probe:'${fields[4]}
+    
+    declare -i END_PROBE=$(wc -l < $PROBES)
+    END_PROBE=$((END_PROBE+1))
+  
+  	for (( h=1; h<=$END_PROBE; h++ ))
+  	do
+    	if [[ $h == $END_PROBE ]]
+    	then
+      	echo "Probe not found. Check bed file and blots metadata file."
+      	break
+    	fi
+    	
+    	APR_LINE=$(head -n $h $PROBES | tail -n -1)
+    	IFS=$'\t'; read -a deels <<<"$APR_LINE"
+    	TARG_ANTI=${deels[3]}
+    	
+    	if [[ $TARG_NEGS == $TARG_ANTI ]]
+    	then
+    		echo "Probe Match!"
+    		echo $TARG_ANTI": "${deels[0]}:${deels[1]}-${deels[2]}
+    		if [[ "$SUBSET_BAMS"  == TRUE ]]
+      	then
+      		for (( p=2; p<=$END_META; p++ ))
+	      	do
+	        	DL_ANTI=$(head -n $p $META_DATA | tail -n -1)
+	        	echo $DL_ANTI
+	        	IFS=$'\t'; read -a bells <<<"$DL_ANTI"
+	        	FIRST_NAME="./temp/"${bells[0]}"_"$TARGET".bam"
+	        	echo "Subsetting:" $FIRST_NAME
+	        	NEG_NAME="./temp/"${bells[0]}"_"$TARGET"_anti_"$TARG_ANTI".bam"
+	        	echo "Naming Subset: "$NEG_NAME
+	        	if [[ "$CDNA"  == TRUE ]]
+						then
+			      	samtools view -b $FIRST_NAME ${deels[0]}:${deels[1]}-${deels[2]} -U $NEG_NAME
+	        	fi
+	        done
+      	fi
+    		break
+    	fi
+    done
   fi
   
 # #Apply the second filter
