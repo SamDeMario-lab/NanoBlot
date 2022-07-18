@@ -1,5 +1,6 @@
 #Load libraries 
 
+suppressPackageStartupMessages(library("BiocManager", quietly = TRUE))
 suppressPackageStartupMessages(library("ggplot2", quietly = TRUE))
 suppressPackageStartupMessages(library("Rsamtools", quietly = TRUE))
 suppressPackageStartupMessages(library("ggridges", quietly = TRUE))
@@ -7,18 +8,24 @@ suppressPackageStartupMessages(library("ggridges", quietly = TRUE))
 #The 3 args are currently 1) loading order 2) probe 3) duplication factor
 args = commandArgs(trailingOnly=TRUE)
 
-if (length(args)==0) {
-  stop("This script requires 3 inputs. None detected.", call.=FALSE)
-} else if (length(args)==1) {
-  stop("This script requires 3 inputs. Only one detected.", call.=FALSE)
-} else if (length(args)==2) {
-	stop("This script requires 3 inputs. Only two detected.", call.=FALSE)
-} else if (length(args)==3) {
+if (length(args)==3) {
+	sample_msg <- paste("Sample loading order:", args[1])
+	probe_msg <- paste("Probe:", args[2])
+	dup_msg <- paste("Duplication Factor:", args[3])
+	print("Starting plot generation.")
+	print(sample_msg)
+	print(probe_msg)
+	print(dup_msg)
+} else if (length(args)==4) {
   sample_msg <- paste("Sample loading order:", args[1])
   probe_msg <- paste("Probe:", args[2])
+  dup_msg <- paste("Duplication Factor:", args[3])
+  neg_probe_msg <- paste("Negative Probe:", args[4])
   print("Starting plot generation.")
   print(sample_msg)
   print(probe_msg)
+  print(dup_msg)
+  print(neg_probe_msg)
 }
 
 bio_samples <- strsplit(x = args[1], split = ",")
@@ -27,15 +34,30 @@ filenames <- as.vector("ERROR")
 
 #Make locations of bamfiles
 
-for (i in 1:length(bio_samples[[1]])) {
-  filenames[i] <- paste(getwd(),
-        "/temp/",
-        bio_samples[[1]][i],
-        "_",
-        probe,
-        ".bam",
-        sep = "")
+if (length(args)==3) {
+	for (i in 1:length(bio_samples[[1]])) {
+		filenames[i] <- paste(getwd(),
+													"/temp/",
+													bio_samples[[1]][i],
+													"_",
+													probe,
+													".bam",
+													sep = "")
+	}
+} else if (length(args)==4) {
+	for (i in 1:length(bio_samples[[1]])) {
+		filenames[i] <- paste(getwd(),
+													"/temp/",
+													bio_samples[[1]][i],
+													"_",
+													probe,
+													"_anti_",
+													args[4],
+													".bam",
+													sep = "")
+	}
 }
+
 
 #Read in BAM files
 

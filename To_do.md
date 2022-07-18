@@ -2,15 +2,8 @@
 
 ### Reflow masterscript so it has standard spacing conventions
 
-## Come up with a normalization technique
-
-One simple idea would be to randomly sample reads from the larger data set until it is the size of the smaller dataset
-
-This is almost done. They way I'm making the files now has the problem of using a lot of RAM.
-
-It would be cool to fix the RAM usage thing but otherwize this is done. 
-
-## Negative probes 
+### Fix names in R script
+I want it to add the negative probe to the plot name if a negative probe is used
 
 ## Make multiplexing work
 

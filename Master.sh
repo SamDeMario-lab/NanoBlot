@@ -213,6 +213,7 @@ do
        echo "Probe not found. Check bed file and blots metadata file."
      fi
      
+     IFS=$','
      PR_LINE=$(head -n $d $PROBES | tail -n -1)
      echo $PR_LINE > "./temp/temp_bed.bed"
      
@@ -235,22 +236,11 @@ do
 Naming Subset: " $TEMP_NAME
 					 if [[ "$CDNA"  == TRUE ]]
 					 then
-			         samtools view -b $DATA_LOCATION ${feels[0]}:${feels[1]}-${feels[2]} > "./temp/$TEMP_NAME"
-			         samtools index "./temp/$TEMP_NAME"
+			       bedtools intersect -a $DATA_LOCATION -b "./temp/temp_bed.bed" -wa -split > "./temp/$TEMP_NAME"
+			       samtools index "./temp/$TEMP_NAME"
 					 else
-							 if [[ "${feels[5]}"  == "+" ]]
-							 then
-							   samtools view -F 20 -b $DATA_LOCATION ${feels[0]}:${feels[1]}-${feels[2]} > "./temp/$TEMP_NAME"
-							   samtools index "./temp/$TEMP_NAME"
-							 elif [[ "${feels[5]}"  == "-" ]]
-							 then
-							   samtools view -f 16 -b $DATA_LOCATION ${feels[0]}:${feels[1]}-${feels[2]} > "./temp/$TEMP_NAME"
-							   samtools index "./temp/$TEMP_NAME"
-							 else
-							   echo "Warning: No strand found for probe treating region disregarding strand information"
-							   samtools view -b $DATA_LOCATION ${feels[0]}:${feels[1]}-${feels[2]} > "./temp/$TEMP_NAME"
-							   samtools index "./temp/$TEMP_NAME"
-							 fi
+					   bedtools intersect -a $DATA_LOCATION -b "./temp/temp_bed.bed" -wa -split -s > "./temp/$TEMP_NAME"
+					   samtools index "./temp/$TEMP_NAME"
 					 fi
 	       done
        else 
@@ -278,7 +268,10 @@ Naming Subset: " $TEMP_NAME
       	break
     	fi
     	
+    	IFS=$','
     	APR_LINE=$(head -n $h $PROBES | tail -n -1)
+    	echo $APR_LINE > "./temp/temp_anti_bed.bed"
+    	
     	IFS=$'\t'; read -a deels <<<"$APR_LINE"
     	TARG_ANTI=${deels[3]}
     	
@@ -299,7 +292,11 @@ Naming Subset: " $TEMP_NAME
 	        	echo "Naming Subset: "$NEG_NAME
 	        	if [[ "$CDNA"  == TRUE ]]
 						then
-			      	samtools view -b $FIRST_NAME ${deels[0]}:${deels[1]}-${deels[2]} -U $NEG_NAME
+			      	bedtools intersect -a $FIRST_NAME -b "./temp/temp_anti_bed.bed" -wa -split -v > $NEG_NAME
+			      	samtools index $NEG_NAME
+						else
+					  	bedtools intersect -a $FIRST_NAME -b "./temp/temp_anti_bed.bed" -wa -split -v -s > $NEG_NAME
+					  	samtools index $NEG_NAME
 	        	fi
 	        done
       	fi
@@ -307,55 +304,6 @@ Naming Subset: " $TEMP_NAME
     	fi
     done
   fi
-  
-# #Apply the second filter
-#   
-#   declare -i END_PROBE=$(wc -l < $PROBES)
-#   END_PROBE=$((END_PROBE+1))
-#   
-#   echo "Checking if "${fields[4]}" exitst."
-#   if [ -z ${fields[4]} ]
-#   then
-#   	echo "No negative probe provided skipping."
-#   else
-# 	  for (( g=1; g<=$END_PROBE; g++ ))
-# 	  do
-# 	  	echo "G IS HERE:"$g
-# 	  	echo "Endprobe is here:"$END_PROBE
-# 	    if [[ $g == $END_PROBE ]]
-# 	    then
-# 	      echo "Negative probe not found. Check bed file and blots metadata file."
-# 			  break
-# 	    fi
-# 	    PR_LINE=$(head -n $g $PROBES | tail -n -1)
-# 	    IFS=$'\t'; read -a feels <<<"$PR_LINE"
-# 	    TARGET_NEG_PROBE=${feels[3]}
-# 	    if [[ "$TARGET_NEG_PROBE" == ${fields[4]} ]]
-# 	    then
-# 	      echo ${fields[4]}": "${feels[0]}:${feels[1]}-${feels[2]}
-# 	       if [[ "$SUBSET_BAMS"  == TRUE ]]
-# 	       then
-# 	         for (( h=2; h<=$END_META; h++ ))
-# 	         do
-# 	           DATA_LINE=$(head -n $h $META_DATA | tail -n -1)
-# 	           IFS=$'\t'; read -a EELS <<<"$DATA_LINE"
-# 	           DATA_LOCATION=${EELS[1]}
-# 	           TEMP_NAME=${EELS[0]}_$TARGET".bam"
-# 	           TEM_NAME_NEG=${EELS[0]}_$TARGET"_anti_"$TARGET_NEG_PROBE".bam"
-# 	           echo "Subsetting: "$TEMP_NAME
-# 	           echo "Naming Subset: "$TEM_NAME_NEG
-# 	           samtools view -b "./temp/"$TEMP_NAME ${feels[0]}:${feels[1]}-${feels[2]} -U "./temp/$TEM_NAME_NEG"
-# 		       done
-# 	       else 
-# 	         echo "Skipping negative filtering BAM files. If filtering is desired remove -F flag."
-# 	       fi
-# 	#       break
-# 	     fi
-# 	  done
-#   fi
-########THISIHIHIHISHIHSIHISHIHSIHSIHISHFIHIHISHISHFISHFISHIFHSIFHSIFHSIF
-########THIS CODE IS NOT WORKING AND I DONT KNOW WHY?
-########WHY CANT YOU LIGHT CODE ON FIRE????
   
   if [[ "$MAKE_PLOT" == TRUE ]]
   then
