@@ -13,37 +13,37 @@ NORM=TRUE
 
 
 while getopts ":HFPCNR:M:B:T:" opt; do
-  case ${opt} in
-    H ) 
-    PRINT_HELP=TRUE
-      ;;
-    F ) 
-    SUBSET_BAMS=FALSE
-      ;;
-    P ) 
-    MAKE_PLOT=FALSE
-      ;;
-    C ) 
-    CDNA=TRUE
-      ;;
-    R ) 
-    NANO_BLOT_RSCRIPT=${OPTARG}
-    	;;
-    M ) 
-    META_DATA=${OPTARG}
-    	;;
-    B ) 
-    PLOTS=${OPTARG}
-    	;;
-    T ) 
-    PROBES=${OPTARG}
-    	;;
-    N ) 
-    NORM=FALSE
-    	;;
-    \? ) echo "Usage: "
-      ;;
-  esac
+	case ${opt} in
+		H ) 
+		PRINT_HELP=TRUE
+			;;
+		F ) 
+		SUBSET_BAMS=FALSE
+			;;
+		P ) 
+		MAKE_PLOT=FALSE
+			;;
+		C ) 
+		CDNA=TRUE
+			;;
+		R ) 
+		NANO_BLOT_RSCRIPT=${OPTARG}
+			;;
+		M ) 
+		META_DATA=${OPTARG}
+			;;
+		B ) 
+		PLOTS=${OPTARG}
+			;;
+		T ) 
+		PROBES=${OPTARG}
+			;;
+		N ) 
+		NORM=FALSE
+			;;
+		\? ) echo "Usage: "
+			;;
+	esac
 done
 
 echo "R Script: $NANO_BLOT_RSCRIPT";
@@ -112,20 +112,18 @@ then
 		P_LINE=$(head -n $c $PLOTS | tail -n -1)
 		IFS=$'\t'; read -a fields <<<"$P_LINE"
 		BAMS=${fields[1]}
-    NORM_FOLDER="./temp/"$(echo "$BAMS" | sed -e 's/,/_/g')"_NORM"
-    if [ ! -d "$NORM_FOLDER" ]
-    then
-	  # script statements if $DIR doesn't exist.
+		NORM_FOLDER="./temp/"$(echo "$BAMS" | sed -e 's/,/_/g')"_NORM"
+		if [ ! -d "$NORM_FOLDER" ]
+		then
 			echo $NORM_FOLDER " not found"
-	#If folder alread exists then basically skip all this shit
-	    mkdir -p $NORM_FOLDER;
+			mkdir -p $NORM_FOLDER;
 			NORM_METADATA_FILE=$NORM_FOLDER"/data_metadata.csv"
 			NORM_METADATA_HEADER="Sample_name (This must be unique for each sample)  Type (FAST5 or BAM)  Location (For BAM inputs the path to the bam file should be given.)"
 			echo "Starting Normalization"
 			echo "Samples: "$BAMS
 			IFS=','
-      echo ${NORM_METADATA_HEADER} >$NORM_METADATA_FILE
-	    COMPARE=999999999999999 #This is probobly not the best way to do this
+			echo ${NORM_METADATA_HEADER} >$NORM_METADATA_FILE
+			COMPARE=999999999999999 #This is probobly not the best way to do this
 			for f in $BAMS;
 			do
 				for (( o=2; o<=$END_META; o++ ))
@@ -137,17 +135,17 @@ then
 					if [[ $f == $SAMP_NAME ]]
 					then
 						echo "Shit worked BB. Found "$f
-	          READ_COUNT=$(samtools view -c -F 260 $DATA_LOCATION)
-	          if [[ $READ_COUNT -lt $COMPARE ]]
-	          then
-	            COMPARE=$READ_COUNT
-	          fi
+						READ_COUNT=$(samtools view -c -F 260 $DATA_LOCATION)
+						if [[ $READ_COUNT -lt $COMPARE ]]
+						then
+							COMPARE=$READ_COUNT
+						fi
 					fi
 				done
 			done
 			echo $COMPARE
-	    IFS=','
-	    for f in $BAMS;
+			IFS=','
+			for f in $BAMS;
 			do
 				for (( e=2; e<=$END_META; e++ ))
 				do
@@ -157,72 +155,78 @@ then
 					SAMP_NAME=${EELS[0]}
 					if [[ $f == $SAMP_NAME ]]
 					then
-					  echo "Subsetting "$SAMP_NAME" to "$COMPARE" reads."
-			      OUTPUT_NORM_SAM=$NORM_FOLDER"/"$f"_NORM.sam"
-			      OUTPUT_NORM_BAM=$NORM_FOLDER"/"$f"_NORM.bam"
-	          cat <(samtools view -H $DATA_LOCATION) <(samtools view ${DATA_LOCATION} | shuf -n $COMPARE) > $OUTPUT_NORM_SAM #THIS TAKES A LOT OF RAM
-	          samtools view -S -b $OUTPUT_NORM_SAM > $OUTPUT_NORM_BAM
-	          samtools sort $OUTPUT_NORM_BAM -o $OUTPUT_NORM_BAM
-	          samtools index $OUTPUT_NORM_BAM
-	          echo $SAMP_NAME"		"$OUTPUT_NORM_BAM >> $NORM_METADATA_FILE
+						echo "Subsetting "$SAMP_NAME" to "$COMPARE" reads."
+						OUTPUT_NORM_SAM=$NORM_FOLDER"/"$f"_NORM.sam"
+						OUTPUT_NORM_BAM=$NORM_FOLDER"/"$f"_NORM.bam"
+						cat <(samtools view -H $DATA_LOCATION) <(samtools view ${DATA_LOCATION} | shuf -n $COMPARE) > $OUTPUT_NORM_SAM #THIS TAKES A LOT OF RAM
+						samtools view -S -b $OUTPUT_NORM_SAM > $OUTPUT_NORM_BAM
+						samtools sort $OUTPUT_NORM_BAM -o $OUTPUT_NORM_BAM
+						samtools index $OUTPUT_NORM_BAM
+						echo $SAMP_NAME"		"$OUTPUT_NORM_BAM >> $NORM_METADATA_FILE
 					fi
 				done
 			done
+		else 
+			echo ""
+			echo $NORM_FOLDER" already exists."
+			echo "If data normalization should be re-run delete "$NORM_FOLDER
+			echo ""
 		fi
 	done
 fi
 
 for (( j=2; j<=$END_PLOT; j++ ))
 do
-  P_LINE=$(head -n $j $PLOTS | tail -n -1)
-  echo "=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~="
-  PLOT_NUM=$((j-1))
-  echo "Generating plot" $PLOT_NUM
-  echo "======="
-  
-  IFS=$'\t'; read -a fields <<<"$P_LINE"
-  
-  echo 'Getting Probe:'${fields[2]}
-  if [ -z "${fields[4]}" ]
-  then
-    echo "No Negative Probe Used"
-  else
-    echo 'Negative Probe:'${fields[4]}
-  fi
-  echo 'Duplication Factor:'${fields[3]}
-  DUP_FACTOR=${fields[3]}
-  TARGET=${fields[2]}
-  TARG_NEGS=${fields[4]}
-  BAMS=${fields[1]}
+	P_LINE=$(head -n $j $PLOTS | tail -n -1)
+	echo "=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~="
+	PLOT_NUM=$((j-1))
+	echo "Generating plot" $PLOT_NUM
+	echo "======="
+	
+	IFS=$'\t'; read -a fields <<<"$P_LINE"
+	
+	echo 'Getting Probe:'${fields[2]}
+	if [ -z "${fields[4]}" ]
+	then
+		echo "No Negative Probe Used"
+	else
+		echo 'Negative Probe:'${fields[4]}
+	fi
+	echo 'Duplication Factor:'${fields[3]}
+	DUP_FACTOR=${fields[3]}
+	TARGET=${fields[2]}
+	TARG_NEGS=${fields[4]}
+	BAMS=${fields[1]}
 	
 	if [[ $NORM == "TRUE" ]]
 	then
-	  NORM_FOLDER="./temp/"$(echo "$BAMS" | sed -e 's/,/_/g')"_NORM"
-	  NORM_METADATA_FILE=$NORM_FOLDER"/data_metadata.csv"
-	  META_DATA=$NORM_METADATA_FILE
-  fi
-  
+		NORM_FOLDER="./temp/"$(echo "$BAMS" | sed -e 's/,/_/g')"_NORM"
+		NORM_METADATA_FILE=$NORM_FOLDER"/data_metadata.csv"
+		META_DATA=$NORM_METADATA_FILE
+	fi
+
 #Apply the first filter
-  declare -i END_PROBE=$(wc -l < $PROBES)
-  END_PROBE=$((END_PROBE+1))
-  
-  for (( d=1; d<=$END_PROBE; d++ ))
-  do
-     if [[ $d == $END_PROBE ]]
-     then
-       echo "Probe not found. Check bed file and blots metadata file."
-     fi
-     
-     IFS=$','
-     PR_LINE=$(head -n $d $PROBES | tail -n -1)
-     echo $PR_LINE > "./temp/temp_bed.bed"
-     
-     IFS=$'\t'; read -a feels <<<"$PR_LINE"
-     TARGET_PROBE=${feels[3]}
-     
+	declare -i END_PROBE=$(wc -l < $PROBES)
+	END_PROBE=$((END_PROBE+1))
+
+	for (( d=1; d<=$END_PROBE; d++ ))
+	do
+		if [[ $d == $END_PROBE ]]
+		then
+			echo "Probe not found. Check bed file and blots metadata file."
+		fi
+
+		IFS=$','
+		PR_LINE=$(head -n $d $PROBES | tail -n -1)
+
+		IFS=$'\t'; read -a feels <<<"$PR_LINE"
+		TARGET_PROBE=${feels[3]}
+
      if [[ "$TARGET_PROBE" == "$TARGET" ]]
      then
        echo ${fields[2]}": "${feels[0]}:${feels[1]}-${feels[2]}
+       
+       IFS=$','; echo $PR_LINE > "./temp/temp_bed.bed"
       
        if [[ "$SUBSET_BAMS"  == TRUE ]]
        then
