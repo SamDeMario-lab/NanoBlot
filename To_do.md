@@ -1,13 +1,9 @@
 # To Do
 
-### Reflow masterscript so it has standard spacing conventions
-
 ### Fix names in R script
 I want it to add the negative probe to the plot name if a negative probe is used
 
 ## Make multiplexing work
-
-## Clean temp data option
 
 ## Write a manuscript + ReadMe
 

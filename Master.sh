@@ -10,9 +10,9 @@ SUBSET_BAMS=TRUE
 MAKE_PLOT=TRUE
 CDNA=FALSE
 NORM=TRUE
+CLEAN_ALL=FALSE
 
-
-while getopts ":HFPCNR:M:B:T:" opt; do
+while getopts ":HFPCNWR:M:B:T:" opt; do
 	case ${opt} in
 		H ) 
 		PRINT_HELP=TRUE
@@ -41,11 +41,16 @@ while getopts ":HFPCNR:M:B:T:" opt; do
 		N ) 
 		NORM=FALSE
 			;;
+		W )
+		CLEAN_ALL=TRUE
+			;;
 		\? ) echo "Usage: "
 			;;
 	esac
 done
 
+echo -e "Starting Nanoblot "'\u2622' 
+echo "======="
 echo "R Script: $NANO_BLOT_RSCRIPT";
 echo "Meta Data File: $META_DATA";
 declare -i END_META=$(wc -l < $META_DATA)
@@ -97,9 +102,9 @@ For an explanation of the required input files see the README.md
 -C  |  Treat reads as cDNA (disregard strand) 
 -F  |  Skip subsetting BAM files for plot generation
 -P  |  Skip nanoblots generation
+-W  |  Clear all files from ./temp/ after plot generation
 ==========================================
 "
-
 exit
 fi
 
@@ -107,6 +112,8 @@ declare -i END_PLOT=$(wc -l < $PLOTS)
 
 if [[ $NORM == TRUE ]]
 then
+	echo "======="
+	echo "Normalization"
 	for (( c=2; c<=$END_PLOT; c++ ))
 	do
 		P_LINE=$(head -n $c $PLOTS | tail -n -1)
@@ -134,7 +141,7 @@ then
 					SAMP_NAME=${EELS[0]}
 					if [[ $f == $SAMP_NAME ]]
 					then
-						echo "Shit worked BB. Found "$f
+						echo "Found "$f
 						READ_COUNT=$(samtools view -c -F 260 $DATA_LOCATION)
 						if [[ $READ_COUNT -lt $COMPARE ]]
 						then
@@ -185,7 +192,7 @@ do
 	
 	IFS=$'\t'; read -a fields <<<"$P_LINE"
 	
-	echo 'Getting Probe:'${fields[2]}
+	echo 'Probe:'${fields[2]}
 	if [ -z "${fields[4]}" ]
 	then
 		echo "No Negative Probe Used"
@@ -193,6 +200,8 @@ do
 		echo 'Negative Probe:'${fields[4]}
 	fi
 	echo 'Duplication Factor:'${fields[3]}
+	echo "======="
+	
 	DUP_FACTOR=${fields[3]}
 	TARGET=${fields[2]}
 	TARG_NEGS=${fields[4]}
@@ -222,106 +231,106 @@ do
 		IFS=$'\t'; read -a feels <<<"$PR_LINE"
 		TARGET_PROBE=${feels[3]}
 
-     if [[ "$TARGET_PROBE" == "$TARGET" ]]
-     then
-       echo ${fields[2]}": "${feels[0]}:${feels[1]}-${feels[2]}
-       
-       IFS=$','; echo $PR_LINE > "./temp/temp_bed.bed"
-      
-       if [[ "$SUBSET_BAMS"  == TRUE ]]
-       then
-	       for (( t=2; t<=$END_META; t++ ))
-	       do
-	         DATA_LINE_T=$(head -n $t $META_DATA | tail -n -1)
-	         IFS=$'\t'; read -a EELS <<<"$DATA_LINE_T"
-	         DATA_LOCATION=${EELS[1]}
-	         TEMP_NAME=${EELS[0]}_$TARGET_PROBE.bam
-	         echo "Subsetting: "$DATA_LOCATION"
+		if [[ "$TARGET_PROBE" == "$TARGET" ]]
+		then
+			echo 'Probe'
+			echo ${fields[2]}": "${feels[0]}:${feels[1]}-${feels[2]}
+
+			IFS=$','; echo $PR_LINE > "./temp/temp_bed.bed"
+
+			if [[ "$SUBSET_BAMS"  == TRUE ]]
+			then
+				for (( t=2; t<=$END_META; t++ ))
+				do
+					DATA_LINE_T=$(head -n $t $META_DATA | tail -n -1)
+					IFS=$'\t'; read -a EELS <<<"$DATA_LINE_T"
+					DATA_LOCATION=${EELS[1]}
+					TEMP_NAME=${EELS[0]}_$TARGET_PROBE.bam
+					echo "Subsetting: "$DATA_LOCATION"
 Naming Subset: " $TEMP_NAME
-					 if [[ "$CDNA"  == TRUE ]]
-					 then
-			       bedtools intersect -a $DATA_LOCATION -b "./temp/temp_bed.bed" -wa -split > "./temp/$TEMP_NAME"
-			       samtools index "./temp/$TEMP_NAME"
-					 else
-					   bedtools intersect -a $DATA_LOCATION -b "./temp/temp_bed.bed" -wa -split -s > "./temp/$TEMP_NAME"
-					   samtools index "./temp/$TEMP_NAME"
-					 fi
-	       done
-       else 
-         echo "Skipping filtering BAM files. If filtering is desired remove -F flag."
-       fi
-       break
-     fi
-  done
-  
-  if [ -z "${fields[4]}" ]
-  then
-    echo "SKIPPING, THIS IS FOR TESTING THIS LINE DOES NOT NEED TO EXIST"
-  else
-    echo ""
-    echo 'Negative Probe:'${fields[4]}
-    
-    declare -i END_PROBE=$(wc -l < $PROBES)
-    END_PROBE=$((END_PROBE+1))
-  
-  	for (( h=1; h<=$END_PROBE; h++ ))
-  	do
-    	if [[ $h == $END_PROBE ]]
-    	then
-      	echo "Probe not found. Check bed file and blots metadata file."
-      	break
-    	fi
-    	
-    	IFS=$','
-    	APR_LINE=$(head -n $h $PROBES | tail -n -1)
-    	echo $APR_LINE > "./temp/temp_anti_bed.bed"
-    	
-    	IFS=$'\t'; read -a deels <<<"$APR_LINE"
-    	TARG_ANTI=${deels[3]}
-    	
-    	if [[ $TARG_NEGS == $TARG_ANTI ]]
-    	then
-    		echo "Probe Match!"
-    		echo $TARG_ANTI": "${deels[0]}:${deels[1]}-${deels[2]}
-    		if [[ "$SUBSET_BAMS"  == TRUE ]]
-      	then
-      		for (( p=2; p<=$END_META; p++ ))
-	      	do
-	        	DL_ANTI=$(head -n $p $META_DATA | tail -n -1)
-	        	echo $DL_ANTI
-	        	IFS=$'\t'; read -a bells <<<"$DL_ANTI"
-	        	FIRST_NAME="./temp/"${bells[0]}"_"$TARGET".bam"
-	        	echo "Subsetting:" $FIRST_NAME
-	        	NEG_NAME="./temp/"${bells[0]}"_"$TARGET"_anti_"$TARG_ANTI".bam"
-	        	echo "Naming Subset: "$NEG_NAME
-	        	if [[ "$CDNA"  == TRUE ]]
+					if [[ "$CDNA"  == TRUE ]]
+					then
+						bedtools intersect -a $DATA_LOCATION -b "./temp/temp_bed.bed" -wa -split -nonamecheck > "./temp/$TEMP_NAME"
+						samtools index "./temp/$TEMP_NAME"
+					else
+						bedtools intersect -a $DATA_LOCATION -b "./temp/temp_bed.bed" -wa -split -s -nonamecheck > "./temp/$TEMP_NAME"
+						samtools index "./temp/$TEMP_NAME"
+					fi
+				done
+			else 
+				echo "Skipping filtering BAM files. If filtering is desired remove -F flag."
+			fi
+				break
+		fi
+	done
+	echo "======="
+	if [ -z "${fields[4]}" ]
+	then
+		echo "No negative probe used"
+	else
+		echo 'Negative Probe'
+
+		declare -i END_PROBE=$(wc -l < $PROBES)
+		END_PROBE=$((END_PROBE+1))
+
+		for (( h=1; h<=$END_PROBE; h++ ))
+		do
+			if [[ $h == $END_PROBE ]]
+			then
+				echo "Probe not found. Check bed file and blots metadata file."
+				break
+			fi
+
+			IFS=$','
+			APR_LINE=$(head -n $h $PROBES | tail -n -1)
+			echo $APR_LINE > "./temp/temp_anti_bed.bed"
+
+			IFS=$'\t'; read -a deels <<<"$APR_LINE"
+			TARG_ANTI=${deels[3]}
+
+			if [[ $TARG_NEGS == $TARG_ANTI ]]
+			then
+				echo $TARG_ANTI": "${deels[0]}:${deels[1]}-${deels[2]}
+				if [[ "$SUBSET_BAMS"  == TRUE ]]
+				then
+					for (( p=2; p<=$END_META; p++ ))
+					do
+						DL_ANTI=$(head -n $p $META_DATA | tail -n -1)
+						IFS=$'\t'; read -a bells <<<"$DL_ANTI"
+						FIRST_NAME="./temp/"${bells[0]}"_"$TARGET".bam"
+						echo "Subsetting:" $FIRST_NAME
+						NEG_NAME="./temp/"${bells[0]}"_"$TARGET"_anti_"$TARG_ANTI".bam"
+						echo "Naming Subset: "$NEG_NAME
+						if [[ "$CDNA"  == TRUE ]]
 						then
-			      	bedtools intersect -a $FIRST_NAME -b "./temp/temp_anti_bed.bed" -wa -split -v > $NEG_NAME
-			      	samtools index $NEG_NAME
+							bedtools intersect -a $FIRST_NAME -b "./temp/temp_anti_bed.bed" -wa -split -v -nonamecheck > $NEG_NAME
+							samtools index $NEG_NAME
 						else
-					  	bedtools intersect -a $FIRST_NAME -b "./temp/temp_anti_bed.bed" -wa -split -v -s > $NEG_NAME
-					  	samtools index $NEG_NAME
-	        	fi
-	        done
-      	fi
-    		break
-    	fi
-    done
-  fi
-  
-  if [[ "$MAKE_PLOT" == TRUE ]]
-  then
-  	echo ""
-  	echo "======="
-  	echo "Running R script"
-  	echo "======="
-  	BAMS=${fields[1]} #I dont know why I need this but I do
-  	Rscript $NANO_BLOT_RSCRIPT $BAMS $TARGET $DUP_FACTOR $TARG_NEGS
-  	echo "======="
-  	echo "======="
-  else
-  	echo "Skipping plot generation. If plot generation is desired remove -P flag."
-  fi
-echo "=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~="
-echo ""
+							bedtools intersect -a $FIRST_NAME -b "./temp/temp_anti_bed.bed" -wa -split -v -s -nonamecheck > $NEG_NAME
+							samtools index $NEG_NAME
+						fi
+					done
+				fi
+			break
+			fi
+		done
+	fi
+	echo "======="
+	if [[ "$MAKE_PLOT" == TRUE ]]
+	then
+		echo "======="
+		echo "Running R script"
+		BAMS=${fields[1]} #I dont know why I need this but I do
+		Rscript $NANO_BLOT_RSCRIPT $BAMS $TARGET $DUP_FACTOR $TARG_NEGS
+		echo "======="
+	else
+		echo "Skipping plot generation. If plot generation is desired remove -P flag."
+	fi
 done 
+echo "=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~="
+
+if [[ "$CLEAN_ALL" == TRUE ]]
+then
+	echo "Clearing ./temp/"
+	rm -r ./temp/*
+fi
