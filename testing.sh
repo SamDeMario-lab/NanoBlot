@@ -312,9 +312,19 @@ Naming Subset: " $TEMP_NAME
 					then
 						bedtools intersect -a $DATA_LOCATION -b "./temp/temp_bed.bed" -wa -split -nonamecheck > "./temp/$TEMP_NAME"
 						samtools index "./temp/$TEMP_NAME"
+						# Bedtools documentation
+						# -a is the first intersect file, -b is the second intersect file, -wa writes out the intersection rows of file a
+						# Keep in mind that no inputs will show you where the intersection occurred
+						# whereas, -wa and -wb will show you the original features in each file 
+						# -split treats split BAM files as distinct BED intervals, this is important, becaues of long read sequencing
+						# and the idea that a spliced form would have no splits in the BAM read
+						# -nonamecheck not really sure what this does 
+						# This in effect finds all instances of the .bam normalized reads that intersect with the .bed input
 					else
 						bedtools intersect -a $DATA_LOCATION -b "./temp/temp_bed.bed" -wa -split -s -nonamecheck > "./temp/$TEMP_NAME"
 						samtools index "./temp/$TEMP_NAME"
+						# the -s forces overlap of B and A on the same strand, which is what we want most of the time, considering that 
+						# we want the feature to be in the direction that we intend it to be
 					fi
 				done
 			else 
@@ -364,9 +374,13 @@ Naming Subset: " $TEMP_NAME
 						if [[ "$CDNA"  == TRUE ]]
 						then
 							bedtools intersect -a $FIRST_NAME -b "./temp/temp_anti_bed.bed" -wa -split -v -nonamecheck > $NEG_NAME
+							# The -v input makes it so that it is all samples in a that do not overlap with b 
 							samtools index $NEG_NAME
 						else
 							bedtools intersect -a $FIRST_NAME -b "./temp/temp_anti_bed.bed" -wa -split -v -s -nonamecheck > $NEG_NAME
+							# The -v input makes it so that it is all samples in a that do not overlap with b 
+							# The -s input makes it so that it regards strand direction, important since we want features to be in the same
+							# strand 
 							samtools index $NEG_NAME
 						fi
 					done
@@ -381,7 +395,7 @@ Naming Subset: " $TEMP_NAME
 		echo "======="
 		echo "Not running R script for now to trace all bash scripts"
 		BAMS=${fields[1]} #I dont know why I need this but I do
-		Rscript $NANO_BLOT_RSCRIPT $BAMS $TARGET $DUP_FACTOR $TARG_NEGS
+		#Rscript $NANO_BLOT_RSCRIPT $BAMS $TARGET $DUP_FACTOR $TARG_NEGS
 		echo "======="
 	else
 		echo "Skipping plot generation. If plot generation is desired remove -P flag."
