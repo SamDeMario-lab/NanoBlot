@@ -1,6 +1,6 @@
 # To Do
 
-### Add a check fo duplicated sample/probe/plot names
+### Add a check for duplicated sample/probe/plot names
 
 ### Add escapes from for loops
 
