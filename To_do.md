@@ -1,5 +1,9 @@
 # To Do
 
+### Add a check fo duplicated sample/probe/plot names
+
+### Add escapes from for loops
+
 ### Fix names in R script
 I want it to add the negative probe to the plot name if a negative probe is used
 
