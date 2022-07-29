@@ -16,12 +16,15 @@ Nanoblot is in active development.
 
 ## Dependencies 
 
+Bedtools 
 Samtools (> v1.15.1)
 R (> v4.1.2)
   ggplot2
   Rsamtools
   ggridges
   
+The Master.sh script will require R to run from the bash terminal. If you are on Mac OSX and need to add R to library, I recommend attaching it to $PATH. 
+A sample function would look like ```export PATH="/Library/Frameworks/R.framework/Resources:$PATH"```
 
 ## Usage:
 
