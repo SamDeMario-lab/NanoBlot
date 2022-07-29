@@ -393,9 +393,9 @@ Naming Subset: " $TEMP_NAME
 	if [[ "$MAKE_PLOT" == TRUE ]]
 	then
 		echo "======="
-		echo "Not running R script for now to trace all bash scripts"
+		echo "R script for now to trace all bash scripts"
 		BAMS=${fields[1]} #I dont know why I need this but I do
-		#Rscript $NANO_BLOT_RSCRIPT $BAMS $TARGET $DUP_FACTOR $TARG_NEGS
+		Rscript $NANO_BLOT_RSCRIPT $BAMS $TARGET $DUP_FACTOR $TARG_NEGS
 		echo "======="
 	else
 		echo "Skipping plot generation. If plot generation is desired remove -P flag."
