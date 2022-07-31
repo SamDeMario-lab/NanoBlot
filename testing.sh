@@ -140,9 +140,7 @@ then
 	for (( c=2; c<=$END_PLOT; c++ ))
 	do
 		P_LINE=$(head -n $c $PLOTS | tail -n -1) #This line gets the individual row for each row of the plot_data
-		IFS=$'\t'; # This sets the internal field separator to tab, which is used to determine
-		# word splitting --> basically overrides the natural word boundary of a whitespace
-		read -a fields <<<"$P_LINE" # I think this code creates an array called fields which separates each 
+		IFS=$'\t'; read -a fields <<<"$P_LINE" # I think this code creates an array called fields which separates each 
 		# column of the individual row of $PLOTS 
 		BAMS=${fields[1]} # This then gets the 1st index, 2nd column of each row? which is the loading order?
 		NORM_FOLDER="./temp/"$(echo "$BAMS" | sed -e 's/,/_/g')"_NORM" #This basically creates a new folder called norm
@@ -169,8 +167,7 @@ then
 				do
 					DATA_LINE_o=$(head -n $o $META_DATA | tail -n -1) #Takes single rows again but this time out of the 
 					# metadata folder --> basically now it knows how to pull the BAM files 
-					IFS=$'\t'; #changes the IFS again to tabs
-					read -a EELS <<<"$DATA_LINE_o" #Creates a new array called EELS --> this basically is each row in the metadata file
+					IFS=$'\t'; read -a EELS <<<"$DATA_LINE_o" #Creates a new array called EELS --> this basically is each row in the metadata file
 					DATA_LOCATION=${EELS[1]} #Takes the 1st index, which is the value for the data location
 					SAMP_NAME=${EELS[0]} # Takes the 0th index, which is the value for the sample name
 					
@@ -248,21 +245,27 @@ do
 	
 	IFS=$'\t'; read -a fields <<<"$P_LINE"
 	
-	echo 'Probe:'${fields[2]}
+	echo 'Probe(s):'${fields[2]}
 	if [ -z "${fields[4]}" ] #checks to see if there is an antiprobe, -z checks for empty string 
 	then
 		echo "No Negative Probe Used" #Print statement
 	else
-		echo 'Negative Probe:'${fields[4]} #Print statement
+		echo 'Negative Probe(s):'${fields[4]} #Print statement
 	fi
 	echo 'Duplication Factor:'${fields[3]} #Print statement
 	echo "======="
-	
+
 	# Setting variables 
 	DUP_FACTOR=${fields[3]}
-	TARGET=${fields[2]}
-	TARG_NEGS=${fields[4]}
+	# TARGET is an array variable 
+	IFS=',' read -a TARGET <<< "${fields[2]}"
+	
+	# TARG_NEGS is an array variable 
+	IFS=',' read -a TARG_NEGS <<< "${fields[4]}"
+	
+	# BAMS is a 
 	BAMS=${fields[1]}
+	echo $BAMS
 	
 	# If normalization was true, then set the meta_data variable to the normalized meta_data 
 	if [ $NORM = TRUE ]
@@ -272,13 +275,79 @@ do
 		META_DATA=$NORM_METADATA_FILE
 	fi
 
+	PREVIOUS_PROBE="" #Needs a tracker to see if the previous probe was already subsetted
 #Apply the first filter
+	# Go through each target probe
+	for probe in "${TARGET[@]}"
+		do
+			PR_LINE=$(awk -v var="$probe" '$4==var {print $0}' $PROBES)
+			IFS=$'\t'; read -a feels <<< "$PR_LINE"
+
+			if [[ -z "${feels[@]}" ]]
+			then
+				echo "Probe: $probe not found. Check bed file and blots metadata file. Exiting script"
+				exit #Not sure if I want this to exit just yet
+			fi
+			echo 'Probe'
+			echo $probe": "${feels[0]}:${feels[1]}-${feels[2]} #These array subsets do not belong to the 
+			# same variables 
+			echo "$PR_LINE" > "./temp/temp_bed.bed" #Overwrites the current matched probe_line and 
+			# puts it into a temp bed file, this allows each round of intersect to only find a single match, since we 
+			# want the union of matches, not the intersection point of only two matches, if that makes sense
+
+			if [[ "$SUBSET_BAMS"  == TRUE ]]
+			then
+				for (( t=2; t<=$END_META; t++ )) ##You need to only create subsets of the samples you are using 
+				do
+					DATA_LINE_T=$(head -n $t $META_DATA | tail -n -1) #Individual data line
+					IFS=$'\t' read -a EELS <<<"$DATA_LINE_T" 
+					SAMPLE_NAME=${EELS[0]} #Neeed to filter individual data line to get the sample name
+					if ! [ -z $PREVIOUS_PROBE ] #Checks if its not the first line
+					then
+						DATA_LOCATION="./temp/"$SAMPLE_NAME"_"$PREVIOUS_PROBE".bam"
+						TEMP_NAME=${SAMPLE_NAME}_${PREVIOUS_PROBE}_${probe}.bam
+					else
+						DATA_LOCATION=${EELS[1]}
+						TEMP_NAME=$SAMPLE_NAME"_"$probe".bam"
+					fi 
+					echo -e "Subsetting: "$DATA_LOCATION"\nNaming Subset:  "$TEMP_NAME
+				
+					if [[ "$CDNA"  == TRUE ]]
+					then
+						bedtools intersect -a $DATA_LOCATION -b "./temp/temp_bed.bed" -wa -split -nonamecheck > "./temp/$TEMP_NAME"
+						samtools index "./temp/$TEMP_NAME"
+						# Bedtools documentation
+						# -a is the first intersect file, -b is the second intersect file, -wa writes out the intersection rows of file a
+						# Keep in mind that no inputs will show you where the intersection occurred
+						# whereas, -wa and -wb will show you the original features in each file 
+						# -split treats split BAM files as distinct BED intervals, this is important, becaues of long read sequencing
+						# and the idea that a spliced form would have no splits in the BAM read
+						# -nonamecheck not really sure what this does 
+						# This in effect finds all instances of the .bam normalized reads that intersect with the .bed input
+					else
+						bedtools intersect -a $DATA_LOCATION -b "./temp/temp_bed.bed" -wa -split -s -nonamecheck > "./temp/$TEMP_NAME"
+						samtools index "./temp/$TEMP_NAME"
+						# the -s forces overlap of B and A on the same strand, which is what we want most of the time, considering that 
+						# we want the feature to be in the direction that we intend it to be
+					fi
+				done
+				PREVIOUS_PROBE=$probe #update previous probe right before the for loop for each probe updates 
+			else 
+				echo "Skipping filtering BAM files. If filtering is desired remove -F flag."
+			fi
+	done 
+	
+	#Go through each anti-target probe 
+
+exit 
+
+####################################################################################################
 	declare -i END_PROBE=$(wc -l < $PROBES)
 	END_PROBE=$((END_PROBE+1)) # I don't actually know if this +1 to the END_PROBE integer is necessary?
 
 	for (( d=1; d<=$END_PROBE; d++ ))
 	do
-		if [[ $d == $END_PROBE ]] # Checks to see if the end_probe file is an empty text file 
+		if [[ $d == $END_PROBE ]] # Checks to see if the probe is never found  
 		then
 			echo "Probe not found. Check bed file and blots metadata file."
 		fi
@@ -296,7 +365,8 @@ do
 			# same variables 
 
 			IFS=$','; echo $PR_LINE > "./temp/temp_bed.bed" #Overwrites the current matched probe_line and 
-			# puts it into a temp bed file
+			# puts it into a temp bed file, this allows each round of intersect to only find a single match, since we 
+			# want the union of matches, not the intersection point of only two matches, if that makes sense 
 
 			if [[ "$SUBSET_BAMS"  == TRUE ]]
 			then
@@ -373,6 +443,8 @@ Naming Subset: " $TEMP_NAME
 						echo "Naming Subset: "$NEG_NAME
 						if [[ "$CDNA"  == TRUE ]]
 						then
+							# Important to note here that we are intersecting the already made target antiprobes .bam file
+							# And then taking that file and then intersecting with fields not covered by anti_probe 
 							bedtools intersect -a $FIRST_NAME -b "./temp/temp_anti_bed.bed" -wa -split -v -nonamecheck > $NEG_NAME
 							# The -v input makes it so that it is all samples in a that do not overlap with b 
 							samtools index $NEG_NAME
@@ -393,9 +465,9 @@ Naming Subset: " $TEMP_NAME
 	if [[ "$MAKE_PLOT" == TRUE ]]
 	then
 		echo "======="
-		echo "R script for now to trace all bash scripts"
+		echo "Skipping R script for now to trace all bash scripts"
 		BAMS=${fields[1]} #I dont know why I need this but I do
-		Rscript $NANO_BLOT_RSCRIPT $BAMS $TARGET $DUP_FACTOR $TARG_NEGS
+		# Rscript $NANO_BLOT_RSCRIPT $BAMS $TARGET $DUP_FACTOR $TARG_NEGS
 		echo "======="
 	else
 		echo "Skipping plot generation. If plot generation is desired remove -P flag."
@@ -403,6 +475,7 @@ Naming Subset: " $TEMP_NAME
 done 
 echo "=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~="
 
+#####################################################################################################################
 
 # This code essentially just removes all the temp files that were created by the program
 if [ $CLEAN_ALL = TRUE ]
