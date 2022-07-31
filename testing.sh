@@ -132,7 +132,8 @@ exit
 fi
 
 declare -i END_PLOT=$(wc -l < $PLOTS) # Again, declares the line numbers of PLOTS and sets it to 
-# a variable called END_PLOT 
+# a variable called END_PLOT, WC WILL NOT COUNT A LINE UNLESS IT ENDS WITH A NEWLINE CHARACTER
+echo $END_PLOT
 
 if [ $NORM = TRUE ] #edited from the brute force method 
 then
@@ -390,18 +391,19 @@ do
 				fi
 		done
 	fi
+	
 	echo "======="
 	if [[ "$MAKE_PLOT" == TRUE ]]
 	then
 		echo "======="
-		echo "Skipping R script for now to trace all bash scripts"
+		echo "Running R scripts"
 		BAMS=${fields[1]} #I dont know why I need this but I do
-		# Need to alter this since TARGET and TARG_NEGS right now are bash arrays 
-		# Rscript $NANO_BLOT_RSCRIPT $BAMS $TARGET $DUP_FACTOR $TARG_NEGS
+		Rscript $NANO_BLOT_RSCRIPT $BAMS ${fields[2]} $DUP_FACTOR ${fields[4]} ${PREVIOUS_ANTI_PROBE}
 		echo "======="
 	else
 		echo "Skipping plot generation. If plot generation is desired remove -P flag."
 	fi
+	
 done 
 echo "=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~="
 
