@@ -398,6 +398,9 @@ do
 		echo "Running R scripts"
 		BAMS=${fields[1]} #I dont know why I need this but I do
 		Rscript $NANO_BLOT_RSCRIPT $BAMS ${fields[2]} $DUP_FACTOR ${PREVIOUS_ANTI_PROBE} ${fields[4]}
+		# this order has to be this way because if there is no antiprobe, then it collapses to an empty
+		# string and the number of arguments passed to the script decreases by one, that is why the antiprobe
+		# argument has to be the last one
 		echo "======="
 	else
 		echo "Skipping plot generation. If plot generation is desired remove -P flag."
