@@ -276,7 +276,7 @@ do
 	fi
 
 	PREVIOUS_PROBE="" #Needs a tracker to see if the previous probe was already subsetted
-#Apply the first filter
+
 	# Go through each target probe
 	for probe in "${TARGET[@]}"
 		do
@@ -302,7 +302,7 @@ do
 					DATA_LINE_T=$(head -n $t $META_DATA | tail -n -1) #Individual data line
 					IFS=$'\t' read -a EELS <<<"$DATA_LINE_T" 
 					SAMPLE_NAME=${EELS[0]} #Neeed to filter individual data line to get the sample name
-					if ! [ -z $PREVIOUS_PROBE ] #Checks if its not the first line
+					if ! [ -z $PREVIOUS_PROBE ] #Checks if its not an empty string
 					then
 						DATA_LOCATION="./temp/"$SAMPLE_NAME"_"$PREVIOUS_PROBE".bam"
 						TEMP_NAME=${SAMPLE_NAME}_${PREVIOUS_PROBE}_${probe}.bam
@@ -331,134 +331,63 @@ do
 						# we want the feature to be in the direction that we intend it to be
 					fi
 				done
-				PREVIOUS_PROBE=$probe #update previous probe right before the for loop for each probe updates 
+				if ! [ -z $PREVIOUS_PROBE ]
+				then
+					PREVIOUS_PROBE=${PREVIOUS_PROBE}_$probe #update previous probe right before the for loop for each probe updates 
+				else
+					PREVIOUS_PROBE=$probe
+				fi
 			else 
 				echo "Skipping filtering BAM files. If filtering is desired remove -F flag."
 			fi
 	done 
 	
 	#Go through each anti-target probe 
-
-exit 
-
-####################################################################################################
-	declare -i END_PROBE=$(wc -l < $PROBES)
-	END_PROBE=$((END_PROBE+1)) # I don't actually know if this +1 to the END_PROBE integer is necessary?
-
-	for (( d=1; d<=$END_PROBE; d++ ))
-	do
-		if [[ $d == $END_PROBE ]] # Checks to see if the probe is never found  
-		then
-			echo "Probe not found. Check bed file and blots metadata file."
-		fi
-
-		IFS=$','
-		PR_LINE=$(head -n $d $PROBES | tail -n -1)
-
-		IFS=$'\t'; read -a feels <<<"$PR_LINE"
-		TARGET_PROBE=${feels[3]}
-
-		if [[ "$TARGET_PROBE" == "$TARGET" ]]
-		then
-			echo 'Probe' #Note to self: I guess there is no check for antisense probe direction yet
-			echo ${fields[2]}": "${feels[0]}:${feels[1]}-${feels[2]} #These array subsets do not belong to the 
-			# same variables 
-
-			IFS=$','; echo $PR_LINE > "./temp/temp_bed.bed" #Overwrites the current matched probe_line and 
-			# puts it into a temp bed file, this allows each round of intersect to only find a single match, since we 
-			# want the union of matches, not the intersection point of only two matches, if that makes sense 
-
-			if [[ "$SUBSET_BAMS"  == TRUE ]]
-			then
-				for (( t=2; t<=$END_META; t++ )) 
-				do
-					DATA_LINE_T=$(head -n $t $META_DATA | tail -n -1)
-					IFS=$'\t'; read -a EELS <<<"$DATA_LINE_T"
-					DATA_LOCATION=${EELS[1]}
-					TEMP_NAME=${EELS[0]}_$TARGET_PROBE.bam
-					echo "Subsetting: "$DATA_LOCATION"
-Naming Subset: " $TEMP_NAME
-					if [[ "$CDNA"  == TRUE ]]
-					then
-						bedtools intersect -a $DATA_LOCATION -b "./temp/temp_bed.bed" -wa -split -nonamecheck > "./temp/$TEMP_NAME"
-						samtools index "./temp/$TEMP_NAME"
-						# Bedtools documentation
-						# -a is the first intersect file, -b is the second intersect file, -wa writes out the intersection rows of file a
-						# Keep in mind that no inputs will show you where the intersection occurred
-						# whereas, -wa and -wb will show you the original features in each file 
-						# -split treats split BAM files as distinct BED intervals, this is important, becaues of long read sequencing
-						# and the idea that a spliced form would have no splits in the BAM read
-						# -nonamecheck not really sure what this does 
-						# This in effect finds all instances of the .bam normalized reads that intersect with the .bed input
-					else
-						bedtools intersect -a $DATA_LOCATION -b "./temp/temp_bed.bed" -wa -split -s -nonamecheck > "./temp/$TEMP_NAME"
-						samtools index "./temp/$TEMP_NAME"
-						# the -s forces overlap of B and A on the same strand, which is what we want most of the time, considering that 
-						# we want the feature to be in the direction that we intend it to be
-					fi
-				done
-			else 
-				echo "Skipping filtering BAM files. If filtering is desired remove -F flag."
-			fi
-				break
-		fi
-	done
-	echo "======="
+	PREVIOUS_ANTI_PROBE=$PREVIOUS_PROBE
 	if [ -z "${fields[4]}" ]
 	then
 		echo "No negative probe used"
 	else
-		echo 'Negative Probe'
-
-		declare -i END_PROBE=$(wc -l < $PROBES)
-		END_PROBE=$((END_PROBE+1))
-
-		for (( h=1; h<=$END_PROBE; h++ ))
-		do
-			if [[ $h == $END_PROBE ]]
-			then
-				echo "Probe not found. Check bed file and blots metadata file."
-				break
-			fi
-
-			IFS=$','
-			APR_LINE=$(head -n $h $PROBES | tail -n -1)
-			echo $APR_LINE > "./temp/temp_anti_bed.bed"
-
-			IFS=$'\t'; read -a deels <<<"$APR_LINE"
-			TARG_ANTI=${deels[3]}
-
-			if [[ $TARG_NEGS == $TARG_ANTI ]]
-			then
-				echo $TARG_ANTI": "${deels[0]}:${deels[1]}-${deels[2]}
+		echo 'Negative Probe used'
+	
+		for antiprobe in "${TARG_NEGS[@]}"
+			do
+				APR_LINE=$(awk -v var="$antiprobe" '$4==var {print $0}' $PROBES)
+				IFS=$'\t'; read -a deels <<< "$APR_LINE"
+	
+				if [[ -z "${deels[@]}" ]]
+				then
+					echo "Antiprobe: $antiprobe not found. Check bed file and blots metadata file. Exiting script"
+					exit #Not sure if I want this to exit just yet
+				fi
+				echo 'Antiprobe'
+				echo $antiprobe": "${deels[0]}:${deels[1]}-${deels[2]} 
+				echo "$APR_LINE" > "./temp/temp_anti_bed.bed"
+				
 				if [[ "$SUBSET_BAMS"  == TRUE ]]
 				then
-					for (( p=2; p<=$END_META; p++ ))
+					for (( p=2; p<=$END_META; p++ )) ##You need to only create subsets of the samples you are using 
 					do
-						DL_ANTI=$(head -n $p $META_DATA | tail -n -1)
-						IFS=$'\t'; read -a bells <<<"$DL_ANTI"
-						FIRST_NAME="./temp/"${bells[0]}"_"$TARGET".bam"
-						echo "Subsetting:" $FIRST_NAME
-						NEG_NAME="./temp/"${bells[0]}"_"$TARGET"_anti_"$TARG_ANTI".bam"
-						echo "Naming Subset: "$NEG_NAME
+						DL_ANTI=$(head -n $p $META_DATA | tail -n -1) #Individual data line
+						IFS=$'\t' read -a bells <<<"$DL_ANTI" 
+						SAMPLE_NAME=${bells[0]} #Neeed to filter individual data line to get the sample name
+						DATA_LOCATION="./temp/"$SAMPLE_NAME"_"$PREVIOUS_ANTI_PROBE".bam"
+						TEMP_NAME=${SAMPLE_NAME}_${PREVIOUS_ANTI_PROBE}_anti_${antiprobe}.bam
+						echo -e "Subsetting: "$DATA_LOCATION"\nNaming Subset:  "$TEMP_NAME
+					
 						if [[ "$CDNA"  == TRUE ]]
 						then
-							# Important to note here that we are intersecting the already made target antiprobes .bam file
-							# And then taking that file and then intersecting with fields not covered by anti_probe 
-							bedtools intersect -a $FIRST_NAME -b "./temp/temp_anti_bed.bed" -wa -split -v -nonamecheck > $NEG_NAME
-							# The -v input makes it so that it is all samples in a that do not overlap with b 
-							samtools index $NEG_NAME
+							bedtools intersect -a $DATA_LOCATION -b "./temp/temp_anti_bed.bed" -wa -split -v -nonamecheck > "./temp/$TEMP_NAME"
+							samtools index "./temp/$TEMP_NAME"
 						else
-							bedtools intersect -a $FIRST_NAME -b "./temp/temp_anti_bed.bed" -wa -split -v -s -nonamecheck > $NEG_NAME
-							# The -v input makes it so that it is all samples in a that do not overlap with b 
-							# The -s input makes it so that it regards strand direction, important since we want features to be in the same
-							# strand 
-							samtools index $NEG_NAME
+							bedtools intersect -a $DATA_LOCATION -b "./temp/temp_anti_bed.bed" -wa -split -v -s -nonamecheck > "./temp/$TEMP_NAME"
+							samtools index "./temp/$TEMP_NAME"
 						fi
 					done
+					PREVIOUS_ANTI_PROBE=${PREVIOUS_ANTI_PROBE}_anti_$antiprobe #update previous antiprobe right before the for loop for each antiprobe updates 
+				else 
+					echo "Skipping filtering BAM files. If filtering is desired remove -F flag."
 				fi
-			break
-			fi
 		done
 	fi
 	echo "======="
@@ -467,6 +396,7 @@ Naming Subset: " $TEMP_NAME
 		echo "======="
 		echo "Skipping R script for now to trace all bash scripts"
 		BAMS=${fields[1]} #I dont know why I need this but I do
+		# Need to alter this since TARGET and TARG_NEGS right now are bash arrays 
 		# Rscript $NANO_BLOT_RSCRIPT $BAMS $TARGET $DUP_FACTOR $TARG_NEGS
 		echo "======="
 	else
@@ -474,8 +404,6 @@ Naming Subset: " $TEMP_NAME
 	fi
 done 
 echo "=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~="
-
-#####################################################################################################################
 
 # This code essentially just removes all the temp files that were created by the program
 if [ $CLEAN_ALL = TRUE ]
