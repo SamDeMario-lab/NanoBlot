@@ -13,12 +13,12 @@ args = commandArgs(trailingOnly=TRUE)
 sample_msg <- paste("Sample loading order:", args[1])
 probe_msg <- paste("Probe(s):", args[2])
 dup_msg <- paste("Duplication Factor:", args[3])
-neg_probe_msg <- paste("Negative Probe(s):", args[4])
+neg_probe_msg <- paste("Negative Probe(s):", args[5])
 print("Starting plot generation.")
 print(sample_msg)
 print(probe_msg)
 print(dup_msg)
-if (length(args[4])==0) {
+if (length(args)==4) {
 	neg_probe_msg <- "No Negative Probes"
 }
 print(neg_probe_msg)
@@ -27,14 +27,13 @@ bio_samples <- strsplit(x = args[1], split = ",") #Splits the sample loading ord
 filenames <- as.vector("ERROR") #declaring the variable so it exists outside the loop scopes, so just assigning it any random value 
 
 #Make locations of bamfiles
-file_path <- args[5]
+file_path <- args[4]
 print(file_path)
 for (i in 1:length(bio_samples[[1]])) {
 	filenames[i] <- paste(getwd(), "/temp/", bio_samples[[1]][i], "_", file_path, ".bam", sep="")
 }
 
 #Read in BAM files
-
 bam_samples <- as.list("ERROR") #The bam_samples directory is created as an empty list
 # Reminder, lists can contain any object type, which makes it easier compared to vectors
 for (i in 1:length(filenames)) {
@@ -62,7 +61,7 @@ blot_data <- data.frame("qname"=c(bam_samples[[1]][[1]][["qname"]]),
 
 # Now this is putting all the rest of the sample names into data frames
 for (i in 2:length(bio_samples[[1]])) {
-  print(i)
+  #print(i) #Don't know why we need this print statement?
   temp_blot_data <- data.frame("qname"=c(bam_samples[[i]][[1]][["qname"]]),
                           "qwidth"=c(bam_samples[[i]][[1]][["qwidth"]]),
                           "sample_name"=bio_samples[[1]][[i]],

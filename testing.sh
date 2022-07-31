@@ -133,7 +133,6 @@ fi
 
 declare -i END_PLOT=$(wc -l < $PLOTS) # Again, declares the line numbers of PLOTS and sets it to 
 # a variable called END_PLOT, WC WILL NOT COUNT A LINE UNLESS IT ENDS WITH A NEWLINE CHARACTER
-echo $END_PLOT
 
 if [ $NORM = TRUE ] #edited from the brute force method 
 then
@@ -398,7 +397,7 @@ do
 		echo "======="
 		echo "Running R scripts"
 		BAMS=${fields[1]} #I dont know why I need this but I do
-		Rscript $NANO_BLOT_RSCRIPT $BAMS ${fields[2]} $DUP_FACTOR ${fields[4]} ${PREVIOUS_ANTI_PROBE}
+		Rscript $NANO_BLOT_RSCRIPT $BAMS ${fields[2]} $DUP_FACTOR ${PREVIOUS_ANTI_PROBE} ${fields[4]}
 		echo "======="
 	else
 		echo "Skipping plot generation. If plot generation is desired remove -P flag."
