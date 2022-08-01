@@ -134,6 +134,8 @@ fi
 declare -i END_PLOT=$(wc -l < $PLOTS) # Again, declares the line numbers of PLOTS and sets it to 
 # a variable called END_PLOT, WC WILL NOT COUNT A LINE UNLESS IT ENDS WITH A NEWLINE CHARACTER
 
+
+
 if [ $NORM = TRUE ] #edited from the brute force method 
 then
 	echo -e "=======\nNormalization"

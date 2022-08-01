@@ -73,7 +73,7 @@ echo "Meta Data File: $META_DATA";
 
 #using the debugger
 
-declare -i END_META=$(wc -l < $META_DATA) #stores the number of lines of META_DATA into a variable
+declare -i END_META=$(awk 'END { print NR }' $META_DATA) #stores the number of lines of META_DATA into a variable
 # that is declared called END_META, declare -i basically makes it so that the variable can only be
 # changed to another integer, declares the variable type 
 
@@ -131,8 +131,19 @@ For an explanation of the required input files see the README.md
 exit
 fi
 
-declare -i END_PLOT=$(wc -l < $PLOTS) # Again, declares the line numbers of PLOTS and sets it to 
+declare -i END_PLOT=$(awk 'END { print NR }' $PLOTS) # Again, declares the line numbers of PLOTS and sets it to 
 # a variable called END_PLOT, WC WILL NOT COUNT A LINE UNLESS IT ENDS WITH A NEWLINE CHARACTER
+
+# PLOT_ROWS=$(awk '{if (NR!=1) print $1 }' $PLOTS)
+
+# IFS=$'\n' read -a PLOT_NAMES <<<"$PLOT_ROWS"
+# for plot_name in "${PLOT_NAMES[@]}"
+# do
+# 	P_LINE=$(awk -v var="$plot_name" '$1==var {print $0}' $PLOTS)
+# 	echo $P_LINE
+# 
+# done
+# exit
 
 if [ $NORM = TRUE ] #edited from the brute force method 
 then
