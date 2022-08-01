@@ -2,12 +2,10 @@
 
 ### Add a check fo duplicated sample/probe/plot names
 
-### Add escapes from for loops
+### Fix plot_data.csv, seems to be the most buggy right now because of the way it treats /n for a line or not
 
 ### Fix names in R script
 I want it to add the negative probe to the plot name if a negative probe is used
-
-## Make multiplexing work
 
 ## Write a manuscript + ReadMe
 
