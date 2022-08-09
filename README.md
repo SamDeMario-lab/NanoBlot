@@ -62,4 +62,3 @@ It requires 3 inputs:
   Sample_name (This must be unique for each sample)	Type (FAST5 or BAM)	Location (For FAST5 inputs this should be a directory ending in a /, For BAM inputs the path to the bam file should be given.)
   WT		/home/guillaume-chanfreau/Sequencing_Data/slu7_rrp6/pass/barcode01/sorted_merged.bam
 ```
-
