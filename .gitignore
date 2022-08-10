@@ -38,5 +38,5 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
-/temp/
-/plots/
+temp/**/*
+plots/**/*
