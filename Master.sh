@@ -308,11 +308,19 @@ do
 
 			if [[ "$SUBSET_BAMS"  == TRUE ]]
 			then
-				for (( t=2; t<=$END_META; t++ )) ##You need to only create subsets of the samples you are using 
+				IFS=$',';
+				for sample in $BAMS;
 				do
-					DATA_LINE_T=$(head -n $t $META_DATA | tail -n -1) #Individual data line
+					DATA_LINE_T=$(awk -v var="$sample" '$1==var {print $0}' $META_DATA)
 					IFS=$'\t' read -a EELS <<<"$DATA_LINE_T" 
-					SAMPLE_NAME=${EELS[0]} #Neeed to filter individual data line to get the sample name
+					SAMPLE_NAME=${EELS[0]} #Need to filter individual data line to get the sample name
+					
+					if [[ -z "DATA_LINE_T" ]]
+					then
+						echo "Metadata: $sample not found in $META_DATA. Check meta_data file. Exiting script"
+						exit #Not sure if I want this to exit just yet
+					fi
+					
 					if ! [ -z $PREVIOUS_PROBE ] #Checks if its not an empty string
 					then
 						DATA_LOCATION="./temp/"$SAMPLE_NAME"_"$PREVIOUS_PROBE".bam"
@@ -322,7 +330,7 @@ do
 						TEMP_NAME=$SAMPLE_NAME"_"$probe".bam"
 					fi 
 					echo -e "Subsetting: "$DATA_LOCATION"\nNaming Subset:  "$TEMP_NAME
-				
+					
 					if [[ "$CDNA"  == TRUE ]]
 					then
 						bedtools intersect -a $DATA_LOCATION -b "./temp/temp_bed.bed" -wa -split -nonamecheck > "./temp/$TEMP_NAME"
@@ -342,6 +350,7 @@ do
 						# we want the feature to be in the direction that we intend it to be
 					fi
 				done
+				IFS=$'\t';
 				if ! [ -z $PREVIOUS_PROBE ]
 				then
 					PREVIOUS_PROBE=${PREVIOUS_PROBE}_$probe #update previous probe right before the for loop for each probe updates 
