@@ -71,8 +71,6 @@ sleep 1 #Pauses for one second to actually let the user know that the program is
 echo "R Script: $NANO_BLOT_RSCRIPT";
 echo "Meta Data File: $META_DATA";
 
-#using the debugger
-
 declare -i END_META=$(awk 'END { print NR }' $META_DATA) #stores the number of lines of META_DATA into a variable
 # that is declared called END_META, declare -i basically makes it so that the variable can only be
 # changed to another integer, declares the variable type 
@@ -133,17 +131,6 @@ fi
 
 declare -i END_PLOT=$(awk 'END { print NR }' $PLOTS) # Again, declares the line numbers of PLOTS and sets it to 
 # a variable called END_PLOT, WC WILL NOT COUNT A LINE UNLESS IT ENDS WITH A NEWLINE CHARACTER
-
-# PLOT_ROWS=$(awk '{if (NR!=1) print $1 }' $PLOTS)
-
-# IFS=$'\n' read -a PLOT_NAMES <<<"$PLOT_ROWS"
-# for plot_name in "${PLOT_NAMES[@]}"
-# do
-# 	P_LINE=$(awk -v var="$plot_name" '$1==var {print $0}' $PLOTS)
-# 	echo $P_LINE
-# 
-# done
-# exit
 
 if [ $NORM = TRUE ] #edited from the brute force method 
 then
@@ -279,6 +266,9 @@ do
 	echo $BAMS
 	
 	# If normalization was true, then set the meta_data variable to the normalized meta_data 
+	# UNINTENDED EFFECT HERE WHERE metadata.csv of normalized is not recalculated in terms of line length
+	# ALSO, there seems to be an extra line inserted into the normalized data file after norm is done
+	# NEED TO CHECK normalization code to see how it writes the normalized metadata 
 	if [ $NORM = TRUE ]
 	then
 		NORM_FOLDER="./temp/"$(echo "$BAMS" | sed -e 's/,/_/g')"_NORM"
@@ -386,9 +376,10 @@ do
 				
 				if [[ "$SUBSET_BAMS"  == TRUE ]]
 				then
-					for (( p=2; p<=$END_META; p++ )) ##You need to only create subsets of the samples you are using 
+					IFS=$',';
+					for sample in $BAMS; ##You need to only create subsets of the samples you are using 
 					do
-						DL_ANTI=$(head -n $p $META_DATA | tail -n -1) #Individual data line
+						DL_ANTI=$(awk -v var="$sample" '$1==var {print $0}' $META_DATA)
 						IFS=$'\t' read -a bells <<<"$DL_ANTI" 
 						SAMPLE_NAME=${bells[0]} #Neeed to filter individual data line to get the sample name
 						DATA_LOCATION="./temp/"$SAMPLE_NAME"_"$PREVIOUS_ANTI_PROBE".bam"
@@ -404,6 +395,7 @@ do
 							samtools index "./temp/$TEMP_NAME"
 						fi
 					done
+					IFS=$'\t';
 					PREVIOUS_ANTI_PROBE=${PREVIOUS_ANTI_PROBE}_anti_$antiprobe #update previous antiprobe right before the for loop for each antiprobe updates 
 				else 
 					echo "Skipping filtering BAM files. If filtering is desired remove -F flag."
