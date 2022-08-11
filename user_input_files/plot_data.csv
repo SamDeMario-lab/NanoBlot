@@ -1,9 +1,5 @@
 plot_name	loading_order	probe	duplication_factor	antiprobe	
-<<<<<<< HEAD
 YRA1_5exon	WT,RRP6	YRA1_Exon1	4	YRA1_Intron		
 RPL14A_5Exon	WT,RRP6	RPL14A_Exon1	1			
 RPL18A_5Exon	WT,RRP6	RPL18A_Exon1	1			
-=======
-RPL14A_5Exon	WT,RRP6	RPL14A_Exon1	1
 YRA1_5exon	WT,RRP6	YRA1_Exon1,YRA1_Exon2	4	YRA1_Intron
->>>>>>> ba76578a348ae183cbb34c71f9fd7157361b2e8b
