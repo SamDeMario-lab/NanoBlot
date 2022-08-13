@@ -1,7 +1,5 @@
 # To Do
 
-### Add a check for duplicated sample/probe/plot names
-
 ### Allow user to comment out plots in the plot_data.csv file
 I want to add a check to see if the leading character in the csv line is a # and if it is skip that plot. Should be easy just add and if stament to see if the first character of the plot line is a # and then break the for loop.
 
