@@ -67,16 +67,6 @@ done
 
 echo -e "Starting Nanoblot" '\u2622' 
 echo "======="
-sleep 1 #Pauses for one second to actually let the user know that the program is being started
-echo "R Script: $NANO_BLOT_RSCRIPT";
-echo "Meta Data File: $META_DATA";
-
-declare -i END_META=$(awk 'END { print NR }' $META_DATA) #stores the number of lines of META_DATA into a variable
-# that is declared called END_META, declare -i basically makes it so that the variable can only be
-# changed to another integer, declares the variable type 
-
-echo "Probes Bed File: $PROBES";
-echo "Plots File: $PLOTS";
 
 #Check if user asked for the help text and echo the help text.
 if [ $PRINT_HELP = TRUE ]
@@ -128,6 +118,17 @@ For an explanation of the required input files see the README.md
 "
 exit
 fi
+
+sleep 1 #Pauses for one second to actually let the user know that the program is being started
+echo "R Script: $NANO_BLOT_RSCRIPT";
+echo "Meta Data File: $META_DATA";
+
+declare -i END_META=$(awk 'END { print NR }' $META_DATA) #stores the number of lines of META_DATA into a variable
+# that is declared called END_META, declare -i basically makes it so that the variable can only be
+# changed to another integer, declares the variable type 
+
+echo "Probes Bed File: $PROBES";
+echo "Plots File: $PLOTS";
 
 declare -i END_PLOT=$(awk 'END { print NR }' $PLOTS) # Again, declares the line numbers of PLOTS and sets it to 
 # a variable called END_PLOT, WC WILL NOT COUNT A LINE UNLESS IT ENDS WITH A NEWLINE CHARACTER

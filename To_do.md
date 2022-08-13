@@ -1,8 +1,5 @@
 # To Do
 
-### Move print help bellow "Starting Nanoblot"
-Help message should be printed before starting nanoblot to avoid wait time.
-
 ### Add a check for duplicated sample/probe/plot names
 
 ### Allow user to comment out plots in the plot_data.csv file
