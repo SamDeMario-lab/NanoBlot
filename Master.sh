@@ -109,7 +109,7 @@ For an explanation of the required input files see the README.md
 -B  |  Blots metadata file
 -M  |  Location of metadata file
 -R  |  Use custem R script
--N  |  Skip data normalization (Work in progress)
+-N  |  Skip data normalization
 -C  |  Treat reads as cDNA (disregard strand) 
 -F  |  Skip subsetting BAM files for plot generation
 -P  |  Skip nanoblots generation
@@ -117,6 +117,20 @@ For an explanation of the required input files see the README.md
 ==========================================
 "
 exit
+fi
+
+#Checks to see if there are duplicate probe names
+if [ $(awk '{print $4}' $PROBES | sort | uniq -d | wc -l) -ne 0 ]
+then
+	echo "Duplicate probes found in ${PROBES}, please fix and rerun"
+	exit
+fi
+
+#Checks to see if there are duplicate probe names
+if [ $(awk '{print $1}' $META_DATA | sort | uniq -d | wc -l) -ne 0 ]
+then
+	echo "Duplicate metadata samples found in ${META_DATA}, please fix and rerun"
+	exit
 fi
 
 sleep 1 #Pauses for one second to actually let the user know that the program is being started
