@@ -137,15 +137,12 @@ sleep 1 #Pauses for one second to actually let the user know that the program is
 echo "R Script: $NANO_BLOT_RSCRIPT";
 echo "Meta Data File: $META_DATA";
 
-declare -i END_META=$(awk 'END { print NR }' $META_DATA) #stores the number of lines of META_DATA into a variable
-# that is declared called END_META, declare -i basically makes it so that the variable can only be
-# changed to another integer, declares the variable type 
+declare -i END_META=$(awk 'END { print NR }' $META_DATA) 
 
 echo "Probes Bed File: $PROBES";
 echo "Plots File: $PLOTS";
 
-declare -i END_PLOT=$(awk 'END { print NR }' $PLOTS) # Again, declares the line numbers of PLOTS and sets it to 
-# a variable called END_PLOT, WC WILL NOT COUNT A LINE UNLESS IT ENDS WITH A NEWLINE CHARACTER
+declare -i END_PLOT=$(awk 'END { print NR }' $PLOTS) 
 
 if [ $NORM = TRUE ] #edited from the brute force method 
 then
