@@ -152,6 +152,15 @@ then
 		P_LINE=$(head -n $c $PLOTS | tail -n -1) #This line gets the individual row for each row of the plot_data
 		IFS=$'\t'; read -a fields <<<"$P_LINE" # I think this code creates an array called fields which separates each 
 		# column of the individual row of $PLOTS 
+		
+		# Check to see if first character in the first column of the plot_csv file is a #, which if it is, 
+		# will skip that line's normalization in addition to plot generation
+		if [ ${fields[0]::1} = "#" ]
+		then
+			echo "Skipping ${fields[0]} normalization"
+			continue
+		fi
+		
 		BAMS=${fields[1]} # This then gets the 1st index, 2nd column of each row? which is the loading order?
 		NORM_FOLDER="./temp/"$(echo "$BAMS" | sed -e 's/,/_/g')"_NORM" #This basically creates a new folder called norm
 		# and then changes the comma in the loading order to an underscore, the s stands for substitute function, whereas
@@ -249,11 +258,19 @@ for (( j=2; j<=$END_PLOT; j++ )) # For loop that goes through each row of plot_d
 do
 	P_LINE=$(head -n $j $PLOTS | tail -n -1) #Gets each individual row 
 	echo "=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~="
+	IFS=$'\t'; read -a fields <<<"$P_LINE"
+	
+	# Check to see if first character in the first column of the plot_csv file is a #, which if it is, 
+		# will skip that line's plot generation
+		if [ ${fields[0]::1} = "#" ]
+		then
+			echo "Skipping ${fields[0]} plotting"
+			continue
+		fi
+		
 	PLOT_NUM=$((j-1)) #Sets an integer that is the plot_num, starting at plot_num 1
 	echo "Generating plot" $PLOT_NUM
 	echo "======="
-	
-	IFS=$'\t'; read -a fields <<<"$P_LINE"
 	
 	echo 'Probe(s):'${fields[2]}
 	if [ -z "${fields[4]}" ] #checks to see if there is an antiprobe, -z checks for empty string 
