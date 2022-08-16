@@ -14,7 +14,7 @@ easily customizable.
 
 ## Dependencies 
 
-Bedtools 
+Bedtools (> 2.30.0)
 Samtools (> v1.15.1)
 R (> v4.1.2)
   ggplot2
@@ -61,6 +61,8 @@ It requires 3 inputs:
   plot_name	loading_order	probe_black	
   ACT1_5exon	WT,RRP6,SLU7,RRP6SLU7	ACT1_Exon1	
 ```
+
+##### Special note: Adding a # in the first character of a plot line will cause the script to skip plotting of that line. I.e. in the above example, adding #ACT1_5exon will cause the script to skip normalization and plotting of the ACT1_5exon plot
 
 ##### 3) A csv listing the names of input data file and their locations
 ```
