@@ -253,6 +253,7 @@ then
 	done # finishes the first loop
 fi #finishes the first if to check if normalization is already done 
 
+declare -i PLOT_NUM=1
 # Probe data + configuring plots 
 for (( j=2; j<=$END_PLOT; j++ )) # For loop that goes through each row of plot_data
 do
@@ -268,8 +269,8 @@ do
 			continue
 		fi
 		
-	PLOT_NUM=$((j-1)) #Sets an integer that is the plot_num, starting at plot_num 1
 	echo "Generating plot" $PLOT_NUM
+	((PLOT_NUM++))
 	echo "======="
 	
 	echo 'Probe(s):'${fields[2]}
