@@ -163,11 +163,21 @@ then
 		
 		BAMS=${fields[1]} # This then gets the 1st index, 2nd column of each row? which is the loading order?
 		
-		# Psuedocode
+		NORM_FOLDER="./temp/NORM"
+		if [ ! -d "$NORM_FOLDER" ] # checks if the norm folder exists and is a directory 
+		then
+			mkdir -p $NORM_FOLDER
+		fi
+		
+		# First check if htseq-count is necessary, if not, then print that it was already counted
+		echo Running htseq-count 
+		python3 -m HTSeq.scripts.count
+		exit
+		#echo Running $CMD
+		
 		# Creates count tables for each of the samples based off of their metadata location file
 		# Stores those count tables into a NORM folder
 		# This norm folder will then be later accessed in the nano_blot_generation which will call the normalization.R script 
-	
 	
 	done # finishes the first loop
 fi #finishes the first if to check if normalization is already done 
@@ -213,17 +223,6 @@ do
 	# BAMS is a 
 	BAMS=${fields[1]}
 	echo $BAMS
-	
-	# If normalization was true, then set the meta_data variable to the normalized meta_data 
-	# UNINTENDED EFFECT HERE WHERE metadata.csv of normalized is not recalculated in terms of line length
-	# ALSO, there seems to be an extra line inserted into the normalized data file after norm is done
-	# NEED TO CHECK normalization code to see how it writes the normalized metadata 
-	if [ $NORM = TRUE ]
-	then
-		NORM_FOLDER="./temp/"$(echo "$BAMS" | sed -e 's/,/_/g')"_NORM"
-		NORM_METADATA_FILE=$NORM_FOLDER"/data_metadata.csv"
-		META_DATA=$NORM_METADATA_FILE
-	fi
 
 	PREVIOUS_PROBE="" #Needs a tracker to see if the previous probe was already subsetted
 

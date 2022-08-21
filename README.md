@@ -16,10 +16,12 @@ easily customizable.
 
 Bedtools (> 2.30.0)
 Samtools (> v1.15.1)
+HTSeq (v> 2.0.2)
 R (> v4.1.2)
   ggplot2
   Rsamtools
   ggridges
+  Deseq2
   
 The Nanoblot.sh script will require R to run from the bash terminal. If you are on Mac OSX and need to add R to library, I recommend attaching it to $PATH. 
 A sample function would look like ```export PATH="/Library/Frameworks/R.framework/Resources:$PATH"```
