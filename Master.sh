@@ -147,6 +147,7 @@ declare -i END_PLOT=$(awk 'END { print NR }' $PLOTS)
 if [ $NORM = TRUE ] #edited from the brute force method 
 then
 	echo -e "=======\nNormalization"
+	ANNOTATION_FILE="/Users/kevinxu/Desktop/TRAMP_Direct/Saccharomyces_cerevisiae.R64-1-1.107.gtf"
 	for (( c=2; c<=$END_PLOT; c++ ))
 	do
 		P_LINE=$(head -n $c $PLOTS | tail -n -1) #This line gets the individual row for each row of the plot_data
@@ -169,16 +170,23 @@ then
 			mkdir -p $NORM_FOLDER
 		fi
 		
-		# First check if htseq-count is necessary, if not, then print that it was already counted
-		echo Running htseq-count 
-		python3 -m HTSeq.scripts.count
-		exit
-		#echo Running $CMD
-		
-		# Creates count tables for each of the samples based off of their metadata location file
-		# Stores those count tables into a NORM folder
-		# This norm folder will then be later accessed in the nano_blot_generation which will call the normalization.R script 
-	
+		IFS=',';
+		for sample in $BAMS
+			do
+				# Creates count tables for each of the samples based off of their metadata location file
+				# Stores those count tables into a NORM folder
+				# This norm folder will then be later accessed in the nano_blot_generation which will call the normalization.R script
+				NORM_FILE_NAME="${NORM_FOLDER}/${sample}-htseq_counts.tsv"
+				# First check if htseq-count is necessary, if not, then print that it was already counted
+				if [ ! -f $NORM_FILE_NAME ]
+				then
+					echo "Running htseq-count for $sample"
+					DATA_LINE_T=$(awk -v var="$sample" '$1==var {print $0}' $META_DATA)
+					IFS=$'\t' read -a EELS <<<"$DATA_LINE_T" 
+					DATA_LOCATION=${EELS[1]}
+					python3 -m HTSeq.scripts.count -m union $DATA_LOCATION $ANNOTATION_FILE> $NORM_FILE_NAME
+				fi
+			done
 	done # finishes the first loop
 fi #finishes the first if to check if normalization is already done 
 

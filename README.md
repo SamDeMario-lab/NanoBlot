@@ -22,6 +22,7 @@ R (> v4.1.2)
   Rsamtools
   ggridges
   Deseq2
+  dplyr
   
 The Nanoblot.sh script will require R to run from the bash terminal. If you are on Mac OSX and need to add R to library, I recommend attaching it to $PATH. 
 A sample function would look like ```export PATH="/Library/Frameworks/R.framework/Resources:$PATH"```

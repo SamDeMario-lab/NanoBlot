@@ -4,6 +4,8 @@ suppressPackageStartupMessages(library("BiocManager", quietly = TRUE))
 suppressPackageStartupMessages(library("ggplot2", quietly = TRUE))
 suppressPackageStartupMessages(library("Rsamtools", quietly = TRUE))
 suppressPackageStartupMessages(library("ggridges", quietly = TRUE))
+suppressPackageStartupMessages(library("DESeq2", quietly = TRUE))
+suppressPackageStartupMessages(library("dplyr", quietly = TRUE))
 
 #The 3 args are currently 1) loading order 2) probe 3) duplication factor
 args = commandArgs(trailingOnly=TRUE)
@@ -39,6 +41,32 @@ bam_samples <- as.list("ERROR") #The bam_samples directory is created as an empt
 for (i in 1:length(filenames)) {
   bam_samples[[i]] <- scanBam(filenames[i])
 }
+
+#For now, this will always normalize, but if we want to make this modular, we can adapt it so that it can detect if the 
+#user has chosen to normalize or not
+norm_filenames <- c()
+for (i in 1:length(bio_samples[[1]])) {
+	norm_filenames <- append(norm_filenames, paste(bio_samples[[1]][i], "-htseq_counts.tsv", sep=""))
+}
+table <- data.frame(sampleName = norm_filenames, fileName = norm_filenames)
+path=paste(getwd(), "/temp/NORM", sep="")
+#Create Deseq2 data set
+ddsHTSeq <- DESeqDataSetFromHTSeqCount(sampleTable = table, directory = path, design= ~ 1)
+#Remove low counts
+keep <- rowSums(counts(ddsHTSeq)) >= 5
+ddsHTSeq <- ddsHTSeq[keep,]
+#Run DESeq2, which is split into these different functions
+dds <- estimateSizeFactors(ddsHTSeq)
+size_factors <- sizeFactors(dds) #Can improve this by pivoting it but can be implemented in the future
+print(size_factors) #This will get removed in the final draft if used
+
+duplication_factors <- c()
+for (i in 1:length(size_factors)) {
+	# This calculation is taking the "normalization_factor" and finding the inverse, then multiplying by
+	# 10 to have meaningful effect, and then rounding to the nearest digit
+	duplication_factors[i] <- round((1/size_factors[[i]]) * 10, digits = 0)
+}
+
 # So the variable bam_samples is a list of scanBam, which is in itself
 # a list, so bam_samples is a list of lists 
 
@@ -70,10 +98,11 @@ for (i in 2:length(bio_samples[[1]])) {
   # This joins the other data frame together, creating a master data frame called blot_data
 }
 
-#Increase depth, this is based off of the duplication factor
-# There has to be some better way to do this compared to just duplicating the # of plot points
-for (i in 1:args[3]) {
-  blot_data <- rbind(blot_data,blot_data)
+for (i in 1:length(duplication_factors)) {
+	added_data <- blot_data %>% filter(row_number == i)
+	for (j in 1:duplication_factors[[i]]) {
+		blot_data <- rbind(blot_data, added_data)
+	}
 }
 
 #Make folder names + plot names 
@@ -129,11 +158,11 @@ plot_name_violin <-
 # This is important to note because of the row_number here, this is essentially creating the width of 
 # the lane, similar to what a northern blot would produce
 # Default, -0.45, 0.45 
-blot_data$row_number_fuzz <- blot_data$row_number + runif(nrow(blot_data), min = -0.45, max = 0.45)
+blot_data$row_number_fuzz <- blot_data$row_number + runif(nrow(blot_data), min = -0.25, max = 0.25)
 
 #Plotting graphs
 plot_fuzzed <- ggplot(data = blot_data, aes(x = row_number_fuzz, y = qwidth))+
-  geom_point(alpha = 0.05, color = "black", size = 2)+
+  geom_point(alpha = 0.01, color = "black", size = 1)+
   theme(axis.line = element_line(colour = "white"),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
