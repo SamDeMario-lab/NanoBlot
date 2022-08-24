@@ -11,6 +11,7 @@ SUBSET_BAMS=TRUE
 MAKE_PLOT=TRUE
 CDNA=FALSE
 NORM=TRUE
+RT_PCR=FALSE
 CLEAN_ALL=FALSE
 
 #The option-string tells getopts which options to expect and which of them must have an argument. 
@@ -18,7 +19,7 @@ CLEAN_ALL=FALSE
 # after the option flag 
 # The first colon basically means getopts switches to "silent error reporting mode" --> allows you to 
 # handle errors yourself without being disturbed by annoying messages 
-while getopts ":HFPCNWR:M:B:T:" opt; do
+while getopts ":HFPCNWR:M:B:T:Y:" opt; do
 	case $opt in
 		H ) 
 		PRINT_HELP=TRUE
@@ -55,6 +56,10 @@ while getopts ":HFPCNWR:M:B:T:" opt; do
 		N ) 
 		NORM=FALSE
 		echo "Skipping data normalization"
+			;;
+		Y )
+		RT_PCR=$OPTARG
+		echo "Running "$RT_PCR" as Nano RT-PCR"
 			;;
 		W )
 		CLEAN_ALL=TRUE
