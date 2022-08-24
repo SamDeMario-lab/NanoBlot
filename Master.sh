@@ -113,8 +113,8 @@ For an explanation of the required input files see the README.md
 -T  |  Probes bed file 
 -B  |  Blots metadata file
 -M  |  Location of metadata file
--A	|	 Annotation file 
--R  |  Use custem R script
+-A  |  Annotation file 
+-R  |  Use custom R script
 -N  |  Skip data normalization
 -C  |  Treat reads as cDNA (disregard strand) 
 -F  |  Skip subsetting BAM files for plot generation
@@ -152,7 +152,7 @@ declare -i END_PLOT=$(awk 'END { print NR }' $PLOTS)
 
 if [ $NORM = TRUE ] #edited from the brute force method 
 then
-	echo -e "=======\nNormalization"
+	echo -e "=======\nNormalization: Generating Count Tables"
 	echo Annotation File Location: $ANNOTATION_FILE
 	for (( c=2; c<=$END_PLOT; c++ ))
 	do
@@ -170,10 +170,10 @@ then
 		
 		BAMS=${fields[1]} # This then gets the 1st index, 2nd column of each row? which is the loading order?
 		
-		NORM_FOLDER="./temp/NORM"
-		if [ ! -d "$NORM_FOLDER" ] # checks if the norm folder exists and is a directory 
+		COUNT_FOLDER="./temp/count_tables"
+		if [ ! -d "$COUNT_FOLDER" ] # checks if the norm folder exists and is a directory 
 		then
-			mkdir -p $NORM_FOLDER
+			mkdir -p $COUNT_FOLDER
 		fi
 		
 		IFS=',';
@@ -182,15 +182,15 @@ then
 				# Creates count tables for each of the samples based off of their metadata location file
 				# Stores those count tables into a NORM folder
 				# This norm folder will then be later accessed in the nano_blot_generation which will call the normalization.R script
-				NORM_FILE_NAME="${NORM_FOLDER}/${sample}-htseq_counts.tsv"
+				COUNT_FILE_NAME="${COUNT_FOLDER}/${sample}-htseq_counts.tsv"
 				# First check if htseq-count is necessary, if not, then print that it was already counted
-				if [ ! -f $NORM_FILE_NAME ]
+				if [ ! -f $COUNT_FILE_NAME ]
 				then
 					echo "Running htseq-count for $sample"
 					DATA_LINE_T=$(awk -v var="$sample" '$1==var {print $0}' $META_DATA)
 					IFS=$'\t' read -a EELS <<<"$DATA_LINE_T" 
 					DATA_LOCATION=${EELS[1]}
-					python3 -m HTSeq.scripts.count -m union $DATA_LOCATION $ANNOTATION_FILE> $NORM_FILE_NAME
+					python3 -m HTSeq.scripts.count -m union $DATA_LOCATION $ANNOTATION_FILE> $COUNT_FILE_NAME
 				fi
 			done
 	done # finishes the first loop

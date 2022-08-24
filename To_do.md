@@ -3,15 +3,18 @@
 ### RTPCR
 Add a flag that accepts a separate metadata file and cuts the reads down to a user specificed length before plotting.
 
-### Re-add simple library size normalization function
+### Re-add simple library size normalization function, when adding this feature, it will be like a mode that the user can select for normalization, so like -N size or -N differential 
+#### We can make the default option -N differential, so the user will need to specify the annotation file
 
-### Change /temp/NORM to /temp/count_tables
+### Add a feature to have count tables generated again, this could be due to Htseq not running properly, or the user happened to use a new metadata file, etc. 
 
-### Add functionality for user to add annotation file
+### When running the R script, in addition to printing the scaling factors, also print the duplication factors that are automatically calculated 
+
+### Skipping subsetting currently doesn't work because the R script doesn't know where those bam files are 
 
 ### Add user_input_files to the gitignore
 
-### Remove duplication factor and have the Rscript automatically generate and apporate sampling rate
+### Remove duplication factor and have the Rscript automatically generate and appopriate sampling rate
 
 ### Fix Metadata file
 The Metadata file has 3 columns the second column was going to specify whether the input files were FAST5 or BAMs but the we descided to make the script require mapped bam files. 

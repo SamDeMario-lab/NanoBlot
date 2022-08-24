@@ -44,12 +44,12 @@ for (i in 1:length(filenames)) {
 
 #For now, this will always normalize, but if we want to make this modular, we can adapt it so that it can detect if the 
 #user has chosen to normalize or not
-norm_filenames <- c()
+count_filenames <- c()
 for (i in 1:length(bio_samples[[1]])) {
-	norm_filenames <- append(norm_filenames, paste(bio_samples[[1]][i], "-htseq_counts.tsv", sep=""))
+	count_filenames <- append(count_filenames, paste(bio_samples[[1]][i], "-htseq_counts.tsv", sep=""))
 }
-table <- data.frame(sampleName = norm_filenames, fileName = norm_filenames)
-path=paste(getwd(), "/temp/NORM", sep="")
+table <- data.frame(sampleName = count_filenames, fileName = count_filenames)
+path=paste(getwd(), "/temp/count_tables", sep="")
 #Create Deseq2 data set
 ddsHTSeq <- DESeqDataSetFromHTSeqCount(sampleTable = table, directory = path, design= ~ 1)
 #Remove low counts
