@@ -348,6 +348,9 @@ do
 						# and the idea that a spliced form would have no splits in the BAM read
 						# -nonamecheck not really sure what this does 
 						# This in effect finds all instances of the .bam normalized reads that intersect with the .bed input
+					elif ! [ -z "$RTPCR" ]
+					then
+						echo "running as RTPCR"
 					else
 						bedtools intersect -a $DATA_LOCATION -b "./temp/temp_bed.bed" -wa -split -s -nonamecheck > "./temp/$TEMP_NAME"
 						samtools index "./temp/$TEMP_NAME"
