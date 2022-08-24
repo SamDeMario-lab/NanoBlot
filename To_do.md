@@ -2,16 +2,14 @@
 
 ## Big Projects
 ### RTPCR
-Add a flag that accepts a separate metadata file and cuts the reads down to a user specificed length before plotting.
+Add a flag that accepts a separate metadata file and cuts the reads down to a user specified length before plotting.
 
-### Re-add simple library size normalization function, when adding this feature, it will be like a mode that the user can select for normalization, so like -N size or -N differential 
+### Re-add simple library size normalization function, when adding this feature, it will be like a mode that the user can select for normalization, so like -N size or -N differential or -N skip 
 We can make the default option -N differential, so the user will need to specify the annotation file
 
 ### Remove duplication factor and have the Rscript automatically generate an appopriate sampling rate
 
 ## Small Projects 
-Add a feature to have count tables generated again, this could be due to Htseq not running properly, or the user happened to use a new metadata file, etc. 
-
 ### Skipping subsetting currently doesn't work because the R script doesn't know where those bam files are 
 ### Skipping normalization also currently doesn't work because the R script assumes that there will be count tables, but we should make the scaling factors 1 if there is a custom normalization method 
 

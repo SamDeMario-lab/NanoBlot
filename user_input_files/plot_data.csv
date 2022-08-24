@@ -1,6 +1,6 @@
-plot_name	loading_order	probe	duplication_factor	antiprobe	
-#YRA1_5exon	WT,RRP6	YRA1_Exon1	4	YRA1_Intron		
-#RPL14A_5Exon	WT,RRP6	RPL14A_Exon1	1						
-#YRA1_5exon	WT,RRP6	YRA1_Exon1,YRA1_Exon2	4	YRA1_Intron
-#RDH54_5Exon	WT,RRP6	HSP26_Exon1	4
-RPL18A_5Exon	WT,RRP6	RPL18A_Exon1	1
+plot_name	loading_order	probe	antiprobe	
+#YRA1_5exon	WT,RRP6	YRA1_Exon1	YRA1_Intron		
+#RPL14A_5Exon	WT,RRP6	RPL14A_Exon1							
+#YRA1_5exon	WT,RRP6	YRA1_Exon1,YRA1_Exon2	YRA1_Intron
+#RDH54_5Exon	WT,RRP6	HSP26_Exon1	
+RPL18A_5Exon	WT,RRP6	RPL18A_Exon1	

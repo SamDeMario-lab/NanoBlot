@@ -7,18 +7,25 @@ PROBES="./user_input_files/probes.bed"
 META_DATA="./user_input_files/data_metadata.csv"
 NANO_BLOT_RSCRIPT="./scripts/nano_blot_generation.R"
 ANNOTATION_FILE="./user_input_files/Saccharomyces_cerevisiae.R64-1-1.107.gtf"
+
 PRINT_HELP=FALSE
 SUBSET_BAMS=TRUE
 CDNA=FALSE
 NORM=TRUE
 CLEAN_ALL=FALSE
+OVERWRITE_COUNTS=FALSE
+NORM_FACTOR=0 
+# Values of NORM_FACTOR, 0=differential, 1=size, 2=skip 
+
+echo -e "Starting Nanoblot" '\u2622' 
+echo "======="
 
 #The option-string tells getopts which options to expect and which of them must have an argument. 
 #Every character is simply named as is, and when you want it to expect an argument, just place a colon
 # after the option flag 
 # The first colon basically means getopts switches to "silent error reporting mode" --> allows you to 
 # handle errors yourself without being disturbed by annoying messages 
-while getopts ":HFCNWR:M:B:T:A:" opt; do
+while getopts ":HFCWOR:M:B:T:A:N:" opt; do
 	case $opt in
 		H ) 
 		PRINT_HELP=TRUE
@@ -48,13 +55,29 @@ while getopts ":HFCNWR:M:B:T:A:" opt; do
 		PROBES=$OPTARG
 		echo "Using probes bed file $PROBES"
 			;;
-		N ) 
-		NORM=FALSE
-		echo "Skipping data normalization"
+		N )
+		if [ $OPTARG = "differential" ]; then
+			NORM_FACTOR=0
+			echo "Normalization method: Differential"
+		elif [ $OPTARG = "size" ]; then
+			NORM_FACTOR=1
+			echo "Normalization method: Size"
+		elif [ $OPTARG = "skip" ]; then
+			NORM=FALSE
+			NORM_FACTOR=2
+			echo "Skipping data normalization"
+		else
+			echo "Invalid option for -N: please choose from {differential, size, skip}"
+			exit 1
+		fi
 			;;
 		A ) 
 		ANNOTATION_FILE=$OPTARG
 		echo "Using annotation file $ANNOTATION_FILE"
+			;;
+		O ) 
+		OVERWRITE_COUNTS=TRUE
+		echo "Overwriting counts generation"
 			;;
 		W )
 		CLEAN_ALL=TRUE
@@ -62,11 +85,12 @@ while getopts ":HFCNWR:M:B:T:A:" opt; do
 			;;
 		\? ) echo "Invalid option: -$OPTARG"
 			;;
+		: )
+    echo "Invalid Option: -$OPTARG requires an argument" 1>&2
+    exit 1
+      ;;
 	esac
 done
-
-echo -e "Starting Nanoblot" '\u2622' 
-echo "======="
 
 #Check if user asked for the help text and echo the help text.
 if [ $PRINT_HELP = TRUE ]
@@ -110,7 +134,7 @@ For an explanation of the required input files see the README.md
 -M  |  Location of metadata file
 -A  |  Annotation file 
 -R  |  Use custom R script
--N  |  Skip data normalization
+-N  |  Normalization function {differential (default), size, skip}
 -C  |  Treat reads as cDNA (disregard strand) 
 -F  |  Skip subsetting BAM files for plot generation
 -W  |  Clear all files from ./temp/ after plot generation
@@ -144,7 +168,7 @@ echo "Plots File: $PLOTS";
 
 declare -i END_PLOT=$(awk 'END { print NR }' $PLOTS) 
 
-if [ $NORM = TRUE ] #edited from the brute force method 
+if [ $NORM = TRUE ] 
 then
 	echo -e "=======\nNormalization: Generating Count Tables"
 	echo Annotation File Location: $ANNOTATION_FILE
@@ -178,7 +202,7 @@ then
 				# This norm folder will then be later accessed in the nano_blot_generation which will call the normalization.R script
 				COUNT_FILE_NAME="${COUNT_FOLDER}/${sample}-htseq_counts.tsv"
 				# First check if htseq-count is necessary, if not, then print that it was already counted
-				if [ ! -f $COUNT_FILE_NAME ]
+				if [ ! -f $COUNT_FILE_NAME ] || [ $OVERWRITE_COUNTS = TRUE ]
 				then
 					echo "Running htseq-count for $sample"
 					DATA_LINE_T=$(awk -v var="$sample" '$1==var {print $0}' $META_DATA)
@@ -211,22 +235,20 @@ do
 	echo "======="
 	
 	echo 'Probe(s):'${fields[2]}
-	if [ -z "${fields[4]}" ] #checks to see if there is an antiprobe, -z checks for empty string 
+	if [ -z "${fields[3]}" ] #checks to see if there is an antiprobe, -z checks for empty string 
 	then
 		echo "No Negative Probe Used" #Print statement
 	else
-		echo 'Negative Probe(s):'${fields[4]} #Print statement
+		echo 'Negative Probe(s):'${fields[3]} #Print statement
 	fi
-	echo 'Duplication Factor:'${fields[3]} #Print statement
 	echo "======="
 
 	# Setting variables 
-	DUP_FACTOR=${fields[3]}
 	# TARGET is an array variable 
 	IFS=',' read -a TARGET <<< "${fields[2]}"
 	
 	# TARG_NEGS is an array variable 
-	IFS=',' read -a TARG_NEGS <<< "${fields[4]}"
+	IFS=',' read -a TARG_NEGS <<< "${fields[3]}"
 	
 	# BAMS is a 
 	BAMS=${fields[1]}
@@ -310,7 +332,7 @@ do
 	
 	#Go through each anti-target probe 
 	PREVIOUS_ANTI_PROBE=$PREVIOUS_PROBE
-	if [ -z "${fields[4]}" ]
+	if [ -z "${fields[3]}" ]
 	then
 		echo "No negative probe used"
 	else
@@ -363,7 +385,7 @@ do
 	echo "======="
 	echo "Running R scripts"
 	BAMS=${fields[1]} #I dont know why I need this but I do
-	Rscript $NANO_BLOT_RSCRIPT $BAMS ${fields[2]} $DUP_FACTOR ${PREVIOUS_ANTI_PROBE} ${fields[4]}
+	Rscript $NANO_BLOT_RSCRIPT $BAMS ${fields[2]} $NORM_FACTOR ${PREVIOUS_ANTI_PROBE} ${fields[3]}
 	# this order has to be this way because if there is no antiprobe, then it collapses to an empty
 	# string and the number of arguments passed to the script decreases by one, that is why the antiprobe
 	# argument has to be the last one

@@ -16,12 +16,11 @@ args = commandArgs(trailingOnly=TRUE)
 
 sample_msg <- paste("Sample loading order:", args[1])
 probe_msg <- paste("Probe(s):", args[2])
-dup_msg <- paste("Duplication Factor:", args[3])
+NORM_FACTOR <- args[3]
 neg_probe_msg <- paste("Negative Probe(s):", args[5])
 print("Starting plot generation.")
 print(sample_msg)
 print(probe_msg)
-print(dup_msg)
 if (length(args)==4) {
 	neg_probe_msg <- "No Negative Probes"
 }
@@ -60,9 +59,8 @@ ddsHTSeq <- ddsHTSeq[keep,]
 #Run DESeq2, which is split into these different functions
 dds <- estimateSizeFactors(ddsHTSeq)
 size_factors <- sizeFactors(dds) #Can improve this by pivoting it but can be implemented in the future
-cat("Size Factors\n-------\n")
+cat("DESeq2 Size Factors\n-------\n")
 print(size_factors) 
-cat("-------\n")
 
 duplication_factors <- c()
 for (i in 1:length(size_factors)) {
@@ -73,7 +71,6 @@ for (i in 1:length(size_factors)) {
 names(duplication_factors) <- bio_samples[[1]]
 cat("Duplication Factors\n-------\n")
 print(duplication_factors) 
-cat("-------\n")
 
 # So the variable bam_samples is a list of scanBam, which is in itself
 # a list, so bam_samples is a list of lists 
@@ -122,8 +119,6 @@ folder_name <-
 				file_path,
 				"_",
 				pre_plot_name,
-				"_",
-				args[3],
 				"/",
 				sep = "")
 
@@ -135,8 +130,6 @@ plot_name_nano <-
 				file_path,
 				"_",
 				pre_plot_name,
-				"_",
-				args[3],
 				".png",
 				sep = "")
 
@@ -146,8 +139,6 @@ plot_name_ridge <-
 				file_path,
 				"_",
 				pre_plot_name,
-				"_",
-				args[3],
 				".png",
 				sep = "")
 
@@ -157,8 +148,6 @@ plot_name_violin <-
 				file_path,
 				"_",
 				pre_plot_name,
-				"_",
-				args[3],
 				".png",
 				sep = "")
 
