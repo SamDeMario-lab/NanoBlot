@@ -126,7 +126,7 @@ then
 	exit
 fi
 
-#Checks to see if there are duplicate probe names
+#Checks to see if there are duplicate sample names
 if [ $(awk '{print $1}' $META_DATA | sort | uniq -d | wc -l) -ne 0 ]
 then
 	echo "Duplicate metadata samples found in ${META_DATA}, please fix and rerun"
