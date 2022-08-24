@@ -19,7 +19,7 @@ CLEAN_ALL=FALSE
 # after the option flag 
 # The first colon basically means getopts switches to "silent error reporting mode" --> allows you to 
 # handle errors yourself without being disturbed by annoying messages 
-while getopts ":HFPCNWR:M:B:T:" opt; do
+while getopts ":HFPCNWR:M:B:T:A:" opt; do
 	case $opt in
 		H ) 
 		PRINT_HELP=TRUE
@@ -56,6 +56,10 @@ while getopts ":HFPCNWR:M:B:T:" opt; do
 		N ) 
 		NORM=FALSE
 		echo "Skipping data normalization"
+			;;
+		A ) 
+		ANNOTATION_FILE=$OPTARG
+		echo "Using annotation file $ANNOTATION_FILE"
 			;;
 		W )
 		CLEAN_ALL=TRUE
@@ -109,6 +113,7 @@ For an explanation of the required input files see the README.md
 -T  |  Probes bed file 
 -B  |  Blots metadata file
 -M  |  Location of metadata file
+-A	|	 Annotation file 
 -R  |  Use custem R script
 -N  |  Skip data normalization
 -C  |  Treat reads as cDNA (disregard strand) 
