@@ -11,6 +11,8 @@ Add a flag that accepts a separate metadata file and cuts the reads down to a us
 
 ### Add user_input_files to the gitignore
 
+### Remove duplication factor and have the Rscript automatically generate and apporate sampling rate
+
 ### Fix Metadata file
 The Metadata file has 3 columns the second column was going to specify whether the input files were FAST5 or BAMs but the we descided to make the script require mapped bam files. 
 
