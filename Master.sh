@@ -9,7 +9,6 @@ NANO_BLOT_RSCRIPT="./scripts/nano_blot_generation.R"
 ANNOTATION_FILE="./user_input_files/Saccharomyces_cerevisiae.R64-1-1.107.gtf"
 PRINT_HELP=FALSE
 SUBSET_BAMS=TRUE
-MAKE_PLOT=TRUE
 CDNA=FALSE
 NORM=TRUE
 CLEAN_ALL=FALSE
@@ -19,7 +18,7 @@ CLEAN_ALL=FALSE
 # after the option flag 
 # The first colon basically means getopts switches to "silent error reporting mode" --> allows you to 
 # handle errors yourself without being disturbed by annoying messages 
-while getopts ":HFPCNWR:M:B:T:A:" opt; do
+while getopts ":HFCNWR:M:B:T:A:" opt; do
 	case $opt in
 		H ) 
 		PRINT_HELP=TRUE
@@ -28,10 +27,6 @@ while getopts ":HFPCNWR:M:B:T:A:" opt; do
 		F ) 
 		SUBSET_BAMS=FALSE
 		echo "Subsetting BAM files skipped"
-			;;
-		P ) 
-		MAKE_PLOT=FALSE
-		echo "Nanoblot generation skipped"
 			;;
 		C ) 
 		CDNA=TRUE
@@ -118,7 +113,6 @@ For an explanation of the required input files see the README.md
 -N  |  Skip data normalization
 -C  |  Treat reads as cDNA (disregard strand) 
 -F  |  Skip subsetting BAM files for plot generation
--P  |  Skip nanoblots generation
 -W  |  Clear all files from ./temp/ after plot generation
 ==========================================
 "
@@ -366,19 +360,14 @@ do
 	fi
 	
 	echo "======="
-	if [[ "$MAKE_PLOT" == TRUE ]]
-	then
-		echo "======="
-		echo "Running R scripts"
-		BAMS=${fields[1]} #I dont know why I need this but I do
-		Rscript $NANO_BLOT_RSCRIPT $BAMS ${fields[2]} $DUP_FACTOR ${PREVIOUS_ANTI_PROBE} ${fields[4]}
-		# this order has to be this way because if there is no antiprobe, then it collapses to an empty
-		# string and the number of arguments passed to the script decreases by one, that is why the antiprobe
-		# argument has to be the last one
-		echo "======="
-	else
-		echo "Skipping plot generation. If plot generation is desired remove -P flag."
-	fi
+	echo "======="
+	echo "Running R scripts"
+	BAMS=${fields[1]} #I dont know why I need this but I do
+	Rscript $NANO_BLOT_RSCRIPT $BAMS ${fields[2]} $DUP_FACTOR ${PREVIOUS_ANTI_PROBE} ${fields[4]}
+	# this order has to be this way because if there is no antiprobe, then it collapses to an empty
+	# string and the number of arguments passed to the script decreases by one, that is why the antiprobe
+	# argument has to be the last one
+	echo "======="
 	
 done 
 echo "=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~="
