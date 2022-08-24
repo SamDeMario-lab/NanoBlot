@@ -1,5 +1,16 @@
 # To Do
 
+### RTPCR
+Add a flag that accepts a separate metadata file and cuts the reads down to a user specificed length before plotting.
+
+### Re-add simple library size normalization function
+
+### Change /temp/NORM to /temp/count_tables
+
+### Add functionality for user to add annotation file
+
+### Add user_input_files to the gitignore
+
 ### Fix Metadata file
 The Metadata file has 3 columns the second column was going to specify whether the input files were FAST5 or BAMs but the we descided to make the script require mapped bam files. 
 
