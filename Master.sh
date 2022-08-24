@@ -6,6 +6,7 @@ PLOTS="./user_input_files/plot_data.csv" #Be careful of what these variables equ
 PROBES="./user_input_files/probes.bed"
 META_DATA="./user_input_files/data_metadata.csv"
 NANO_BLOT_RSCRIPT="./scripts/nano_blot_generation.R"
+ANNOTATION_FILE="./user_input_files/Saccharomyces_cerevisiae.R64-1-1.107.gtf"
 PRINT_HELP=FALSE
 SUBSET_BAMS=TRUE
 MAKE_PLOT=TRUE
@@ -147,7 +148,7 @@ declare -i END_PLOT=$(awk 'END { print NR }' $PLOTS)
 if [ $NORM = TRUE ] #edited from the brute force method 
 then
 	echo -e "=======\nNormalization"
-	ANNOTATION_FILE="/Users/kevinxu/Desktop/TRAMP_Direct/Saccharomyces_cerevisiae.R64-1-1.107.gtf"
+	echo Annotation File Location: $ANNOTATION_FILE
 	for (( c=2; c<=$END_PLOT; c++ ))
 	do
 		P_LINE=$(head -n $c $PLOTS | tail -n -1) #This line gets the individual row for each row of the plot_data
