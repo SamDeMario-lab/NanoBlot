@@ -1,4 +1,6 @@
 #Load libraries 
+if (!require("BiocManager", quietly = TRUE))
+	install.packages("BiocManager")
 
 suppressPackageStartupMessages(library("BiocManager", quietly = TRUE))
 suppressPackageStartupMessages(library("ggplot2", quietly = TRUE))
@@ -58,7 +60,9 @@ ddsHTSeq <- ddsHTSeq[keep,]
 #Run DESeq2, which is split into these different functions
 dds <- estimateSizeFactors(ddsHTSeq)
 size_factors <- sizeFactors(dds) #Can improve this by pivoting it but can be implemented in the future
-print(size_factors) #This will get removed in the final draft if used
+cat("Size Factors\n-------\n")
+print(size_factors) 
+cat("-------\n")
 
 duplication_factors <- c()
 for (i in 1:length(size_factors)) {
@@ -66,6 +70,10 @@ for (i in 1:length(size_factors)) {
 	# 10 to have meaningful effect, and then rounding to the nearest digit
 	duplication_factors[i] <- round((1/size_factors[[i]]) * 10, digits = 0)
 }
+names(duplication_factors) <- bio_samples[[1]]
+cat("Duplication Factors\n-------\n")
+print(duplication_factors) 
+cat("-------\n")
 
 # So the variable bam_samples is a list of scanBam, which is in itself
 # a list, so bam_samples is a list of lists 

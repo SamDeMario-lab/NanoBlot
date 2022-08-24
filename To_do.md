@@ -8,8 +8,6 @@ Add a flag that accepts a separate metadata file and cuts the reads down to a us
 
 ### Add a feature to have count tables generated again, this could be due to Htseq not running properly, or the user happened to use a new metadata file, etc. 
 
-### When running the R script, in addition to printing the scaling factors, also print the duplication factors that are automatically calculated 
-
 ### Skipping subsetting currently doesn't work because the R script doesn't know where those bam files are 
 
 ### Add user_input_files to the gitignore
