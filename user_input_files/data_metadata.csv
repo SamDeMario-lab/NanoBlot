@@ -1,4 +1,6 @@
-Sample_name	Location
-WT	/Users/kevinxu/Desktop/TRAMP_Direct/WT/sorted_merged.bam
-RRP6	/Users/kevinxu/Desktop/TRAMP_Direct/rrp6/sorted_merged.bam
-
+Sample_name Location
+WT		/home/chanfreaulab2/TRAMP_Direct/WT/sorted_merged.bam
+RRP6		/home/chanfreaulab2/TRAMP_Direct/rrp6/sorted_merged.bam
+AIR1RRP6		/home/chanfreaulab2/TRAMP_Direct/rrp6air1/sorted_merged.bam
+AIR2RRP6		/home/chanfreaulab2/TRAMP_Direct/rrp6air2/sorted_merged.bam
+AIR1AIR2RRP6		/home/chanfreaulab2/TRAMP_Direct/triple/sorted_merged.bam
