@@ -1,7 +1,7 @@
-plot_name	loading_order	probe	antiprobe			
-#GAPDH	WT,RRP6	TDH1			
-#ACT1	WT,RRP6	ACT1			
-#RPS7B	WT,RRP6	RPS7B
-RPL18A	WT,RRP6	RPL18A_Exon1	
-			
-			
+plot_name	loading_order	probe	antiprobe	
+ADI1_LowAbd_gene	WT,RRP6	ADI1		
+GAPDH	WT,RRP6	TDH1	
+ACT1	WT,RRP6	ACT1	
+RPS7B	WT,RRP6	RPS7B	
+snR4	WT,RRP6	snR4	
+snR4_Triple	WT,RRP6,AIR1RRP6,AIR2RRP6,AIR1AIR2RRP6	snR4	
