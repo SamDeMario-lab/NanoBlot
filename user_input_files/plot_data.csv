@@ -1,4 +1,4 @@
-plot_name	loading_order	probe	duplication_factor	antiprobe	
+plot_name	loading_order	probe	antiprobe	
 ADI1_LowAbd_gene	WT,RRP6	ADI1	6			
 GAPDH	WT,RRP6	TDH1	1			
 ACT1	WT,RRP6	ACT1	1			

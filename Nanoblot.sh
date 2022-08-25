@@ -6,20 +6,27 @@ PLOTS="./user_input_files/plot_data.csv" #Be careful of what these variables equ
 PROBES="./user_input_files/probes.bed"
 META_DATA="./user_input_files/data_metadata.csv"
 NANO_BLOT_RSCRIPT="./scripts/nano_blot_generation.R"
+ANNOTATION_FILE="./user_input_files/Saccharomyces_cerevisiae.R64-1-1.107.gtf"
+
 PRINT_HELP=FALSE
 SUBSET_BAMS=TRUE
-MAKE_PLOT=TRUE
 CDNA=FALSE
 NORM=TRUE
 RT_PCR=FALSE
 CLEAN_ALL=FALSE
+OVERWRITE_COUNTS=FALSE
+NORM_FACTOR=0 
+# Values of NORM_FACTOR, 0=differential, 1=size, 2=skip 
+
+echo -e "Starting Nanoblot" '\u2622' 
+echo "======="
 
 #The option-string tells getopts which options to expect and which of them must have an argument. 
 #Every character is simply named as is, and when you want it to expect an argument, just place a colon
 # after the option flag 
 # The first colon basically means getopts switches to "silent error reporting mode" --> allows you to 
 # handle errors yourself without being disturbed by annoying messages 
-while getopts ":HFPCNWR:M:B:T:Y:" opt; do
+while getopts ":HFCWOR:M:B:T:Y:A:N:" opt; do
 	case $opt in
 		H ) 
 		PRINT_HELP=TRUE
@@ -28,10 +35,6 @@ while getopts ":HFPCNWR:M:B:T:Y:" opt; do
 		F ) 
 		SUBSET_BAMS=FALSE
 		echo "Subsetting BAM files skipped"
-			;;
-		P ) 
-		MAKE_PLOT=FALSE
-		echo "Nanoblot generation skipped"
 			;;
 		C ) 
 		CDNA=TRUE
@@ -53,9 +56,29 @@ while getopts ":HFPCNWR:M:B:T:Y:" opt; do
 		PROBES=$OPTARG
 		echo "Using probes bed file $PROBES"
 			;;
-		N ) 
-		NORM=FALSE
-		echo "Skipping data normalization"
+		N )
+		if [ $OPTARG = "differential" ]; then
+			NORM_FACTOR=0
+			echo "Normalization method: Differential"
+		elif [ $OPTARG = "size" ]; then
+			NORM_FACTOR=1
+			echo "Normalization method: Size"
+		elif [ $OPTARG = "skip" ]; then
+			NORM=FALSE
+			NORM_FACTOR=2
+			echo "Skipping data normalization"
+		else
+			echo "Invalid option for -N: please choose from {differential, size, skip}"
+			exit 1
+		fi
+			;;
+		A ) 
+		ANNOTATION_FILE=$OPTARG
+		echo "Using annotation file $ANNOTATION_FILE"
+			;;
+		O ) 
+		OVERWRITE_COUNTS=TRUE
+		echo "Overwriting counts generation"
 			;;
 		Y )
 		RT_PCR=$OPTARG
@@ -67,11 +90,12 @@ while getopts ":HFPCNWR:M:B:T:Y:" opt; do
 			;;
 		\? ) echo "Invalid option: -$OPTARG"
 			;;
+		: )
+    echo "Invalid Option: -$OPTARG requires an argument" 1>&2
+    exit 1
+      ;;
 	esac
 done
-
-echo -e "Starting Nanoblot" '\u2622' 
-echo "======="
 
 #Check if user asked for the help text and echo the help text.
 if [ $PRINT_HELP = TRUE ]
@@ -113,11 +137,11 @@ For an explanation of the required input files see the README.md
 -T  |  Probes bed file 
 -B  |  Blots metadata file
 -M  |  Location of metadata file
--R  |  Use custem R script
--N  |  Skip data normalization
+-A  |  Annotation file 
+-R  |  Use custom R script
+-N  |  Normalization function {differential (default), size, skip}
 -C  |  Treat reads as cDNA (disregard strand) 
 -F  |  Skip subsetting BAM files for plot generation
--P  |  Skip nanoblots generation
 -W  |  Clear all files from ./temp/ after plot generation
 ==========================================
 "
@@ -131,7 +155,7 @@ then
 	exit
 fi
 
-#Checks to see if there are duplicate probe names
+#Checks to see if there are duplicate sample names
 if [ $(awk '{print $1}' $META_DATA | sort | uniq -d | wc -l) -ne 0 ]
 then
 	echo "Duplicate metadata samples found in ${META_DATA}, please fix and rerun"
@@ -149,9 +173,8 @@ echo "Plots File: $PLOTS";
 
 declare -i END_PLOT=$(awk 'END { print NR }' $PLOTS) 
 
-if [ $NORM = TRUE ] #edited from the brute force method 
+if [ $NORM = TRUE ] 
 then
-	echo -e "=======\nNormalization"
 	for (( c=2; c<=$END_PLOT; c++ ))
 	do
 		P_LINE=$(head -n $c $PLOTS | tail -n -1) #This line gets the individual row for each row of the plot_data
@@ -165,98 +188,55 @@ then
 			echo "Skipping ${fields[0]} normalization"
 			continue
 		fi
-		
 		BAMS=${fields[1]} # This then gets the 1st index, 2nd column of each row? which is the loading order?
-		NORM_FOLDER="./temp/"$(echo "$BAMS" | sed -e 's/,/_/g')"_NORM" #This basically creates a new folder called norm
-		# and then changes the comma in the loading order to an underscore, the s stands for substitute function, whereas
-		# the g stands for a global change, since s by itself only applies to the first match
-		if [ ! -d "$NORM_FOLDER" ] # checks if the norm folder exists and is a directory 
-		then
-			echo $NORM_FOLDER " not found" #prints that the normalization folder is not found
-			mkdir -p $NORM_FOLDER; #The manual says that this creates intermediate directories as required. If this option is not specified, 
-			# the full path prefix of each operant must already exist --> this allows it so that you can create sub directories of a directory
-			# It will create the parent directory first, and if it does exist, it will move to create further sub-directories 
-			NORM_METADATA_FILE=$NORM_FOLDER"/data_metadata.csv" #Creates the metadata file type in the norm folder 
-			NORM_METADATA_HEADER="Sample_name (This must be unique for each sample)  Type (FAST5 or BAM)  Location (For BAM inputs the path to the bam file should be given.)"
-			# Above code is the header 
-			echo "Starting Normalization"
-			echo "Samples: "$BAMS
-			IFS=',' #Changes the input field separator to commas now 
-			echo ${NORM_METADATA_HEADER} >$NORM_METADATA_FILE # This creates the first line to be inputted into the empty csv file, which 
-			# basically only contains the header first 
-			COMPARE=999999999999999 #This is probobly not the best way to do this, agreed, this is hard coding
-			for f in $BAMS; #Remember, the IFS changed to commas, so now this will create a for loop run for each of the loading orders
-			do
-				for (( o=2; o<=$END_META; o++ )) #Nested for loop, feel like there might be some easier way to do this as well 
-				do
-					DATA_LINE_o=$(head -n $o $META_DATA | tail -n -1) #Takes single rows again but this time out of the 
-					# metadata folder --> basically now it knows how to pull the BAM files 
-					IFS=$'\t'; read -a EELS <<<"$DATA_LINE_o" #Creates a new array called EELS --> this basically is each row in the metadata file
-					DATA_LOCATION=${EELS[1]} #Takes the 1st index, which is the value for the data location
-					SAMP_NAME=${EELS[0]} # Takes the 0th index, which is the value for the sample name
-					
-					#This if statement can just be calculated in one awk command
-					#awk -v var="$f" '$1==var {print $0}'
-					
-					if [[ $f == $SAMP_NAME ]] #If it finds the sample name, so like WT or RRP6 in the SAMP_NAME of the data metadata
-					then
-						echo "Found "$f 
-						READ_COUNT=$(samtools view -c -F 260 $DATA_LOCATION) # samtools view function will view and convert SAM/BAM/CRAM files
-						# the -c option counts the number of alignments instead of printing out the alignments 
-						# the -F flag does not output any alignments with the bits set in the Flag argument 
-						# a -F flag of 260 means that
-						# 256 - The given alignment is a secondary alignment 4 - The read was not aligned
-						# In essence, this makes it so that all unaligned and non-first choice mappings are removed
-						# In the future, we need a better way to store the sample files for reference 
-						if [[ $READ_COUNT -lt $COMPARE ]] # -lt is less than
-						then
-							COMPARE=$READ_COUNT # An easier way is to just declare the variable, I get that you want this variable to 
-							# exist outside the scope of the for loop 
-							# Will take the lowest read count if there are multiple read counts from multiple bam file locations for a single
-							# sample name 
-						fi
-					fi
-				done
-			done
-			echo $COMPARE # Prints out the lowest read count across all samples in one plot
-			IFS=',' #Changes the IFS again
+		
+		# This if is for the DeSeq2 normalization method which first generates count tables
+		if [ $NORM_FACTOR = 0 ]; then
+			echo -e "=======\nNormalization: Generating Count Tables for ${fields[0]}"
+			echo Annotation File Location: $ANNOTATION_FILE
 			
-			#After it finds all the metadata it needs to normalize the loading_order, it then normalizes the metadata sorted
-			# bam files to that normalized number 
-			for f in $BAMS;
-			do
-				for (( e=2; e<=$END_META; e++ ))
+			COUNT_FOLDER="./temp/count_tables"
+			if [ ! -d "$COUNT_FOLDER" ] # checks if the norm folder exists and is a directory 
+			then
+				mkdir -p $COUNT_FOLDER
+			fi
+			
+			IFS=',';
+			for sample in $BAMS
 				do
-					DATA_LINE=$(head -n $e $META_DATA | tail -n -1)
-					IFS=$'\t'; read -a EELS <<<"$DATA_LINE"
-					DATA_LOCATION=${EELS[1]}
-					SAMP_NAME=${EELS[0]}
-					if [[ $f == $SAMP_NAME ]]
+					# Creates count tables for each of the samples based off of their metadata location file
+					# Stores those count tables into a NORM folder
+					# This norm folder will then be later accessed in the nano_blot_generation which will call the normalization.R script
+					COUNT_FILE_NAME="${COUNT_FOLDER}/${sample}-htseq_counts.tsv"
+					# First check if htseq-count is necessary, if not, then print that it was already counted
+					if [ ! -f $COUNT_FILE_NAME ] || [ $OVERWRITE_COUNTS = TRUE ]
 					then
-						echo "Subsetting "$SAMP_NAME" to "$COMPARE" reads."
-						OUTPUT_NORM_SAM=$NORM_FOLDER"/"$f"_NORM.sam"
-						OUTPUT_NORM_BAM=$NORM_FOLDER"/"$f"_NORM.bam"
-						cat <(samtools view -H $DATA_LOCATION) <(samtools view ${DATA_LOCATION} | shuf -n $COMPARE) > $OUTPUT_NORM_SAM #THIS TAKES A LOT OF RAM
-						# above line, -H means to output the header only, I think this is just doing header and body separately? 
-						# so the way this is normalizing is it just randomly takes the lowest number of reads across all sequenced files
-						# There has to be a better way to normalize using a package
-						samtools view -S -b $OUTPUT_NORM_SAM > $OUTPUT_NORM_BAM #-S, previously required if input was in SAM format
-						# now, it automatically detects -b outputs in bam format 
-						samtools sort $OUTPUT_NORM_BAM -o $OUTPUT_NORM_BAM #sorts, which sorts all the reads by genomic position
-						samtools index $OUTPUT_NORM_BAM #indexes the bam file, mainly for igv use, allows navigating it without
-						# loading all the file into memory
-						echo $SAMP_NAME"		"$OUTPUT_NORM_BAM >> $NORM_METADATA_FILE
+						echo "Running htseq-count for $sample"
+						DATA_LINE_T=$(awk -v var="$sample" '$1==var {print $0}' $META_DATA)
+						IFS=$'\t' read -a EELS <<<"$DATA_LINE_T" 
+						DATA_LOCATION=${EELS[1]}
+						python3 -m HTSeq.scripts.count -m union $DATA_LOCATION $ANNOTATION_FILE> $COUNT_FILE_NAME
 					fi
 				done
+		# This if is for the size normalization method, essentially CPM 
+		elif [ $NORM_FACTOR = 1 ]; then
+			echo -e "=======\nNormalization: Counts Per Million for ${fields[0]}"
+			IFS=',';
+			for sample in $BAMS
+				do
+				DATA_LINE_T=$(awk -v var="$sample" '$1==var {print $0}' $META_DATA)
+				IFS=$'\t' read -a EELS <<<"$DATA_LINE_T" 
+				DATA_LOCATION=${EELS[1]}
+				echo $sample: $(samtools view -c -F 260 $DATA_LOCATION) reads 
 			done
-		else #else loop runs if the norm directory already exists 
-			echo "" 
-			echo $NORM_FOLDER" already exists."
-			echo "If data normalization should be re-run delete "$NORM_FOLDER
-			echo ""
-		fi #finishes the if to check if the directory exists already for normalization
+		
+		# This only runs if there is an error with setting the norm factor, this should never run 
+		else
+			echo Error with NORM_FACTOR, value is $NORM_FACTOR
+			exit 1
+		fi
 	done # finishes the first loop
-fi #finishes the first if to check if normalization is already done 
+fi #finishes the if to check if NORM is true 
 
 declare -i PLOT_NUM=1
 # Probe data + configuring plots 
@@ -279,37 +259,24 @@ do
 	echo "======="
 	
 	echo 'Probe(s):'${fields[2]}
-	if [ -z "${fields[4]}" ] #checks to see if there is an antiprobe, -z checks for empty string 
+	if [ -z "${fields[3]}" ] #checks to see if there is an antiprobe, -z checks for empty string 
 	then
 		echo "No Negative Probe Used" #Print statement
 	else
-		echo 'Negative Probe(s):'${fields[4]} #Print statement
+		echo 'Negative Probe(s):'${fields[3]} #Print statement
 	fi
-	echo 'Duplication Factor:'${fields[3]} #Print statement
 	echo "======="
 
 	# Setting variables 
-	DUP_FACTOR=${fields[3]}
 	# TARGET is an array variable 
 	IFS=',' read -a TARGET <<< "${fields[2]}"
 	
 	# TARG_NEGS is an array variable 
-	IFS=',' read -a TARG_NEGS <<< "${fields[4]}"
+	IFS=',' read -a TARG_NEGS <<< "${fields[3]}"
 	
 	# BAMS is a 
 	BAMS=${fields[1]}
 	echo $BAMS
-	
-	# If normalization was true, then set the meta_data variable to the normalized meta_data 
-	# UNINTENDED EFFECT HERE WHERE metadata.csv of normalized is not recalculated in terms of line length
-	# ALSO, there seems to be an extra line inserted into the normalized data file after norm is done
-	# NEED TO CHECK normalization code to see how it writes the normalized metadata 
-	if [ $NORM = TRUE ]
-	then
-		NORM_FOLDER="./temp/"$(echo "$BAMS" | sed -e 's/,/_/g')"_NORM"
-		NORM_METADATA_FILE=$NORM_FOLDER"/data_metadata.csv"
-		META_DATA=$NORM_METADATA_FILE
-	fi
 
 	PREVIOUS_PROBE="" #Needs a tracker to see if the previous probe was already subsetted
 
@@ -392,7 +359,8 @@ do
 	
 	#Go through each anti-target probe 
 	PREVIOUS_ANTI_PROBE=$PREVIOUS_PROBE
-	if [ -z "${fields[4]}" ]
+
+	if [ -z "${fields[3]}" ]
 	then
 		echo "No negative probe used"
 	else
@@ -442,19 +410,14 @@ do
 	fi
 	
 	echo "======="
-	if [[ "$MAKE_PLOT" == TRUE ]]
-	then
-		echo "======="
-		echo "Running R scripts"
-		BAMS=${fields[1]} #I dont know why I need this but I do
-		Rscript $NANO_BLOT_RSCRIPT $BAMS ${fields[2]} $DUP_FACTOR ${PREVIOUS_ANTI_PROBE} ${fields[4]}
-		# this order has to be this way because if there is no antiprobe, then it collapses to an empty
-		# string and the number of arguments passed to the script decreases by one, that is why the antiprobe
-		# argument has to be the last one
-		echo "======="
-	else
-		echo "Skipping plot generation. If plot generation is desired remove -P flag."
-	fi
+	echo "======="
+	echo "Running R scripts"
+	BAMS=${fields[1]} #I dont know why I need this but I do
+	Rscript $NANO_BLOT_RSCRIPT $BAMS ${fields[2]} $NORM_FACTOR ${PREVIOUS_ANTI_PROBE} $META_DATA ${fields[3]}
+	# this order has to be this way because if there is no antiprobe, then it collapses to an empty
+	# string and the number of arguments passed to the script decreases by one, that is why the antiprobe
+	# argument has to be the last one
+	echo "======="
 	
 done 
 echo "=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~="
