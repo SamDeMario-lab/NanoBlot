@@ -130,6 +130,7 @@ for (i in 2:length(bio_samples[[1]])) {
 for (i in 1:length(duplication_factors)) {
 	added_data <- blot_data %>% filter(row_number == i)
 	for (j in 1:duplication_factors[[i]]) {
+		if (duplication_factors[[i]] <= 1) {break;}
 		blot_data <- rbind(blot_data, added_data)
 	}
 }
