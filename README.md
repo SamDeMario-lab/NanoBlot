@@ -39,11 +39,12 @@ Nanoblot (Version 1.0)
 | -T   |  Probes bed file |
 | -B   |  Blots metadata file |
 | -M   |  Location of metadata file |
-| -R   |  Use custem R script |
-| -N   |  Skip data normalization (Work in progress) |
+| -A   |  Annotation file |
+| -R   |  Use custom R script |
+| -Y   |  RT-PCR mode, supply with own metadata file |
+| -N   |  Normalization function {differential (default), size, skip} |
 | -C   |  Treat reads as cDNA (disregard strand) |
 | -F   |  Skip subsetting BAM files for plot generation |
-| -P   |  Skip nanoblots generation |
 | -W   |  Clear all files from ./temp/ after plot generation |
 
 
@@ -61,14 +62,15 @@ It requires 3 inputs:
 
 ##### 2) A csv file listing the plots to be produced 
 ```
-  plot_name	loading_order	probe_black	
+  plot_name	loading_order	probe	antiprobe
   ACT1_5exon	WT,RRP6,SLU7,RRP6SLU7	ACT1_Exon1	
 ```
-
-##### Special note: Adding a # in the first character of a plot line will cause the script to skip plotting of that line. I.e. in the above example, adding #ACT1_5exon will cause the script to skip normalization and plotting of the ACT1_5exon plot
+Special note: Adding a # in the first character of a plot line will cause the script to skip plotting of that line. I.e. in the above example, adding #ACT1_5exon will cause the script to skip normalization and plotting of the ACT1_5exon plot
+In addition, it is not necessary to have an antiprobe, leaving it blank is fine
 
 ##### 3) A csv listing the names of input data file and their locations
 ```
-  Sample_name (This must be unique for each sample)	Type (FAST5 or BAM)	Location (For FAST5 inputs this should be a directory ending in a /, For BAM inputs the path to the bam file should be given.)
-  WT		/home/guillaume-chanfreau/Sequencing_Data/slu7_rrp6/pass/barcode01/sorted_merged.bam
+  Sample_name	Location
+  WT	/home/guillaume-chanfreau/Sequencing_Data/slu7_rrp6/pass/barcode01/sorted_merged.bam
 ```
+Make sure each line is tab deliminated and is exactly one tab apart

@@ -139,6 +139,7 @@ For an explanation of the required input files see the README.md
 -M  |  Location of metadata file
 -A  |  Annotation file 
 -R  |  Use custom R script
+-Y  |  RT-PCR mode, supply with own metadata file 
 -N  |  Normalization function {differential (default), size, skip}
 -C  |  Treat reads as cDNA (disregard strand) 
 -F  |  Skip subsetting BAM files for plot generation
