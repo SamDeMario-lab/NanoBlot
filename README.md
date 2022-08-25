@@ -12,31 +12,36 @@ presence of a specified region. Additionally, multiple colors can be used to hig
 NanoBlot can accept either raw Nanopore data or processed bam files. It is based around ggplot and is 
 easily customizable. 
 
-Nanoblot is in active development. 
-
 ## Dependencies 
 
-Bedtools 
+Bedtools (> 2.30.0)
 Samtools (> v1.15.1)
 R (> v4.1.2)
   ggplot2
   Rsamtools
   ggridges
   
-The Master.sh script will require R to run from the bash terminal. If you are on Mac OSX and need to add R to library, I recommend attaching it to $PATH. 
+The Nanoblot.sh script will require R to run from the bash terminal. If you are on Mac OSX and need to add R to library, I recommend attaching it to $PATH. 
 A sample function would look like ```export PATH="/Library/Frameworks/R.framework/Resources:$PATH"```
 
 ## Usage:
 
-Nanoblot can be run in its entirety via the included bash script "Master.sh"
+Nanoblot can be run in its entirety via the included bash script "Nanoblot.sh"
 
 Nanoblot (Version 1.0)
 
 | Flag | Description |
 | ---  | --- |
 | -H   |  Print help menu |
-| -F   |  Filter BAM files for plot generation |
-| -P   |  Generate nanoblots |
+| -T   |  Probes bed file |
+| -B   |  Blots metadata file |
+| -M   |  Location of metadata file |
+| -R   |  Use custem R script |
+| -N   |  Skip data normalization (Work in progress) |
+| -C   |  Treat reads as cDNA (disregard strand) |
+| -F   |  Skip subsetting BAM files for plot generation |
+| -P   |  Skip nanoblots generation |
+| -W   |  Clear all files from ./temp/ after plot generation |
 
 
 It requires 3 inputs:
@@ -56,6 +61,8 @@ It requires 3 inputs:
   plot_name	loading_order	probe_black	
   ACT1_5exon	WT,RRP6,SLU7,RRP6SLU7	ACT1_Exon1	
 ```
+
+##### Special note: Adding a # in the first character of a plot line will cause the script to skip plotting of that line. I.e. in the above example, adding #ACT1_5exon will cause the script to skip normalization and plotting of the ACT1_5exon plot
 
 ##### 3) A csv listing the names of input data file and their locations
 ```

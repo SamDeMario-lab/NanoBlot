@@ -72,18 +72,6 @@ done
 
 echo -e "Starting Nanoblot" '\u2622' 
 echo "======="
-sleep 1 #Pauses for one second to actually let the user know that the program is being started
-echo "R Script: $NANO_BLOT_RSCRIPT";
-echo "Meta Data File: $META_DATA";
-
-#using the debugger
-
-declare -i END_META=$(awk 'END { print NR }' $META_DATA) #stores the number of lines of META_DATA into a variable
-# that is declared called END_META, declare -i basically makes it so that the variable can only be
-# changed to another integer, declares the variable type 
-
-echo "Probes Bed File: $PROBES";
-echo "Plots File: $PLOTS";
 
 #Check if user asked for the help text and echo the help text.
 if [ $PRINT_HELP = TRUE ]
@@ -126,7 +114,7 @@ For an explanation of the required input files see the README.md
 -B  |  Blots metadata file
 -M  |  Location of metadata file
 -R  |  Use custem R script
--N  |  Skip data normalization (Work in progress)
+-N  |  Skip data normalization
 -C  |  Treat reads as cDNA (disregard strand) 
 -F  |  Skip subsetting BAM files for plot generation
 -P  |  Skip nanoblots generation
@@ -136,19 +124,30 @@ For an explanation of the required input files see the README.md
 exit
 fi
 
-declare -i END_PLOT=$(awk 'END { print NR }' $PLOTS) # Again, declares the line numbers of PLOTS and sets it to 
-# a variable called END_PLOT, WC WILL NOT COUNT A LINE UNLESS IT ENDS WITH A NEWLINE CHARACTER
+#Checks to see if there are duplicate probe names
+if [ $(awk '{print $4}' $PROBES | sort | uniq -d | wc -l) -ne 0 ]
+then
+	echo "Duplicate probes found in ${PROBES}, please fix and rerun"
+	exit
+fi
 
-# PLOT_ROWS=$(awk '{if (NR!=1) print $1 }' $PLOTS)
+#Checks to see if there are duplicate probe names
+if [ $(awk '{print $1}' $META_DATA | sort | uniq -d | wc -l) -ne 0 ]
+then
+	echo "Duplicate metadata samples found in ${META_DATA}, please fix and rerun"
+	exit
+fi
 
-# IFS=$'\n' read -a PLOT_NAMES <<<"$PLOT_ROWS"
-# for plot_name in "${PLOT_NAMES[@]}"
-# do
-# 	P_LINE=$(awk -v var="$plot_name" '$1==var {print $0}' $PLOTS)
-# 	echo $P_LINE
-# 
-# done
-# exit
+sleep 1 #Pauses for one second to actually let the user know that the program is being started
+echo "R Script: $NANO_BLOT_RSCRIPT";
+echo "Meta Data File: $META_DATA";
+
+declare -i END_META=$(awk 'END { print NR }' $META_DATA) 
+
+echo "Probes Bed File: $PROBES";
+echo "Plots File: $PLOTS";
+
+declare -i END_PLOT=$(awk 'END { print NR }' $PLOTS) 
 
 if [ $NORM = TRUE ] #edited from the brute force method 
 then
@@ -158,6 +157,15 @@ then
 		P_LINE=$(head -n $c $PLOTS | tail -n -1) #This line gets the individual row for each row of the plot_data
 		IFS=$'\t'; read -a fields <<<"$P_LINE" # I think this code creates an array called fields which separates each 
 		# column of the individual row of $PLOTS 
+		
+		# Check to see if first character in the first column of the plot_csv file is a #, which if it is, 
+		# will skip that line's normalization in addition to plot generation
+		if [ ${fields[0]::1} = "#" ]
+		then
+			echo "Skipping ${fields[0]} normalization"
+			continue
+		fi
+		
 		BAMS=${fields[1]} # This then gets the 1st index, 2nd column of each row? which is the loading order?
 		NORM_FOLDER="./temp/"$(echo "$BAMS" | sed -e 's/,/_/g')"_NORM" #This basically creates a new folder called norm
 		# and then changes the comma in the loading order to an underscore, the s stands for substitute function, whereas
@@ -250,16 +258,25 @@ then
 	done # finishes the first loop
 fi #finishes the first if to check if normalization is already done 
 
+declare -i PLOT_NUM=1
 # Probe data + configuring plots 
 for (( j=2; j<=$END_PLOT; j++ )) # For loop that goes through each row of plot_data
 do
 	P_LINE=$(head -n $j $PLOTS | tail -n -1) #Gets each individual row 
 	echo "=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~="
-	PLOT_NUM=$((j-1)) #Sets an integer that is the plot_num, starting at plot_num 1
-	echo "Generating plot" $PLOT_NUM
-	echo "======="
-	
 	IFS=$'\t'; read -a fields <<<"$P_LINE"
+	
+	# Check to see if first character in the first column of the plot_csv file is a #, which if it is, 
+		# will skip that line's plot generation
+		if [ ${fields[0]::1} = "#" ]
+		then
+			echo "Skipping ${fields[0]} plotting"
+			continue
+		fi
+		
+	echo "Generating plot" $PLOT_NUM
+	((PLOT_NUM++))
+	echo "======="
 	
 	echo 'Probe(s):'${fields[2]}
 	if [ -z "${fields[4]}" ] #checks to see if there is an antiprobe, -z checks for empty string 
@@ -284,6 +301,9 @@ do
 	echo $BAMS
 	
 	# If normalization was true, then set the meta_data variable to the normalized meta_data 
+	# UNINTENDED EFFECT HERE WHERE metadata.csv of normalized is not recalculated in terms of line length
+	# ALSO, there seems to be an extra line inserted into the normalized data file after norm is done
+	# NEED TO CHECK normalization code to see how it writes the normalized metadata 
 	if [ $NORM = TRUE ]
 	then
 		NORM_FOLDER="./temp/"$(echo "$BAMS" | sed -e 's/,/_/g')"_NORM"
@@ -394,9 +414,10 @@ do
 				
 				if [[ "$SUBSET_BAMS"  == TRUE ]]
 				then
-					for (( p=2; p<=$END_META; p++ )) ##You need to only create subsets of the samples you are using 
+					IFS=$',';
+					for sample in $BAMS; ##You need to only create subsets of the samples you are using 
 					do
-						DL_ANTI=$(head -n $p $META_DATA | tail -n -1) #Individual data line
+						DL_ANTI=$(awk -v var="$sample" '$1==var {print $0}' $META_DATA)
 						IFS=$'\t' read -a bells <<<"$DL_ANTI" 
 						SAMPLE_NAME=${bells[0]} #Neeed to filter individual data line to get the sample name
 						DATA_LOCATION="./temp/"$SAMPLE_NAME"_"$PREVIOUS_ANTI_PROBE".bam"
@@ -412,6 +433,7 @@ do
 							samtools index "./temp/$TEMP_NAME"
 						fi
 					done
+					IFS=$'\t';
 					PREVIOUS_ANTI_PROBE=${PREVIOUS_ANTI_PROBE}_anti_$antiprobe #update previous antiprobe right before the for loop for each antiprobe updates 
 				else 
 					echo "Skipping filtering BAM files. If filtering is desired remove -F flag."
