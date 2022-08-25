@@ -170,8 +170,6 @@ declare -i END_PLOT=$(awk 'END { print NR }' $PLOTS)
 
 if [ $NORM = TRUE ] 
 then
-	echo -e "=======\nNormalization: Generating Count Tables"
-	echo Annotation File Location: $ANNOTATION_FILE
 	for (( c=2; c<=$END_PLOT; c++ ))
 	do
 		P_LINE=$(head -n $c $PLOTS | tail -n -1) #This line gets the individual row for each row of the plot_data
@@ -185,34 +183,55 @@ then
 			echo "Skipping ${fields[0]} normalization"
 			continue
 		fi
-		
 		BAMS=${fields[1]} # This then gets the 1st index, 2nd column of each row? which is the loading order?
 		
-		COUNT_FOLDER="./temp/count_tables"
-		if [ ! -d "$COUNT_FOLDER" ] # checks if the norm folder exists and is a directory 
-		then
-			mkdir -p $COUNT_FOLDER
-		fi
-		
-		IFS=',';
-		for sample in $BAMS
-			do
-				# Creates count tables for each of the samples based off of their metadata location file
-				# Stores those count tables into a NORM folder
-				# This norm folder will then be later accessed in the nano_blot_generation which will call the normalization.R script
-				COUNT_FILE_NAME="${COUNT_FOLDER}/${sample}-htseq_counts.tsv"
-				# First check if htseq-count is necessary, if not, then print that it was already counted
-				if [ ! -f $COUNT_FILE_NAME ] || [ $OVERWRITE_COUNTS = TRUE ]
-				then
-					echo "Running htseq-count for $sample"
-					DATA_LINE_T=$(awk -v var="$sample" '$1==var {print $0}' $META_DATA)
-					IFS=$'\t' read -a EELS <<<"$DATA_LINE_T" 
-					DATA_LOCATION=${EELS[1]}
-					python3 -m HTSeq.scripts.count -m union $DATA_LOCATION $ANNOTATION_FILE> $COUNT_FILE_NAME
-				fi
+		# This if is for the DeSeq2 normalization method which first generates count tables
+		if [ $NORM_FACTOR = 0 ]; then
+			echo -e "=======\nNormalization: Generating Count Tables for ${fields[0]}"
+			echo Annotation File Location: $ANNOTATION_FILE
+			
+			COUNT_FOLDER="./temp/count_tables"
+			if [ ! -d "$COUNT_FOLDER" ] # checks if the norm folder exists and is a directory 
+			then
+				mkdir -p $COUNT_FOLDER
+			fi
+			
+			IFS=',';
+			for sample in $BAMS
+				do
+					# Creates count tables for each of the samples based off of their metadata location file
+					# Stores those count tables into a NORM folder
+					# This norm folder will then be later accessed in the nano_blot_generation which will call the normalization.R script
+					COUNT_FILE_NAME="${COUNT_FOLDER}/${sample}-htseq_counts.tsv"
+					# First check if htseq-count is necessary, if not, then print that it was already counted
+					if [ ! -f $COUNT_FILE_NAME ] || [ $OVERWRITE_COUNTS = TRUE ]
+					then
+						echo "Running htseq-count for $sample"
+						DATA_LINE_T=$(awk -v var="$sample" '$1==var {print $0}' $META_DATA)
+						IFS=$'\t' read -a EELS <<<"$DATA_LINE_T" 
+						DATA_LOCATION=${EELS[1]}
+						python3 -m HTSeq.scripts.count -m union $DATA_LOCATION $ANNOTATION_FILE> $COUNT_FILE_NAME
+					fi
+				done
+		# This if is for the size normalization method, essentially CPM 
+		elif [ $NORM_FACTOR = 1 ]; then
+			echo -e "=======\nNormalization: Counts Per Million for ${fields[0]}"
+			IFS=',';
+			for sample in $BAMS
+				do
+				DATA_LINE_T=$(awk -v var="$sample" '$1==var {print $0}' $META_DATA)
+				IFS=$'\t' read -a EELS <<<"$DATA_LINE_T" 
+				DATA_LOCATION=${EELS[1]}
+				echo $sample: $(samtools view -c -F 260 $DATA_LOCATION) reads 
 			done
+		
+		# This only runs if there is an error with setting the norm factor, this should never run 
+		else
+			echo Error with NORM_FACTOR, value is $NORM_FACTOR
+			exit 1
+		fi
 	done # finishes the first loop
-fi #finishes the first if to check if normalization is already done 
+fi #finishes the if to check if NORM is true 
 
 declare -i PLOT_NUM=1
 # Probe data + configuring plots 
@@ -385,7 +404,7 @@ do
 	echo "======="
 	echo "Running R scripts"
 	BAMS=${fields[1]} #I dont know why I need this but I do
-	Rscript $NANO_BLOT_RSCRIPT $BAMS ${fields[2]} $NORM_FACTOR ${PREVIOUS_ANTI_PROBE} ${fields[3]}
+	Rscript $NANO_BLOT_RSCRIPT $BAMS ${fields[2]} $NORM_FACTOR ${PREVIOUS_ANTI_PROBE} $META_DATA ${fields[3]}
 	# this order has to be this way because if there is no antiprobe, then it collapses to an empty
 	# string and the number of arguments passed to the script decreases by one, that is why the antiprobe
 	# argument has to be the last one

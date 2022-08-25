@@ -17,11 +17,11 @@ args = commandArgs(trailingOnly=TRUE)
 sample_msg <- paste("Sample loading order:", args[1])
 probe_msg <- paste("Probe(s):", args[2])
 NORM_FACTOR <- args[3]
-neg_probe_msg <- paste("Negative Probe(s):", args[5])
+neg_probe_msg <- paste("Negative Probe(s):", args[6])
 print("Starting plot generation.")
 print(sample_msg)
 print(probe_msg)
-if (length(args)==4) {
+if (length(args)==5) {
 	neg_probe_msg <- "No Negative Probes"
 }
 print(neg_probe_msg)
@@ -43,24 +43,48 @@ for (i in 1:length(filenames)) {
   bam_samples[[i]] <- scanBam(filenames[i])
 }
 
-#For now, this will always normalize, but if we want to make this modular, we can adapt it so that it can detect if the 
-#user has chosen to normalize or not
-count_filenames <- c()
-for (i in 1:length(bio_samples[[1]])) {
-	count_filenames <- append(count_filenames, paste(bio_samples[[1]][i], "-htseq_counts.tsv", sep=""))
+size_factors <- c() #Creating variable name
+if (NORM_FACTOR == 0) {
+	# Differential normalization type
+	count_filenames <- c()
+	for (i in 1:length(bio_samples[[1]])) {
+		count_filenames <- append(count_filenames, paste(bio_samples[[1]][i], "-htseq_counts.tsv", sep=""))
+	}
+	table <- data.frame(sampleName = count_filenames, fileName = count_filenames)
+	path=paste(getwd(), "/temp/count_tables", sep="")
+	#Create Deseq2 data set
+	ddsHTSeq <- DESeqDataSetFromHTSeqCount(sampleTable = table, directory = path, design= ~ 1)
+	#Remove low counts
+	keep <- rowSums(counts(ddsHTSeq)) >= 5
+	ddsHTSeq <- ddsHTSeq[keep,]
+	#Run DESeq2, which is split into these different functions
+	dds <- estimateSizeFactors(ddsHTSeq)
+	size_factors <- sizeFactors(dds)
+	cat("DESeq2 Size Factors\n-------\n")
+	print(size_factors) 
+	
+} else if (NORM_FACTOR == 1) {
+	# Size normalization type
+	meta_data_file <- args[5]
+	meta_data_table <- read.table(meta_data_file, sep='\t', header = TRUE)
+	
+	#setting param so it does not count any unmapped reads or secondary read alignments
+	param = ScanBamParam(flag = scanBamFlag(isUnmappedQuery = FALSE, isSecondaryAlignment = FALSE))
+	for (i in 1:length(bio_samples[[1]])) {
+		data_location <- (meta_data_table %>% filter(Sample_name == bio_samples[[1]][i]))[["Location"]]
+		#Gets the number of reads in the raw bam file, then converts to CPM 
+		raw_read_number <- countBam(file = c(data_location), param = param)[[6]]
+		size_factors[i] <- strtoi(raw_read_number) / 1000000
+	}
+	cat("Counts Per Million Size Factor\n-------\n")
+	names(size_factors) <- bio_samples[[1]]
+	print(size_factors) 
+	
+} else if (NORM_FACTOR == 2) {
+	# Skipping normalization 
+	size_factors <- rep(c(1), times= length(bio_samples[[1]]))
+	cat("Skipping Normalization Factors\n-------\n")
 }
-table <- data.frame(sampleName = count_filenames, fileName = count_filenames)
-path=paste(getwd(), "/temp/count_tables", sep="")
-#Create Deseq2 data set
-ddsHTSeq <- DESeqDataSetFromHTSeqCount(sampleTable = table, directory = path, design= ~ 1)
-#Remove low counts
-keep <- rowSums(counts(ddsHTSeq)) >= 5
-ddsHTSeq <- ddsHTSeq[keep,]
-#Run DESeq2, which is split into these different functions
-dds <- estimateSizeFactors(ddsHTSeq)
-size_factors <- sizeFactors(dds) #Can improve this by pivoting it but can be implemented in the future
-cat("DESeq2 Size Factors\n-------\n")
-print(size_factors) 
 
 duplication_factors <- c()
 for (i in 1:length(size_factors)) {
