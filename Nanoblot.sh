@@ -359,6 +359,7 @@ do
 	
 	#Go through each anti-target probe 
 	PREVIOUS_ANTI_PROBE=$PREVIOUS_PROBE
+
 	if [ -z "${fields[3]}" ]
 	then
 		echo "No negative probe used"
