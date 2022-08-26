@@ -87,11 +87,19 @@ if (NORM_FACTOR == 0) {
 }
 
 duplication_factors <- c()
+raw_reads <- c()
 for (i in 1:length(size_factors)) {
+	param = ScanBamParam(flag = scanBamFlag(isUnmappedQuery = FALSE, isSecondaryAlignment = FALSE))
+	raw_read_number <- countBam(file = c(filenames[i]), param = param)[[6]]
 	# This calculation is taking the "normalization_factor" and finding the inverse, then multiplying by
 	# 10 to have meaningful effect, and then rounding to the nearest digit
 	duplication_factors[i] <- round((1/size_factors[[i]]) * 10, digits = 0)
+	raw_reads[i] <- raw_read_number
 }
+
+DUPLICATION_CONSTANT = 2000
+max_raw_read <- max(raw_reads)
+duplication_factors <- round(duplication_factors * (DUPLICATION_CONSTANT / max_raw_read), digits = 0)
 names(duplication_factors) <- bio_samples[[1]]
 cat("Duplication Factors\n-------\n")
 print(duplication_factors) 
