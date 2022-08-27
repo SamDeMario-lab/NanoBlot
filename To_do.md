@@ -4,9 +4,6 @@
 ### RTPCR
 Add a flag that accepts a separate metadata file and cuts the reads down to a user specified length before plotting.
 
-### Remove duplication factor and have the Rscript automatically generate an appopriate sampling rate
-First, find a way using Rsamtools to count the correct number of bam reads for the size normalization method's size factors. 
-
 ## Small Projects 
 ### Skipping subsetting currently doesn't work because the R script doesn't know where those bam files are 
 
