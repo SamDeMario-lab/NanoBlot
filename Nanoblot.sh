@@ -167,12 +167,12 @@ sleep 1 #Pauses for one second to actually let the user know that the program is
 echo "R Script: $NANO_BLOT_RSCRIPT";
 echo "Meta Data File: $META_DATA";
 
-declare -i END_META=$(awk 'END { print NR }' $META_DATA) 
+declare -i END_META=$(grep -c '.' $META_DATA) 
 
 echo "Probes Bed File: $PROBES";
 echo "Plots File: $PLOTS";
 
-declare -i END_PLOT=$(awk 'END { print NR }' $PLOTS) 
+declare -i END_PLOT=$(grep -c '.' $PLOTS) 
 
 if [ $NORM = TRUE ] 
 then
