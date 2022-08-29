@@ -81,8 +81,9 @@ while getopts ":HFCWOR:M:B:T:Y:A:N:" opt; do
 		echo "Overwriting counts generation"
 			;;
 		Y )
-		RT_PCR=$OPTARG
-		echo "Running "$RT_PCR" as Nano RT-PCR"
+		RT_PCR=TRUE
+		echo "Running Nano RT-PCR"
+		PLOTS=$OPTARG
 			;;
 		W )
 		CLEAN_ALL=TRUE
@@ -259,21 +260,31 @@ do
 	((PLOT_NUM++))
 	echo "======="
 	
-	echo 'Probe(s):'${fields[2]}
-	if [ -z "${fields[3]}" ] #checks to see if there is an antiprobe, -z checks for empty string 
+	if [ $RT_PCR = FALSE ]
+	then
+		PROBE_FIELD=${fields[2]}
+		ANTIPROBE_FIELD=${fields[3]}
+	else 
+		VIEWING_WINDOW=${fields[2]}
+		PROBE_FIELD=${fields[3]}
+		ANTIPROBE_FIELD=${fields[4]}
+	fi
+	
+	echo 'Probe(s):'$PROBE_FIELD
+	if [ -z "$ANTIPROBE_FIELD" ] #checks to see if there is an antiprobe, -z checks for empty string 
 	then
 		echo "No Negative Probe Used" #Print statement
 	else
-		echo 'Negative Probe(s):'${fields[3]} #Print statement
+		echo 'Negative Probe(s):'$ANTIPROBE_FIELD #Print statement
 	fi
 	echo "======="
 
 	# Setting variables 
 	# TARGET is an array variable 
-	IFS=',' read -a TARGET <<< "${fields[2]}"
+	IFS=',' read -a TARGET <<< "$PROBE_FIELD"
 	
 	# TARG_NEGS is an array variable 
-	IFS=',' read -a TARG_NEGS <<< "${fields[3]}"
+	IFS=',' read -a TARG_NEGS <<< "$ANTIPROBE_FIELD"
 	
 	# BAMS is a 
 	BAMS=${fields[1]}
@@ -336,9 +347,6 @@ do
 						# and the idea that a spliced form would have no splits in the BAM read
 						# -nonamecheck not really sure what this does 
 						# This in effect finds all instances of the .bam normalized reads that intersect with the .bed input
-					elif ! [ -z "$RTPCR" ]
-					then
-						echo "running as RTPCR"
 					else
 						bedtools intersect -a $DATA_LOCATION -b "./temp/temp_bed.bed" -wa -split -s -nonamecheck > "./temp/$TEMP_NAME"
 						samtools index "./temp/$TEMP_NAME"
@@ -361,7 +369,7 @@ do
 	#Go through each anti-target probe 
 	PREVIOUS_ANTI_PROBE=$PREVIOUS_PROBE
 
-	if [ -z "${fields[3]}" ]
+	if [ -z "$ANTIPROBE_FIELD" ]
 	then
 		echo "No negative probe used"
 	else
@@ -410,11 +418,49 @@ do
 		done
 	fi
 	
+	# The RT-pCR should actually be the last step once all the probes and antiprobes have been checked as well 
+	if [ $RT_PCR = TRUE ] 
+	then
+		echo "======="
+		echo "Running viewing window $VIEWING_WINDOW subset now for RT-PCR mode"
+		VW_LINE=$(awk -v var="$VIEWING_WINDOW" '$4==var {print $0}' $PROBES)
+		IFS=$'\t'; read -a veels <<< "$VW_LINE"
+		if [[ -z "${veels[@]}" ]]
+		then
+			echo "Viewing window: $VIEWING_WINDOW not found. Check probes file. Exiting script"
+			exit 
+		fi
+		# Psuedo code is esentially it takes the start position, puts that in a bed, does a -wa intersect
+		# Then takes the end position, puts that in the bed, does another -wa intersect
+		# Lastly, takes the full length view window, then does a hard intersect without -wa, which will then only print the 
+		# regions that intersect in that view window 
+		WINDOW_START=${veels[1]}
+		WINDOW_END=${veels[2]}
+		if [[ "$SUBSET_BAMS"  == TRUE ]]
+		then
+			IFS=$',';
+			for sample in $BAMS; ##You need to only create subsets of the samples you are using 
+			do
+				DATA_LOCATION="./temp/${sample}_${PREVIOUS_ANTI_PROBE}.bam"
+				TEMP_DATA_LOCATION="./temp/RTPCR_temp.bam"
+				cp $DATA_LOCATION $TEMP_DATA_LOCATION
+				echo -e "${veels[0]}\t$(($WINDOW_START-1))\t$WINDOW_START" > "./temp/temp_start.bed"
+				echo -e "${veels[0]}\t$WINDOW_END\t$(($WINDOW_END+1))" > "./temp/temp_end.bed"
+				echo "$VW_LINE" > "./temp/temp.bed"
+				bedtools intersect -a $TEMP_DATA_LOCATION -b "./temp/temp_start.bed" -wa -split -nonamecheck > $DATA_LOCATION
+				bedtools intersect -a $DATA_LOCATION -b "./temp/temp_end.bed" -wa -split -nonamecheck > $TEMP_DATA_LOCATION
+				bedtools intersect -a $TEMP_DATA_LOCATION -b "./temp/temp.bed" -split -nonamecheck > $DATA_LOCATION
+				rm $TEMP_DATA_LOCATION "./temp/temp_start.bed" "./temp/temp_end.bed"
+			done
+		fi
+	fi
+	
 	echo "======="
 	echo "======="
+	IFS=$'\t';
 	echo "Running R scripts"
 	BAMS=${fields[1]} #I dont know why I need this but I do
-	Rscript $NANO_BLOT_RSCRIPT $BAMS ${fields[2]} $NORM_FACTOR ${PREVIOUS_ANTI_PROBE} $META_DATA ${fields[3]}
+	Rscript $NANO_BLOT_RSCRIPT $BAMS $PROBE_FIELD $NORM_FACTOR ${PREVIOUS_ANTI_PROBE} $META_DATA $ANTIPROBE_FIELD
 	# this order has to be this way because if there is no antiprobe, then it collapses to an empty
 	# string and the number of arguments passed to the script decreases by one, that is why the antiprobe
 	# argument has to be the last one
