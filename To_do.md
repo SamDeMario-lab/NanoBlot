@@ -10,6 +10,9 @@ Add a flag that accepts a separate metadata file and cuts the reads down to a us
 ### Add user_input_files to the gitignore
 I'm pretty sure this works for some of the branches already.
 
+### \? ) echo "Invalid option: -$OPTARG" should output help text and exit script
+Current it just says you have an Invalid option and then just runs the script anyway
+
 ### Changed input file name to "tsv" form "csv"
 Don't forget to also change the default user inputs in the Nanoblot.sh script
 
