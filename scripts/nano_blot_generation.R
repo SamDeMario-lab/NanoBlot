@@ -147,6 +147,12 @@ for (i in 1:length(duplication_factors)) {
 
 pre_plot_name <- paste("_" ,c(strsplit(args[1], split = ",")[[1]]), sep = "", collapse = "")
 
+# Makes the plots folder if it doesn't exist already
+output_dir <- file.path(getwd(), "plots/")
+if (!dir.exists(output_dir)){
+	dir.create(output_dir)
+} 
+	
 folder_name <-
 	paste("./plots/",
 				file_path,
