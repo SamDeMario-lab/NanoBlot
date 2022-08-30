@@ -20,6 +20,8 @@ Don't forget to also change the default user inputs in the Nanoblot.sh script
 ### Fix names in R script
 I want it to add the negative probe to the plot name if a negative probe is used
 
+### Add dependences to the -H help text
+
 ## Write a manuscript + ReadMe
 Describe limitations
 
