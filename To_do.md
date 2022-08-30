@@ -8,6 +8,10 @@ Add a flag that accepts a separate metadata file and cuts the reads down to a us
 ### Skipping subsetting currently doesn't work because the R script doesn't know where those bam files are 
 
 ### Add user_input_files to the gitignore
+I'm pretty sure this works for some of the branches already.
+
+### Changed input file name to "tsv" form "csv"
+Don't forget to also change the default user inputs in the Nanoblot.sh script
 
 ## Final steps
 ### Fix names in R script
