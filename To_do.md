@@ -3,6 +3,7 @@
 ## Big Projects
 ### RTPCR
 Add a flag that accepts a separate metadata file and cuts the reads down to a user specified length before plotting.
+Fix the buffer window for RTPCR, instead of 1 base pair, do 5 or 10. This is because there might be indels for Nanopore sequencing reads. 
 
 ## Small Projects 
 ### Skipping subsetting currently doesn't work because the R script doesn't know where those bam files are 
