@@ -7,6 +7,9 @@ Add a flag that accepts a separate metadata file and cuts the reads down to a us
 ## Small Projects 
 ### Skipping subsetting currently doesn't work because the R script doesn't know where those bam files are 
 
+### Update R version to R (>4.2.1)
+Bioconductor was updated and now needs >4.2
+
 ### Add user_input_files to the gitignore
 I'm pretty sure this works for some of the branches already.
 
