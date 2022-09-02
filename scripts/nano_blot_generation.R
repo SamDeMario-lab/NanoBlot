@@ -94,11 +94,15 @@ for (i in 1:length(size_factors)) {
 	# This calculation is taking the "normalization_factor" and finding the inverse, then multiplying by
 	# 10 to have meaningful effect, and then rounding to the nearest digit
 	duplication_factors[i] <- round((1/size_factors[[i]]) * 10, digits = 0)
+	if (raw_read_number == 0){
+		duplication_factors[i] <- NaN #This allows it so that there are no reads mapped to this sample
+	}
 	raw_reads[i] <- raw_read_number
 }
 
 DUPLICATION_CONSTANT = 2000
 max_raw_read <- max(raw_reads)
+cat("Max raw read count:", max_raw_read, "\n")
 duplication_factors <- round(duplication_factors * (DUPLICATION_CONSTANT / max_raw_read), digits = 0)
 names(duplication_factors) <- bio_samples[[1]]
 cat("Duplication Factors\n-------\n")
@@ -108,37 +112,22 @@ print(duplication_factors)
 # a list, so bam_samples is a list of lists 
 
 #Extract relevant data from BAM files into dataframe
+blot_data <- data.frame("qname"=character(),
+												"qwidth"=integer(),
+												"sample_name"=character(),
+												"row_number"=integer())
 
-# To understand this --> need to look at documentation of scanBam
-# qname is the name of the read
-# qwidth is the length of the read
-# sample_name is the name of this sample, taken from an earlier character vector
-# row_number is just 1
-# This code below basically creates the first column of sample_name with all the 
-# qnames and qwidths corresponding to that sample_name 
-# Walking through the indices, first set gets the first sample in bam_samples, second
-# set gets the first set of alignments, here we only get one set
-# the third set of brackets get's the specific list element using the name of the element
-blot_data <- data.frame("qname"=c(bam_samples[[1]][[1]][["qname"]]),
-                        "qwidth"=c(bam_samples[[1]][[1]][["qwidth"]]),
-                        "sample_name"=bio_samples[[1]][[1]],
-                        "row_number"=1)
-
-# Now this is putting all the rest of the sample names into data frames
-for (i in 2:length(bio_samples[[1]])) {
-  #print(i) #Don't know why we need this print statement?
-  temp_blot_data <- data.frame("qname"=c(bam_samples[[i]][[1]][["qname"]]),
-                          "qwidth"=c(bam_samples[[i]][[1]][["qwidth"]]),
-                          "sample_name"=bio_samples[[1]][[i]],
-                          "row_number"=i)
-  blot_data <- rbind(blot_data,temp_blot_data)
-  # This joins the other data frame together, creating a master data frame called blot_data
+for (i in 1:length(bio_samples[[1]])) {
+	blot_data <- blot_data %>% add_row("qname"=c(bam_samples[[i]][[1]][["qname"]]),
+																		 "qwidth"=c(bam_samples[[i]][[1]][["qwidth"]]),
+																		 "sample_name"=bio_samples[[1]][[i]],
+																		 "row_number"=i)
 }
 
 for (i in 1:length(duplication_factors)) {
 	added_data <- blot_data %>% filter(row_number == i)
+	if (duplication_factors[[i]] <= 1 | is.nan(duplication_factors[[i]])) {next;}
 	for (j in 1:duplication_factors[[i]]) {
-		if (duplication_factors[[i]] <= 1) {break;}
 		blot_data <- rbind(blot_data, added_data)
 	}
 }
@@ -232,12 +221,3 @@ plot_violin <- ggplot(data = blot_data)+
 ggsave(filename = plot_name_nano ,plot = plot_fuzzed)
 ggsave(filename = plot_name_ridge ,plot = plot_ridge)
 ggsave(filename = plot_name_violin ,plot = plot_violin)
-# ggplot(data = blot_data, aes(x = row_number_fuzz, y = qwidth))+
-#   stat_density_2d(aes(fill = ..density..), geom = "raster", contour = FALSE)+
-#   theme(axis.line = element_line(colour = "white"),
-#         panel.grid.major = element_blank(),
-#         panel.grid.minor = element_blank(),
-#         panel.border = element_blank(),
-#         panel.background = element_blank())+
-#   ylab(label = "Size in nts")+
-#   xlab(label = "")

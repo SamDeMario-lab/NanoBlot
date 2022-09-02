@@ -421,6 +421,7 @@ do
 	# The RT-pCR should actually be the last step once all the probes and antiprobes have been checked as well 
 	if [ $RT_PCR = TRUE ] 
 	then
+		BUFFER_SIZE=5
 		echo "======="
 		echo "Running viewing window $VIEWING_WINDOW subset now for RT-PCR mode"
 		VW_LINE=$(awk -v var="$VIEWING_WINDOW" '$4==var {print $0}' $PROBES)
@@ -444,8 +445,8 @@ do
 				DATA_LOCATION="./temp/${sample}_${PREVIOUS_ANTI_PROBE}.bam"
 				TEMP_DATA_LOCATION="./temp/RTPCR_temp.bam"
 				cp $DATA_LOCATION $TEMP_DATA_LOCATION
-				echo -e "${veels[0]}\t$(($WINDOW_START-1))\t$WINDOW_START" > "./temp/temp_start.bed"
-				echo -e "${veels[0]}\t$WINDOW_END\t$(($WINDOW_END+1))" > "./temp/temp_end.bed"
+				echo -e "${veels[0]}\t$(($WINDOW_START-$BUFFER_SIZE))\t$WINDOW_START" > "./temp/temp_start.bed"
+				echo -e "${veels[0]}\t$WINDOW_END\t$(($WINDOW_END+$BUFFER_SIZE))" > "./temp/temp_end.bed"
 				echo "$VW_LINE" > "./temp/temp.bed"
 				bedtools intersect -a $TEMP_DATA_LOCATION -b "./temp/temp_start.bed" -wa -split -nonamecheck > $DATA_LOCATION
 				bedtools intersect -a $DATA_LOCATION -b "./temp/temp_end.bed" -wa -split -nonamecheck > $TEMP_DATA_LOCATION

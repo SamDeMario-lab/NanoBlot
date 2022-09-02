@@ -2,8 +2,11 @@
 
 ## Big Projects
 ### RTPCR
-Add a flag that accepts a separate metadata file and cuts the reads down to a user specified length before plotting.
-Fix the buffer window for RTPCR, instead of 1 base pair, do 5 or 10. This is because there might be indels for Nanopore sequencing reads. 
+Can do some testing with IMD4, but testing is not working, so fix testing with the rrp6 samples? --> need to fix something if there are no reads mapped
+RT-PCR is also being really janky and finnicky on Sam's linux build, need to see what shell he is running it in
+
+### Nanoplot plotting
+If a sample has no reads, it still needs an empty column to simulate a real Northern probe
 
 ## Small Projects 
 ### Skipping subsetting currently doesn't work because the R script doesn't know where those bam files are 
