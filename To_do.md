@@ -21,9 +21,6 @@ I'm pretty sure this works for some of the branches already.
 ### \? ) echo "Invalid option: -$OPTARG" should output help text and exit script
 Current it just says you have an Invalid option and then just runs the script anyway
 
-### Changed input file name to "tsv" form "csv"
-Don't forget to also change the default user inputs in the Nanoblot.sh script
-
 ## Final steps
 ### Fix names in R script
 I want it to add the negative probe to the plot name if a negative probe is used

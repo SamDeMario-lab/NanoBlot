@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Default Values 
-PLOTS="./user_input_files/plot_data.csv" #Be careful of what these variables equal, since the value of
+PLOTS="./user_input_files/plot_data.tsv" #Be careful of what these variables equal, since the value of
 # these variables are still strings of file locations 
 PROBES="./user_input_files/probes.bed"
 META_DATA="./user_input_files/data_metadata.csv"
