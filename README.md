@@ -24,8 +24,12 @@ easily customizable.
   Deseq2 (installed using Bioconductor)<br/>
   dplyr<br/>
   
-The Nanoblot.sh script will require R to run from the bash terminal. If you are on Mac OSX and need to add R to library, I recommend attaching it to $PATH. 
-A sample function would look like ```export PATH="/Library/Frameworks/R.framework/Resources:$PATH"```
+The Nanoblot.sh script will require the different dependices to run from the bash terminal. When running using the command line interface, I recommend attaching it to $PATH. 
+A sample function would look like<br/>
+```
+export PATH="$PATH:/Library/Frameworks/R.framework/Resources"
+source ~/.bash_profile
+```
 
 ## Usage:
 
