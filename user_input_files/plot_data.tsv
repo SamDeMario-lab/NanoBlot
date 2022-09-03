@@ -2,5 +2,6 @@ plot_name	loading_order	probe	antiprobe
 #GAPDH	WT,RRP6	TDH1	
 #ACT1	WT,RRP6	ACT1	ACT1
 #RPS7B	WT,RRP6	RPS7B	
-RPL18A	WT,RRP6	RPL18A_Exon1	
+#RPL18A	WT,RRP6	RPL18A_Exon1	
 #IMD4	WT,bar1,bar2,bar3,bar4	IMD4_Intron	
+RPS18A_spliced	WT,bar1,bar2,bar3,bar4	RPS18A_Exon1	RPS18A_intron
