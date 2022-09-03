@@ -19,7 +19,7 @@ easily customizable.
 **HTSeq (v> 2.0.2)**<br/>
 **R (> v4.1.2)**<br/>
   ggplot2<br/>
-  Rsamtools<br/>
+  Rsamtools (installed using Bioconductor)<br/>
   ggridges<br/>
   Deseq2 (installed using Bioconductor)<br/>
   dplyr<br/>
