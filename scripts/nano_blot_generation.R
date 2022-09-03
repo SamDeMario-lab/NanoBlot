@@ -183,7 +183,8 @@ plot_name_violin <-
 # This is important to note because of the row_number here, this is essentially creating the width of 
 # the lane, similar to what a northern blot would produce
 # Default, -0.45, 0.45 
-blot_data$row_number_fuzz <- blot_data$row_number + runif(nrow(blot_data), min = -0.25, max = 0.25)
+COLUMN_WIDTH <- 0.25
+blot_data$row_number_fuzz <- blot_data$row_number + runif(nrow(blot_data), min = -COLUMN_WIDTH, max = COLUMN_WIDTH)
 
 #Plotting graphs
 plot_fuzzed <- ggplot(data = blot_data, aes(x = row_number_fuzz, y = qwidth))+
@@ -193,6 +194,7 @@ plot_fuzzed <- ggplot(data = blot_data, aes(x = row_number_fuzz, y = qwidth))+
         panel.grid.minor = element_blank(),
         panel.border = element_blank(),
         panel.background = element_blank())+
+	xlim(1-COLUMN_WIDTH, length(bio_samples[[1]]) + COLUMN_WIDTH) +
   ylab(label = "Size in nts")+
   xlab(label = "")
 
