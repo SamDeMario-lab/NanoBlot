@@ -175,9 +175,15 @@ echo "Plots File: $PLOTS";
 
 #This fixes the unix bug
 TEMP_PLOT="./temp/temp_plot.tsv"
+TEMP_META="./temp/temp_metadata.tsv"
+TEMP_PROBES="./temp/temp_probes.bed"
 cp $PLOTS $TEMP_PLOT
+cp $META_DATA $TEMP_META 
+cp $PROBES $TEMP_PROBES
 awk 'sub("\r$", "")+1' $TEMP_PLOT > $PLOTS
-rm $TEMP_PLOT
+awk 'sub("\r$", "")+1' $TEMP_META > $META_DATA
+awk 'sub("\r$", "")+1' $TEMP_PROBES > $PROBES
+rm $TEMP_PLOT $TEMP_META $TEMP_PROBES 
 
 declare -i END_PLOT=$(grep -c '.' $PLOTS) 
 
@@ -316,30 +322,31 @@ do
 			# puts it into a temp bed file, this allows each round of intersect to only find a single match, since we 
 			# want the union of matches, not the intersection point of only two matches, if that makes sense
 
-			if [[ "$SUBSET_BAMS"  == TRUE ]]
-			then
-				IFS=$',';
-				for sample in $BAMS;
-				do
-					DATA_LINE_T=$(awk -v var="$sample" '$1==var {print $0}' $META_DATA)
-					IFS=$'\t' read -a EELS <<<"$DATA_LINE_T" 
-					SAMPLE_NAME=${EELS[0]} #Need to filter individual data line to get the sample name
-					
-					if [[ -z "DATA_LINE_T" ]]
-					then
-						echo "Metadata: $sample not found in $META_DATA. Check meta_data file. Exiting script"
-						exit #Not sure if I want this to exit just yet
-					fi
-					
-					if ! [ -z $PREVIOUS_PROBE ] #Checks if its not an empty string
-					then
-						DATA_LOCATION="./temp/"$SAMPLE_NAME"_"$PREVIOUS_PROBE".bam"
-						TEMP_NAME=${SAMPLE_NAME}_${PREVIOUS_PROBE}_${probe}.bam
-					else
-						DATA_LOCATION=${EELS[1]}
-						TEMP_NAME=$SAMPLE_NAME"_"$probe".bam"
-					fi 
-					echo -e "Subsetting: "$DATA_LOCATION"\nNaming Subset:  "$TEMP_NAME
+			IFS=$',';
+			for sample in $BAMS;
+			do
+				DATA_LINE_T=$(awk -v var="$sample" '$1==var {print $0}' $META_DATA)
+				IFS=$'\t' read -a EELS <<<"$DATA_LINE_T" 
+				SAMPLE_NAME=${EELS[0]} #Need to filter individual data line to get the sample name
+				
+				if [[ -z "DATA_LINE_T" ]]
+				then
+					echo "Metadata: $sample not found in $META_DATA. Check meta_data file. Exiting script"
+					exit #Not sure if I want this to exit just yet
+				fi
+				
+				if ! [ -z $PREVIOUS_PROBE ] #Checks if its not an empty string
+				then
+					DATA_LOCATION="./temp/"$SAMPLE_NAME"_"$PREVIOUS_PROBE".bam"
+					TEMP_NAME=${SAMPLE_NAME}_${PREVIOUS_PROBE}_${probe}.bam
+				else
+					DATA_LOCATION=${EELS[1]}
+					TEMP_NAME=$SAMPLE_NAME"_"$probe".bam"
+				fi
+				
+				if [[ "$SUBSET_BAMS"  == TRUE ]]
+				then
+				echo -e "Subsetting: "$DATA_LOCATION"\nNaming Subset:  "$TEMP_NAME
 					
 					if [[ "$CDNA"  == TRUE ]]
 					then
@@ -359,18 +366,20 @@ do
 						# the -s forces overlap of B and A on the same strand, which is what we want most of the time, considering that 
 						# we want the feature to be in the direction that we intend it to be
 					fi
-				done
-				IFS=$'\t';
-				if ! [ -z $PREVIOUS_PROBE ]
-				then
-					PREVIOUS_PROBE=${PREVIOUS_PROBE}_$probe #update previous probe right before the for loop for each probe updates 
-				else
-					PREVIOUS_PROBE=$probe
 				fi
-			else 
-				echo "Skipping filtering BAM files. If filtering is desired remove -F flag."
+			done
+			if [[ "$SUBSET_BAMS" == FALSE ]]
+			then
+				echo "Skipping subsetting target probe $probe BAM files. If subsetting is desired remove -F flag."
 			fi
-	done 
+			
+			if ! [ -z $PREVIOUS_PROBE ]
+			then
+				PREVIOUS_PROBE=${PREVIOUS_PROBE}_$probe #update previous probe right before the for loop for each probe updates 
+			else
+				PREVIOUS_PROBE=$probe
+			fi
+	done
 	
 	#Go through each anti-target probe 
 	PREVIOUS_ANTI_PROBE=$PREVIOUS_PROBE
@@ -395,32 +404,36 @@ do
 				echo $antiprobe": "${deels[0]}:${deels[1]}-${deels[2]} 
 				echo "$APR_LINE" > "./temp/temp_anti_bed.bed"
 				
-				if [[ "$SUBSET_BAMS"  == TRUE ]]
-				then
-					IFS=$',';
-					for sample in $BAMS; ##You need to only create subsets of the samples you are using 
-					do
-						DL_ANTI=$(awk -v var="$sample" '$1==var {print $0}' $META_DATA)
-						IFS=$'\t' read -a bells <<<"$DL_ANTI" 
-						SAMPLE_NAME=${bells[0]} #Neeed to filter individual data line to get the sample name
-						DATA_LOCATION="./temp/"$SAMPLE_NAME"_"$PREVIOUS_ANTI_PROBE".bam"
-						TEMP_NAME=${SAMPLE_NAME}_${PREVIOUS_ANTI_PROBE}_anti_${antiprobe}.bam
-						echo -e "Subsetting: "$DATA_LOCATION"\nNaming Subset:  "$TEMP_NAME
+				IFS=$',';
+				for sample in $BAMS; ##You need to only create subsets of the samples you are using 
+				do
+					DL_ANTI=$(awk -v var="$sample" '$1==var {print $0}' $META_DATA)
+					IFS=$'\t' read -a bells <<<"$DL_ANTI" 
+					SAMPLE_NAME=${bells[0]} #Neeed to filter individual data line to get the sample name
+					DATA_LOCATION="./temp/"$SAMPLE_NAME"_"$PREVIOUS_ANTI_PROBE".bam"
+					TEMP_NAME=${SAMPLE_NAME}_${PREVIOUS_ANTI_PROBE}_anti_${antiprobe}.bam
 					
+					if [[ "$SUBSET_BAMS"  == TRUE ]]
+					then
+						echo -e "Subsetting: "$DATA_LOCATION"\nNaming Subset:  "$TEMP_NAME
 						if [[ "$CDNA"  == TRUE ]]
-						then
-							bedtools intersect -a $DATA_LOCATION -b "./temp/temp_anti_bed.bed" -wa -split -v -nonamecheck > "./temp/$TEMP_NAME"
-							samtools index "./temp/$TEMP_NAME"
-						else
-							bedtools intersect -a $DATA_LOCATION -b "./temp/temp_anti_bed.bed" -wa -split -v -s -nonamecheck > "./temp/$TEMP_NAME"
-							samtools index "./temp/$TEMP_NAME"
+							then
+								bedtools intersect -a $DATA_LOCATION -b "./temp/temp_anti_bed.bed" -wa -split -v -nonamecheck > "./temp/$TEMP_NAME"
+								samtools index "./temp/$TEMP_NAME"
+							else
+								bedtools intersect -a $DATA_LOCATION -b "./temp/temp_anti_bed.bed" -wa -split -v -s -nonamecheck > "./temp/$TEMP_NAME"
+								samtools index "./temp/$TEMP_NAME"
 						fi
-					done
-					IFS=$'\t';
-					PREVIOUS_ANTI_PROBE=${PREVIOUS_ANTI_PROBE}_anti_$antiprobe #update previous antiprobe right before the for loop for each antiprobe updates 
-				else 
-					echo "Skipping filtering BAM files. If filtering is desired remove -F flag."
+					fi
+				done
+				
+				if [[ "$SUBSET_BAMS" == FALSE ]]
+				then
+					echo "Skipping subsetting anti probe $antiprobe BAM files. If subsetting is desired remove -F flag."
 				fi
+				
+				IFS=$'\t';
+				PREVIOUS_ANTI_PROBE=${PREVIOUS_ANTI_PROBE}_anti_$antiprobe #update previous antiprobe right before the for loop for each antiprobe updates
 		done
 	fi
 	

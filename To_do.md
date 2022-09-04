@@ -5,7 +5,6 @@
 Test RT-PCR with test samples and test sequencing files
 
 ## Small Projects 
-### Skipping subsetting currently doesn't work because the R script doesn't know where those bam files are 
 
 ### Update R version to R (>4.2.1)
 Bioconductor was updated and now needs >4.2
