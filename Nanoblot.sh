@@ -7,7 +7,6 @@ PROBES="./user_input_files/probes.bed"
 META_DATA="./user_input_files/data_metadata.csv"
 NANO_BLOT_RSCRIPT="./scripts/nano_blot_generation.R"
 ANNOTATION_FILE="./user_input_files/Saccharomyces_cerevisiae.R64-1-1.107.gtf"
-
 PRINT_HELP=FALSE
 SUBSET_BAMS=TRUE
 CDNA=FALSE
@@ -173,6 +172,12 @@ declare -i END_META=$(grep -c '.' $META_DATA)
 
 echo "Probes Bed File: $PROBES";
 echo "Plots File: $PLOTS";
+
+#This fixes the unix bug
+TEMP_PLOT="./temp/temp_plot.tsv"
+cp $PLOTS $TEMP_PLOT
+awk 'sub("\r$", "")+1' $TEMP_PLOT > $PLOTS
+rm $TEMP_PLOT
 
 declare -i END_PLOT=$(grep -c '.' $PLOTS) 
 
