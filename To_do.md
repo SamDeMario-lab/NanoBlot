@@ -6,14 +6,8 @@ Test RT-PCR with test samples and test sequencing files
 
 ## Small Projects 
 
-### Update R version to R (>4.2.1)
-Bioconductor was updated and now needs >4.2
-
 ### Add user_input_files to the gitignore
 I'm pretty sure this works for some of the branches already.
-
-### \? ) echo "Invalid option: -$OPTARG" should output help text and exit script
-Current it just says you have an Invalid option and then just runs the script anyway
 
 ## Final steps
 ### Fix names in R script

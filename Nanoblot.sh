@@ -89,6 +89,7 @@ while getopts ":HFCWOR:M:B:T:Y:A:N:" opt; do
 		echo "Clear all files from temp after plot generation"
 			;;
 		\? ) echo "Invalid option: -$OPTARG"
+		PRINT_HELP=TRUE
 			;;
 		: )
     echo "Invalid Option: -$OPTARG requires an argument" 1>&2
