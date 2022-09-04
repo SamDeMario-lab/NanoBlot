@@ -2,7 +2,12 @@
 
 ## Big Projects
 ### RTPCR
-Add a flag that accepts a separate metadata file and cuts the reads down to a user specified length before plotting.
+RT-PCR is also being really janky and finnicky on Sam's linux build, need to see what shell he is running it in
+
+### Nanoplot plotting
+If a sample has no reads, it still needs an empty column to simulate a real Northern probe --> do a set x-axis label and window size based on number of samples 
+It would also be nice if the plots could be labelled with sample names? 
+Show Sam what I have so far, I have empty columns for nanoblot, but not nanoridge and nanoviolin, I mean, that makes sense right? 
 
 ## Small Projects 
 ### Skipping subsetting currently doesn't work because the R script doesn't know where those bam files are 
@@ -15,9 +20,6 @@ I'm pretty sure this works for some of the branches already.
 
 ### \? ) echo "Invalid option: -$OPTARG" should output help text and exit script
 Current it just says you have an Invalid option and then just runs the script anyway
-
-### Changed input file name to "tsv" form "csv"
-Don't forget to also change the default user inputs in the Nanoblot.sh script
 
 ## Final steps
 ### Fix names in R script

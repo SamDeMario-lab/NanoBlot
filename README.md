@@ -19,13 +19,17 @@ easily customizable.
 **HTSeq (v> 2.0.2)**<br/>
 **R (> v4.1.2)**<br/>
   ggplot2<br/>
-  Rsamtools<br/>
+  Rsamtools (installed using Bioconductor)<br/>
   ggridges<br/>
   Deseq2 (installed using Bioconductor)<br/>
   dplyr<br/>
   
-The Nanoblot.sh script will require R to run from the bash terminal. If you are on Mac OSX and need to add R to library, I recommend attaching it to $PATH. 
-A sample function would look like ```export PATH="/Library/Frameworks/R.framework/Resources:$PATH"```
+The Nanoblot.sh script will require the different dependices to run from the bash terminal. When running using the command line interface, I recommend attaching it to $PATH. 
+A sample function would look like<br/>
+```
+export PATH="$PATH:/Library/Frameworks/R.framework/Resources"
+source ~/.bash_profile
+```
 
 ## Usage:
 
@@ -74,3 +78,17 @@ In addition, it is not necessary to have an antiprobe, leaving it blank is fine
   WT	/home/guillaume-chanfreau/Sequencing_Data/slu7_rrp6/pass/barcode01/sorted_merged.bam
 ```
 Make sure each line is tab deliminated and is exactly one tab apart
+
+## Hoffman2 Cluster Notes
+The most important thing when running in Hoffman2 is loading all the required dependencies
+
+**Bedtools (> 2.30.0)** --> to load this, run ```module load bedtools``` <br/>
+**Samtools (> v1.15.1)** --> to load this, run ```module load samtools``` <br/>
+**HTSeq (v> 2.0.2)** --> to load this, run ```module av python``` ---> ```pip install HTSeq``` <br/>
+**R (> v4.1.2)** --> to load this, run ```module load intel/2022.1.1``` --> ```module load R/4.2.1``` <br/>
+  Each dependency can then be installed after running R in the terminal and installing the packages for the first time <br/>
+  ggplot2<br/>
+  Rsamtools (installed using Bioconductor)<br/>
+  ggridges<br/>
+  Deseq2 (installed using Bioconductor)<br/>
+  dplyr<br/>
