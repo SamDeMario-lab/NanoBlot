@@ -2,12 +2,7 @@
 
 ## Big Projects
 ### RTPCR
-RT-PCR is also being really janky and finnicky on Sam's linux build, need to see what shell he is running it in
-
-### Nanoplot plotting
-If a sample has no reads, it still needs an empty column to simulate a real Northern probe --> do a set x-axis label and window size based on number of samples 
-It would also be nice if the plots could be labelled with sample names? 
-Show Sam what I have so far, I have empty columns for nanoblot, but not nanoridge and nanoviolin, I mean, that makes sense right? 
+Test RT-PCR with test samples and test sequencing files
 
 ## Small Projects 
 ### Skipping subsetting currently doesn't work because the R script doesn't know where those bam files are 
