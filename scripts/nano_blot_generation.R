@@ -194,7 +194,9 @@ plot_fuzzed <- ggplot(data = blot_data, aes(x = row_number_fuzz, y = qwidth))+
         panel.grid.minor = element_blank(),
         panel.border = element_blank(),
         panel.background = element_blank())+
-	xlim(1-COLUMN_WIDTH, length(bio_samples[[1]]) + COLUMN_WIDTH) +
+	scale_x_continuous(breaks = c(1:length(bio_samples[[1]])), 
+									 labels = c(bio_samples[[1]]),
+									 limits = c(1-COLUMN_WIDTH, length(bio_samples[[1]]) + COLUMN_WIDTH)) +
   ylab(label = "Size in nts")+
   xlab(label = "")
 
@@ -207,7 +209,9 @@ plot_ridge <- ggplot(data = blot_data)+
 				panel.background = element_blank(),
 				axis.ticks.y = element_blank())+
 	xlab(label = "Size in nts")+
-	ylab(label = "")
+	ylab(label = "") +
+	scale_y_continuous(breaks = c(1:length(bio_samples[[1]])), 
+										 labels = c(bio_samples[[1]]))
 
 plot_violin <- ggplot(data = blot_data)+
 	geom_violin(aes(x = row_number, y = qwidth, group = row_number, fill = row_number), show.legend = FALSE)+
@@ -218,7 +222,9 @@ plot_violin <- ggplot(data = blot_data)+
 				panel.background = element_blank(),
 				axis.ticks.x = element_blank())+
 	ylab(label = "Size in nts")+
-	xlab(label = "")
+	xlab(label = "") + 
+	scale_x_continuous(breaks = c(1:length(bio_samples[[1]])), 
+										 labels = c(bio_samples[[1]]))
 
 ggsave(filename = plot_name_nano ,plot = plot_fuzzed)
 ggsave(filename = plot_name_ridge ,plot = plot_ridge)
