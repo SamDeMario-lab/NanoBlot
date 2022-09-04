@@ -27,7 +27,7 @@ if (length(args)==5) {
 print(neg_probe_msg)
 
 bio_samples <- strsplit(x = args[1], split = ",") #Splits the sample loading order into a vector 
-filenames <- as.vector("ERROR") #declaring the variable so it exists outside the loop scopes, so just assigning it any random value 
+filenames <- as.vector("ERROR") 
 
 #Make locations of bamfiles
 file_path <- args[4]
@@ -38,7 +38,6 @@ for (i in 1:length(bio_samples[[1]])) {
 
 #Read in BAM files
 bam_samples <- as.list("ERROR") #The bam_samples directory is created as an empty list
-# Reminder, lists can contain any object type, which makes it easier compared to vectors
 for (i in 1:length(filenames)) {
   bam_samples[[i]] <- scanBam(filenames[i])
 }
@@ -108,9 +107,6 @@ names(duplication_factors) <- bio_samples[[1]]
 cat("Duplication Factors\n-------\n")
 print(duplication_factors) 
 
-# So the variable bam_samples is a list of scanBam, which is in itself
-# a list, so bam_samples is a list of lists 
-
 #Extract relevant data from BAM files into dataframe
 blot_data <- data.frame("qname"=character(),
 												"qwidth"=integer(),
@@ -179,9 +175,6 @@ plot_name_violin <-
 				".png",
 				sep = "")
 
-#Add fuzz, this is adding it so that the duplication factor does not produce random points
-# This is important to note because of the row_number here, this is essentially creating the width of 
-# the lane, similar to what a northern blot would produce
 # Default, -0.45, 0.45 
 COLUMN_WIDTH <- 0.25
 blot_data$row_number_fuzz <- blot_data$row_number + runif(nrow(blot_data), min = -COLUMN_WIDTH, max = COLUMN_WIDTH)

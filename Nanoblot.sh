@@ -1,8 +1,7 @@
 #!/bin/bash
 
 #Default Values 
-PLOTS="./user_input_files/plot_data.tsv" #Be careful of what these variables equal, since the value of
-# these variables are still strings of file locations 
+PLOTS="./user_input_files/plot_data.tsv" 
 PROBES="./user_input_files/probes.bed"
 META_DATA="./user_input_files/data_metadata.tsv"
 NANO_BLOT_RSCRIPT="./scripts/nano_blot_generation.R"
@@ -20,11 +19,6 @@ NORM_FACTOR=0
 echo -e "Starting Nanoblot" '\u2622' 
 echo "======="
 
-#The option-string tells getopts which options to expect and which of them must have an argument. 
-#Every character is simply named as is, and when you want it to expect an argument, just place a colon
-# after the option flag 
-# The first colon basically means getopts switches to "silent error reporting mode" --> allows you to 
-# handle errors yourself without being disturbed by annoying messages 
 while getopts ":HFCWOR:M:B:T:Y:A:N:" opt; do
 	case $opt in
 		H ) 
@@ -186,7 +180,7 @@ declare -i END_META=$(grep -c '.' $META_DATA)
 echo "Probes Bed File: $PROBES";
 echo "Plots File: $PLOTS";
 
-#This fixes the unix bug
+#This fixes files that have bene generated in windows computers 
 TEMP_PLOT="./temp/temp_plot.tsv"
 TEMP_META="./temp/temp_metadata.tsv"
 TEMP_PROBES="./temp/temp_probes.bed"
@@ -205,8 +199,7 @@ then
 	for (( c=2; c<=$END_PLOT; c++ ))
 	do
 		P_LINE=$(head -n $c $PLOTS | tail -n -1) #This line gets the individual row for each row of the plot_data
-		IFS=$'\t'; read -a fields <<<"$P_LINE" # I think this code creates an array called fields which separates each 
-		# column of the individual row of $PLOTS 
+		IFS=$'\t'; read -a fields <<<"$P_LINE" 
 		
 		# Check to see if first character in the first column of the plot_csv file is a #, which if it is, 
 		# will skip that line's normalization in addition to plot generation
@@ -215,7 +208,7 @@ then
 			echo "Skipping ${fields[0]} normalization"
 			continue
 		fi
-		BAMS=${fields[1]} # This then gets the 1st index, 2nd column of each row? which is the loading order?
+		BAMS=${fields[1]} 
 		
 		# This if is for the DeSeq2 normalization method which first generates count tables
 		if [ $NORM_FACTOR = 0 ]; then
@@ -326,14 +319,11 @@ do
 			if [[ -z "${feels[@]}" ]]
 			then
 				echo "Probe: $probe not found. Check bed file and blots metadata file. Exiting script"
-				exit #Not sure if I want this to exit just yet
+				exit 1
 			fi
 			echo 'Probe'
-			echo $probe": "${feels[0]}:${feels[1]}-${feels[2]} #These array subsets do not belong to the 
-			# same variables 
-			echo "$PR_LINE" > "./temp/temp_bed.bed" #Overwrites the current matched probe_line and 
-			# puts it into a temp bed file, this allows each round of intersect to only find a single match, since we 
-			# want the union of matches, not the intersection point of only two matches, if that makes sense
+			echo $probe": "${feels[0]}:${feels[1]}-${feels[2]} 
+			echo "$PR_LINE" > "./temp/temp_bed.bed" 
 
 			IFS=$',';
 			for sample in $BAMS;
@@ -345,7 +335,7 @@ do
 				if [[ -z "DATA_LINE_T" ]]
 				then
 					echo "Metadata: $sample not found in $META_DATA. Check meta_data file. Exiting script"
-					exit #Not sure if I want this to exit just yet
+					exit 1
 				fi
 				
 				if ! [ -z $PREVIOUS_PROBE ] #Checks if its not an empty string
@@ -365,19 +355,10 @@ do
 					then
 						bedtools intersect -a $DATA_LOCATION -b "./temp/temp_bed.bed" -wa -split -nonamecheck > "./temp/$TEMP_NAME"
 						samtools index "./temp/$TEMP_NAME"
-						# Bedtools documentation
-						# -a is the first intersect file, -b is the second intersect file, -wa writes out the intersection rows of file a
-						# Keep in mind that no inputs will show you where the intersection occurred
-						# whereas, -wa and -wb will show you the original features in each file 
-						# -split treats split BAM files as distinct BED intervals, this is important, becaues of long read sequencing
-						# and the idea that a spliced form would have no splits in the BAM read
-						# -nonamecheck not really sure what this does 
-						# This in effect finds all instances of the .bam normalized reads that intersect with the .bed input
 					else
 						bedtools intersect -a $DATA_LOCATION -b "./temp/temp_bed.bed" -wa -split -s -nonamecheck > "./temp/$TEMP_NAME"
 						samtools index "./temp/$TEMP_NAME"
-						# the -s forces overlap of B and A on the same strand, which is what we want most of the time, considering that 
-						# we want the feature to be in the direction that we intend it to be
+						# the -s forces overlap of B and A on the same strand, which is what we want most of the time
 					fi
 				fi
 			done
@@ -450,7 +431,6 @@ do
 		done
 	fi
 	
-	# The RT-pCR should actually be the last step once all the probes and antiprobes have been checked as well 
 	if [ $RT_PCR = TRUE ] 
 	then
 		BUFFER_SIZE=5
