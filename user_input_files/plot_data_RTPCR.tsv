@@ -1,4 +1,4 @@
 plot_name	loading_order	viewing_window	probe	antiprobe		
-#RPS18A_full	WT,bar1,bar2,bar3,bar4	RPS18A_vw	RPS18A_Exon1
+RPS18A_full	WT,bar1,bar2,bar3,bar4	RPS18A_vw	RPS18A_Exon1
 RPS18A_spliced	WT,bar1,bar2,bar3,bar4	RPS18A_vw	RPS18A_Exon1	RPS18A_intron		
-#RPS18A_unspliced	WT,bar1,bar2,bar3,bar4	RPS18A_vw	RPS18A_Exon1,RPS18A_intron		
+RPS18A_unspliced	WT,bar1,bar2,bar3,bar4	RPS18A_vw	RPS18A_Exon1,RPS18A_intron	
