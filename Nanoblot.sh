@@ -4,7 +4,7 @@
 PLOTS="./user_input_files/plot_data.tsv" #Be careful of what these variables equal, since the value of
 # these variables are still strings of file locations 
 PROBES="./user_input_files/probes.bed"
-META_DATA="./user_input_files/data_metadata.csv"
+META_DATA="./user_input_files/data_metadata.tsv"
 NANO_BLOT_RSCRIPT="./scripts/nano_blot_generation.R"
 ANNOTATION_FILE="./user_input_files/Saccharomyces_cerevisiae.R64-1-1.107.gtf"
 PRINT_HELP=FALSE
