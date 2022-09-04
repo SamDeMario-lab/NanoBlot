@@ -13,8 +13,6 @@ I'm pretty sure this works for some of the branches already.
 ### Fix names in R script
 I want it to add the negative probe to the plot name if a negative probe is used
 
-### Add dependences to the -H help text
-
 ## Write a manuscript + ReadMe
 Describe limitations
 

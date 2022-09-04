@@ -131,8 +131,20 @@ O       o O       o O       o O       o
 | o   O | | o   O | | o   O | | o   O |
 o       O o       O o       O o       O
 
-For an explanation of the required input files see the README.md
+Current Dependencies
+==========================================
+Package Name   | Version 
+Bedtools       | 2.30.0
+Samtools       | 1.15.1
+HTSeq          | 2.0.2
+R              | 4.2.1
+R (ggplot2)    | 3.3.6
+R (samtools)   | 3.15
+R (ggridges)   | 0.5.3
+R (DeSeq2)     | 3.15
+R (dplyr)      | 1.0.10
 
+For an explanation of the required input files see the README.md
 ==========================================
 -H  |  Print help menu
 -T  |  Probes bed file 
