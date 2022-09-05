@@ -72,6 +72,13 @@ while getopts ":HFCWOR:M:B:T:Y:A:N:" opt; do
 		O ) 
 		OVERWRITE_COUNTS=TRUE
 		echo "Overwriting counts generation"
+		COUNT_FOLDER="./temp/count_tables"
+		if [ ! -d "$COUNT_FOLDER" ]
+		then
+			echo "Invalid option for -O, counts tables folder needs to exist first"
+			exit 1
+		fi
+		rm -r $COUNT_FOLDER
 			;;
 		Y )
 		RT_PCR=TRUE
@@ -229,7 +236,7 @@ then
 					# This norm folder will then be later accessed in the nano_blot_generation which will call the normalization.R script
 					COUNT_FILE_NAME="${COUNT_FOLDER}/${sample}-htseq_counts.tsv"
 					# First check if htseq-count is necessary, if not, then print that it was already counted
-					if [ ! -f $COUNT_FILE_NAME ] || [ $OVERWRITE_COUNTS = TRUE ]
+					if [ ! -f $COUNT_FILE_NAME ] 
 					then
 						echo "Running htseq-count for $sample"
 						DATA_LINE_T=$(awk -v var="$sample" '$1==var {print $0}' $META_DATA)
