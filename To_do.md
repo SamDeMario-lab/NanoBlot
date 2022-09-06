@@ -1,21 +1,22 @@
 # To Do
 
-## Big Projects
-### RTPCR
-Test RT-PCR with test samples and test sequencing files
+## Code
+### -Y had a default value in /user_input_files
 
-## Small Projects 
+### Add checks for user input file format
+check for /t and spaces
+correct number of columns
 
-### Add user_input_files to the gitignore
-I'm pretty sure this works for some of the branches already.
 
-## Final steps
-### Fix names in R script
-I want it to add the negative probe to the plot name if a negative probe is used
-
-## Write a manuscript + ReadMe
-Describe limitations
+## Logistic
 
 ### Add example datasets I'm gunna do this last so I can use it to test stuff.
 ideally they would be small and approximately the same sequencing depth.
 I'm regenrating data from WT and rrp6 directRNA sequencing. 
+
+### Human NMD plots
+
+### Update Read_me
+Package versions
+Basic usage 
+Extended Methods section
