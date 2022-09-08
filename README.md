@@ -1,6 +1,25 @@
-# Nano_blot
+<h1 align="center">
+  <img src="https://i.pinimg.com/736x/86/0f/b9/860fb969002c23702a9db5908e335d8f--healthy-lifestyle-science-safety.jpg" width=200 height=200/><br>
+  Nano_blot
+</h1>
 
-Nanoblot is a simple command line based tool for the creation of digital northern blots.
+<h4 align="center">A Command Line Tool for Visualization of Isoform Usage From Oxford Nanopore RNA-seq</h4>
+
+<div align="center">
+  <a href="https://bedtools.readthedocs.io/en/latest/" target="_blank">
+    <img src="https://img.shields.io/badge/Dependencies-Bedtools-informational" />
+  </a>
+  <a href="http://www.htslib.org" target="_blank">
+    <img src="https://img.shields.io/badge/Dependencies-Samtools-informational" />
+  </a>
+  <a href="https://htseq.readthedocs.io/en/master/" target="_blank">
+    <img src="https://img.shields.io/badge/Dependencies-HTSeq-informational" />
+  </a>
+  <a href="http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html" target="_blank">
+      <img src="https://img.shields.io/badge/Bioconductor-DESeq2-important">
+  </a>
+</div>
+<br/>
 
 Advancements in long read sequencing have yielded unprecedented information about isoform usage. However, 
 due to the high information density, visualization of long-read sequencing data remains challenging. 
