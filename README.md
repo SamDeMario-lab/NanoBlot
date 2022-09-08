@@ -1,6 +1,6 @@
 <h1 align="center">
   <img src="https://i.pinimg.com/736x/86/0f/b9/860fb969002c23702a9db5908e335d8f--healthy-lifestyle-science-safety.jpg" width=200 height=200/><br>
-  Nano_blot
+  Nanoblot
 </h1>
 
 <h4 align="center">A Command Line Tool for Visualization of Isoform Usage From Oxford Nanopore RNA-seq</h4>
