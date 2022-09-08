@@ -208,6 +208,18 @@ rm $TEMP_PLOT $TEMP_META $TEMP_PROBES
 
 declare -i END_PLOT=$(grep -c '.' $PLOTS) 
 
+# Checking to make sure all input files in the correct format
+ALLFILES=($PLOTS $PROBES $META_DATA)
+for file in $ALLFILES
+do
+	NUM_SPACES=$(grep -o ' ' $file | wc -l)
+	if [ $NUM_SPACES -gt 0 ]
+	then
+		echo "Incorrect file format for $file. There are spaces. Please fix and then rerun"
+		exit 1
+	fi
+done
+
 if [ $NORM = TRUE ] 
 then
 	for (( c=2; c<=$END_PLOT; c++ ))

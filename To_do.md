@@ -2,11 +2,6 @@
 
 ## Code
 
-### Add checks for user input file format
-check for /t and spaces
-correct number of columns
-
-
 ## Logistic
 
 ### Add example datasets I'm gunna do this last so I can use it to test stuff.
