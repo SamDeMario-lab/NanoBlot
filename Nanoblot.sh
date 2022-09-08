@@ -93,8 +93,15 @@ while getopts ":HFCWOR:M:B:T:Y:A:N:" opt; do
 		PRINT_HELP=TRUE
 			;;
 		: )
-    echo "Invalid Option: -$OPTARG requires an argument" 1>&2
-    exit 1
+		if [ $OPTARG = "Y" ]
+		then
+			RT_PCR=TRUE
+			echo "Running default Nano RT-PCR script"
+			PLOTS="./user_input_files/plot_data_RTPCR.tsv"
+		else
+    	echo "Invalid Option: -$OPTARG requires an argument" 1>&2
+    	exit 1
+    fi
       ;;
 	esac
 done

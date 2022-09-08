@@ -1,7 +1,6 @@
 # To Do
 
 ## Code
-### -Y had a default value in /user_input_files
 
 ### Add checks for user input file format
 check for /t and spaces
