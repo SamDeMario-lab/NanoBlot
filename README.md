@@ -3,7 +3,7 @@
   Nanoblot
 </h1>
 
-<h4 align="center">A Command Line Tool for Visualization of Isoform Usage From Oxford Nanopore RNA-seq</h4>
+<h3 align="center">A Command Line Tool for Visualization of Isoform Usage From Oxford Nanopore RNA-seq</h3>
 
 <div align="center">
   <a href="https://bedtools.readthedocs.io/en/latest/" target="_blank">
