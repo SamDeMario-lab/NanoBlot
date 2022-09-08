@@ -129,8 +129,34 @@ These count tables will then be used by DeSeq2’s **estimateSizeFactors()** met
 Should the user choose to normalize their sequenced bam files themselves, we also provided a way to skip normalization that sets each samples size factor to 1. 
 
 ### Subsetting
+<img src=https://bedtools.readthedocs.io/en/latest/_images/intersect-glyph.png>[^5]
+
+[^5]: https://bedtools.readthedocs.io/en/latest/
+
+After the normalization step is completed off of the sequenced bam files, the next step is to create subsets of each sequenced bam files to the corresponding probes and antiprobes that the user has specified. If skipping subsetting is desired, usually in the case where the user wants to control downstream analysis such as plotting and save computation time, the flag option ```./Nanoblot.sh -F``` can be used
+
+The subsetting code goes through each target probe first, then uses those targetted bam files and subsequently goes through each antiprobe. The heart of the subsetting command relies on the bedtools **intersect** function, which you can read about at their wiki page [^6]. Based on whether the user has specified the input sequence files to be treated as cDNA strands or not with the ```./Nanoblot.sh -C```, the bedtools command will be run with different flag options. 
+
+While Nanoblot allows for multiple target probes and antiprobes, the bedtools intersect function must be run one at a time for each intersection performed. If you look at the intersect diagram shown above, providing mulitple regions at once to the intersect function will render an effective **OR** intersection when we are looking for **AND** intersection. In order to subset the bam files appropriately, an intersect function must be run for each probe, one at a time. 
+
+It is important to note that formatting of the plotting file is extremely important, as extra spaces and commas will lead to errors in processing column data. For the basic non RT-PCR mode, the probe field is found in column 2 (starting with index = 1), and the antiprobe field which is optional is found in column 3. 
+
+[^6]: https://bedtools.readthedocs.io/en/latest/content/tools/intersect.html
 
 ### RT-PCR
+An additional feature of Nanoblot is the ability to process reads in RT-PCR mode, which the user can specify with the ```./Nanoblot.sh -Y ``` command. This flag does take positional arguments, namely the location of the RT-PCR plotting file. The plotting file for RT-PCR is almost identical to the original plotting format, with the exception of one extra added column. The RT-PCR plotting file takes arguments with the following column information: plot_name, loading_order, viewing window, probe, antiprobe 
+
+An example of this format is shown below 
+```
+plot_name loading_order	viewing_window	probe	antiprobe		
+RPS18A_full	WT,RRP6,SLU7,RRP6SLU7	RPS18A_vw	RPS18A_Exon1
+RPS18A_spliced	WT,RRP6,SLU7,RRP6SLU7	RPS18A_vw	RPS18A_Exon1	RPS18A_intron		
+RPS18A_unspliced	WT,RRP6,SLU7,RRP6SLU7	RPS18A_vw	RPS18A_Exon1,RPS18A_intron
+```
+
+The viewing window is a genomic window with the same features as a probe, and for that reason, is included in the probes metadata file. As a result, if the genomic window is not included, the code will exit with a corresponding error that the viewing window was not found. 
+
+The RT-PCR mode essentially takes everything the base Nanoblot does, with normalization and subsetting of probes, and adds an additional step that does a hard cut at sites that only overlap with the viewing window. This is based off of how wet-bench RT-PCR reactions are performed, where the flanking sites represent extension primers that amplify a certain region of interest. Since there is no bedtools intersect option that has to include both start and end sites, we first subset the relevant subsetted bam files to include the start and end sites respectively, with an added **BUFFER_SIZE** variable of 5 nucleotides to allow for indels at the flanking regions. After selecting for reads that include the start and end sites, we then perform a hard genomic cut that only includes the regions inside the genomic window. This genomic window is irrespective of strandedness since the reads are effectively cDNA at this point. 
 
 ### R Plotting
 
