@@ -2,6 +2,9 @@
 
 ## Code
 
+### Normalization still occures even if only one samples is used
+Code an exception for when only 1 sample is called.
+
 ## Logistic
 
 ### Add example datasets I'm gunna do this last so I can use it to test stuff.
