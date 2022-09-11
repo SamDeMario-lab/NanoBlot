@@ -2,9 +2,6 @@
 
 ## Code
 
-### Normalization still occures even if only one samples is used
-Code an exception for when only 1 sample is called.
-
 ### Check how density plots work
 I noticed that we are using the same dataset for making the Nanoblot as the density plots (ridge/violin) I don't think we should do this.
 
