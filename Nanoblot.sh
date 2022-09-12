@@ -498,8 +498,9 @@ do
 				bedtools intersect -a $DATA_LOCATION -b "./temp/temp_end.bed" -wa -split -nonamecheck > $TEMP_DATA_LOCATION
 				
 				#Performing the bedtools complement then running ampliconclip
+				echo "Clipping $sample to $VIEWING_WINDOW"
 				echo -e "${veels[0]}\t0\t$WINDOW_START\n${veels[0]}\t$WINDOW_END\t$PARIS_JAPONICA" > "./temp/temp.bed"
-				samtools ampliconclip --hard-clip --both-ends -b "./temp/temp.bed" $TEMP_DATA_LOCATION > $DATA_LOCATION
+				samtools ampliconclip --hard-clip --both-ends -b "./temp/temp.bed" $TEMP_DATA_LOCATION | samtools sort > $DATA_LOCATION
 				samtools index $DATA_LOCATION
 				rm $TEMP_DATA_LOCATION "./temp/temp_start.bed" "./temp/temp_end.bed"
 			done
