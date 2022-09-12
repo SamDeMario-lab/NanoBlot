@@ -468,6 +468,7 @@ do
 	if [ $RT_PCR = TRUE ] 
 	then
 		BUFFER_SIZE=5
+		PARIS_JAPONICA=149000000000
 		echo "======="
 		echo "Running viewing window $VIEWING_WINDOW subset now for RT-PCR mode"
 		VW_LINE=$(awk -v var="$VIEWING_WINDOW" '$4==var {print $0}' $PROBES)
@@ -493,10 +494,13 @@ do
 				cp $DATA_LOCATION $TEMP_DATA_LOCATION
 				echo -e "${veels[0]}\t$(($WINDOW_START-$BUFFER_SIZE))\t$WINDOW_START" > "./temp/temp_start.bed"
 				echo -e "${veels[0]}\t$WINDOW_END\t$(($WINDOW_END+$BUFFER_SIZE))" > "./temp/temp_end.bed"
-				echo "$VW_LINE" > "./temp/temp.bed"
 				bedtools intersect -a $TEMP_DATA_LOCATION -b "./temp/temp_start.bed" -wa -split -nonamecheck > $DATA_LOCATION
 				bedtools intersect -a $DATA_LOCATION -b "./temp/temp_end.bed" -wa -split -nonamecheck > $TEMP_DATA_LOCATION
-				bedtools intersect -a $TEMP_DATA_LOCATION -b "./temp/temp.bed" -split -nonamecheck > $DATA_LOCATION
+				
+				#Performing the bedtools complement then running ampliconclip
+				echo -e "${veels[0]}\t0\t$WINDOW_START\n${veels[0]}\t$WINDOW_END\t$PARIS_JAPONICA" > "./temp/temp.bed"
+				samtools ampliconclip --hard-clip --both-ends -b "./temp/temp.bed" $TEMP_DATA_LOCATION > $DATA_LOCATION
+				samtools index $DATA_LOCATION
 				rm $TEMP_DATA_LOCATION "./temp/temp_start.bed" "./temp/temp_end.bed"
 			done
 		fi
