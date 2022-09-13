@@ -2,6 +2,9 @@
 
 ## Code
 
+### Fix Folder Names
+I'm not sure how we want to do this. I think we should add an input to the R Script that is the plot name form the user input file.
+
 ### RTpcr
 The error in the RTpcr not calculating read length correctly is because even if there is correct viewing window clipping, the actual CIGAR string of the read never changes, which causes the qwdith calculation in scanToBam to always stay the same. Don't know how to work around this?
 
