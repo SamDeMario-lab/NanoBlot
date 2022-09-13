@@ -163,6 +163,7 @@ Since ```ampliconclip``` will clip reads that overlap with the BED files, we wil
 [^7]: http://www.htslib.org/doc/samtools-ampliconclip.html
 
 An example of an input BED file for ampliconclip is as follows. Let's say our viewing window of interest is this bed file, which is the entire RPL18A gene of the Saccharomyces cerevisiae. 
+<img width="946" alt="Screen Shot 2022-09-12 at 9 51 12 PM" src="https://user-images.githubusercontent.com/26608622/189811599-bd48c80a-38ca-45c1-9158-910a9f3eb722.png">
 
 ```
 chrXV	93395	94402	RPL18A_vw	.	-
@@ -172,6 +173,9 @@ We then create a bed tool that represents the complement genomic positions of th
 chrXV 0 93395 
 chrXV 94402 149000000000
 ```
+
+Here is an example of what the result of ampliconclip will look like in IGV. 
+
 
 ### R Plotting
 
