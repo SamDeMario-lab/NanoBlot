@@ -175,6 +175,7 @@ chrXV 94402 149000000000
 ```
 
 Here is an example of what the result of ampliconclip will look like in IGV. 
+<img width="736" alt="Screen Shot 2022-09-12 at 9 55 45 PM" src="https://user-images.githubusercontent.com/26608622/189812111-76b54d01-4018-426d-b4a9-5c215d339e60.png">
 
 
 ### R Plotting
