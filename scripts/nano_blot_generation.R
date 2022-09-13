@@ -174,6 +174,16 @@ plot_name_violin <-
 				pre_plot_name,
 				".png",
 				sep = "")
+				
+blot_data_RDS <-
+	paste(folder_name,
+				"blot_data",
+				file_path,
+				"_",
+				pre_plot_name,
+				"_",
+				sep = "")
+
 
 # Default, -0.45, 0.45 
 COLUMN_WIDTH <- 0.25
@@ -218,6 +228,8 @@ plot_violin <- ggplot(data = blot_data)+
 	xlab(label = "") + 
 	scale_x_continuous(breaks = c(1:length(bio_samples[[1]])), 
 										 labels = c(bio_samples[[1]]))
+
+saveRDS(object = blot_data, file = blot_data_RDS)
 
 ggsave(filename = plot_name_nano ,plot = plot_fuzzed)
 ggsave(filename = plot_name_ridge ,plot = plot_ridge)
