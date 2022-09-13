@@ -156,7 +156,22 @@ RPS18A_unspliced	WT,RRP6,SLU7,RRP6SLU7	RPS18A_vw	RPS18A_Exon1,RPS18A_intron
 
 The viewing window is a genomic window with the same features as a probe, and for that reason, is included in the probes metadata file. As a result, if the genomic window is not included, the code will exit with a corresponding error that the viewing window was not found. 
 
-The RT-PCR mode essentially takes everything the base Nanoblot does, with normalization and subsetting of probes, and adds an additional step that does a hard cut at sites that only overlap with the viewing window. This is based off of how wet-bench RT-PCR reactions are performed, where the flanking sites represent extension primers that amplify a certain region of interest. Since there is no bedtools intersect option that has to include both start and end sites, we first subset the relevant subsetted bam files to include the start and end sites respectively, with an added **BUFFER_SIZE** variable of 5 nucleotides to allow for indels at the flanking regions. After selecting for reads that include the start and end sites, we then perform a hard genomic cut that only includes the regions inside the genomic window. This genomic window is irrespective of strandedness since the reads are effectively cDNA at this point. 
+The RT-PCR mode essentially takes everything the base Nanoblot does, with normalization and subsetting of probes, and adds an additional step that does a hard cut at sites that only overlap with the viewing window. This is based off of how wet-bench RT-PCR reactions are performed, where the flanking sites represent extension primers that amplify a certain region of interest. First, we filter the subsetted bam files to only reads that include both the start and the end of the viewing window, as primers in a wet bench RT-pCR reaction would not amplify sequences where the flanking sites are not present. We use a bedtools intersect start and end window with a **BUFFER_SIZE** variable of 5 nucleotides to allow for indels at the flanking regions. After selecting for reads that include the start and end sites, we then perform a hard genomic cut that only includes the regions inside the genomic window. To do this, we use the function ```ampliconclip``` from the ```samtools``` package to clip the end of read alignments if they intersect with regions defined in a BED file. [^7] 
+
+Since ```ampliconclip``` will clip reads that overlap with the BED files, we will use the viewing window and find the complement bed entries to intersect, keeping effectively the reads that are only found within the viewing window. The options we use for ampliconclip include ```--hard-clip``` to ensure that the read width does not calculate clipped bases and ```--both-ends``` to ensure that both the 5' and the 3' ends where the regions match are cut. This genomic window is irrespective of strandedness since the reads are effectively cDNA at this point. 
+
+[^7]: http://www.htslib.org/doc/samtools-ampliconclip.html
+
+An example of an input BED file for ampliconclip is as follows. Let's say our viewing window of interest is this bed file, which is the entire RPL18A gene of the Saccharomyces cerevisiae. 
+
+```
+chrXV	93395	94402	RPL18A_vw	.	-
+```
+We then create a bed tool that represents the complement genomic positions of that viewing window, which this ampliconclip will hard clip all reads that intersect this region, effectively, keeping reads that only are contained within the viewing window. The max length found in the second row represents the maximum genome size of any organism, which is found in the Japanese flower, Paris japonica, with 149 billion base pairs. 
+```
+chrXV 0 93395 
+chrXV 94402 149000000000
+```
 
 ### R Plotting
 
