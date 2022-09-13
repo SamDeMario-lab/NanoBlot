@@ -177,7 +177,7 @@ plot_name_violin <-
 				
 blot_data_RDS <-
 	paste(folder_name,
-				"blot_data",
+				"blot_data__",
 				file_path,
 				"_",
 				pre_plot_name,
