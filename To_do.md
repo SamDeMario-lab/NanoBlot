@@ -21,6 +21,8 @@ A lot more work but robust way of generating bedtools complement files is to use
 
 Check this post for clarification on why certain regions are not clipped: https://bioinformatics.stackexchange.com/questions/16112/precisely-clipping-bam-file-to-bed-coordinates
 
+### Add check for input bams being sorted and indexed and if they're not then sort and index
+
 ### Check how density plots work
 I noticed that we are using the same dataset for making the Nanoblot as the density plots (ridge/violin) I don't think we should do this.
 
