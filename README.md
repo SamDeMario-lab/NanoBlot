@@ -3,7 +3,7 @@
   Nanoblot
 </h1>
 
-<h3 align="center">A Command Line Tool for Visualization of Isoform Usage From Oxford Nanopore RNA-seq</h3>
+<h3 align="center">A Simple Tool for Visualization of RNA Isoforms Usage From Oxford Nanopore RNA-sequencing data</h3>
 
 <div align="center">
   <a href="https://bedtools.readthedocs.io/en/latest/" target="_blank">
@@ -21,15 +21,8 @@
 </div>
 <br/>
 
-Advancements in long read sequencing have yielded unprecedented information about isoform usage. However, 
-due to the high information density, visualization of long-read sequencing data remains challenging. 
-Northern blots have long been used to study isoform usage. Here we present NanoBlot, a simple, open-source, 
-command line tool to produce northern blot-like images from Oxford Nanopore sequencing data. One advantage 
-of NanoBlots is that probes can be designed to visualize isoforms which would normally be difficult to 
-observe on traditional northern blots. For example, transcripts can be excluded from a blot based on the 
-presence of a specified region. Additionally, multiple colors can be used to highlight specific isoforms. 
-NanoBlot can accept either raw Nanopore data or processed bam files. It is based around ggplot and is 
-easily customizable. 
+Advancements in long read sequencing have yielded unprecedented information about isoform usage. However, visualization of long-read sequencing data remains challenging due to high information desnity. RT-PCR and Northern blots have long been used to study isoform usage for single genes. Here we present NanoBlot, a simple, open-source, 
+command line tool which generates Northern blot and RT-PCR like images from Oxford Nanopore sequencing data. Advantages of NanoBlots include: designing probes to visualize isoforms which would be impossible with traditional RT-PCR or northern blots, excluding reads based on the presence or absence of a specific region and, multiplexing plots with mulitple colors. In addition to traditional gel-like images, Nanoblot also outputs other visualizations such as violin plots. Nanoblot accests processed bam files. Plotting is based around ggplot2 and is easily customizable. 
 
 ## Dependencies 
 
