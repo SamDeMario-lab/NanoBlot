@@ -2,9 +2,6 @@
 
 ## Code
 
-### Fix Folder Names
-I'm not sure how we want to do this. I think we should add an input to the R Script that is the plot name form the user input file.
-
 ### RTpcr
 So it works half the time with ampliconclip, I created a post on biostars to see if anyone can look into this
 https://www.biostars.org/p/9538340/
