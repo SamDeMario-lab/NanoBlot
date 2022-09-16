@@ -269,6 +269,20 @@ then
 						DATA_LINE_T=$(awk -v var="$sample" '$1==var {print $0}' $META_DATA)
 						IFS=$'\t' read -a EELS <<<"$DATA_LINE_T" 
 						DATA_LOCATION=${EELS[1]}
+						# Check to see if the bam file is sorted and has an index 
+						SORTED_DATA_LOCATION=${DATA_LOCATION}.bai
+						IFS=$'\t' read -a SORTED_ARRAY <<<"$(samtools stats $DATA_LOCATION | grep "is sorted:")"
+						if [[ ${SORTED_ARRAY[2]} -ne 1 ]]
+						then
+							echo Input bam file at: $DATA_LOCATION is not sorted 
+							exit 1
+						fi
+						
+						if ! [ -f $SORTED_DATA_LOCATION ]
+						then
+							echo Input bam file at: $DATA_LOCATION is not indexed
+							exit 1
+						fi
 						python3 -m HTSeq.scripts.count -m union $DATA_LOCATION $ANNOTATION_FILE> $COUNT_FILE_NAME
 					fi
 				done
@@ -476,7 +490,7 @@ do
 		if [[ -z "${veels[@]}" ]]
 		then
 			echo "Viewing window: $VIEWING_WINDOW not found. Check probes file. Exiting script"
-			exit 
+			exit
 		fi
 		# Psuedo code is esentially it takes the start position, puts that in a bed, does a -wa intersect
 		# Then takes the end position, puts that in the bed, does another -wa intersect

@@ -9,8 +9,6 @@ I'm not sure how we want to do this. I think we should add an input to the R Scr
 So it works half the time with ampliconclip, I created a post on biostars to see if anyone can look into this
 https://www.biostars.org/p/9538340/
 
-### Add check for input bams being sorted and indexed and if they're not then sort and index
-
 ### Check how density plots work
 I noticed that we are using the same dataset for making the Nanoblot as the density plots (ridge/violin) I don't think we should do this.
 
