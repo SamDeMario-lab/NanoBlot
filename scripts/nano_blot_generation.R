@@ -17,11 +17,12 @@ args = commandArgs(trailingOnly=TRUE)
 sample_msg <- paste("Sample loading order:", args[1])
 probe_msg <- paste("Probe(s):", args[2])
 NORM_FACTOR <- args[3]
-neg_probe_msg <- paste("Negative Probe(s):", args[6])
+plot_title <- args[6]
+neg_probe_msg <- paste("Negative Probe(s):", args[7])
 print("Starting plot generation.")
 print(sample_msg)
 print(probe_msg)
-if (length(args)==5) {
+if (length(args)==6) {
 	neg_probe_msg <- "No Negative Probes"
 }
 print(neg_probe_msg)
@@ -140,9 +141,7 @@ if (!dir.exists(output_dir)){
 	
 folder_name <-
 	paste("./plots/",
-				file_path,
-				"_",
-				pre_plot_name,
+				plot_title,
 				"/",
 				sep = "")
 

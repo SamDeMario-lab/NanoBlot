@@ -236,13 +236,13 @@ then
 		fi
 		BAMS=${fields[1]} 
 		
-		if ! [[ $BAMS =~ , ]]
-		then
-			NORM=FALSE
-			NORM_FACTOR=2
-			echo "Skipping data normalization for ${fields[0]} due to single sample"
-			continue
-		fi
+		# if ! [[ $BAMS =~ , ]]
+		# then
+		# 	NORM=FALSE
+		# 	NORM_FACTOR=2
+		# 	echo "Skipping data normalization for ${fields[0]} due to single sample"
+		# 	continue
+		# fi
 		
 		# This if is for the DeSeq2 normalization method which first generates count tables
 		if [ $NORM_FACTOR = 0 ]; then
