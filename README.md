@@ -182,7 +182,8 @@ Since the first argument is the R script itself, bash is essentially passing 6 a
 - Argument 3 **$NORM_FACTOR**: This is a key that tells the R script what type of normalization was done, 0 is for the default differential (DESeq2), 1 is for size (CPM), and 2 is for skipping normalization
 - Argument 4 **$PREVIOUS_ANTI_PROBE**: This is the string that contains the naming convention to find the subset bam files, e.g. "RPL18A_Exon1_anti_RPL18A_Intron"
 - Argument 5 **$META_DATA**: This is the metadata file that will be passed to the R script in case it needs to access it (only needs it for CPM normalization)
-- Argument 6 **$ANTIPROBE_FIELD**: This is the only argument that could be an empty string; these are all the target antiprobes separated by commas if there is more than 1 or empty if there are none, e.g. "RPL18A_Intron"
+- Argument 6 **PLOT_TITLE**: This is the title of the plot which will be used to create the folder that the plots are stored in
+- Argument 7 **$ANTIPROBE_FIELD**: This is the only argument that could be an empty string; these are all the target antiprobes separated by commas if there is more than 1 or empty if there are none, e.g. "RPL18A_Intron"
 
 ## Computing Cluster
 The most computationally intensive part of Nanoblot is generating count tables and subsetting bam files for target probes. Should you wish to submit this script to a computing cluster, here are some tips to help you do so. UCLA provides the Hoffman2 cluster for free to use with computing nodes available. The most important thing when running computing clusters is loading all the required dependencies. Here is an example of what it's like on Hoffman 2. 
