@@ -14,6 +14,8 @@ Thats ok but it would proboly be nice to fix.
 
 ### The check for count tables should make sure they are not empty as well
 
+### I want to change the RDS output. I think it should be after the normailization but before the oversampling
+
 ## Logistic
 
 ### Add example datasets I'm gunna do this last so I can use it to test stuff.
