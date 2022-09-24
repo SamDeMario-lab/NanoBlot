@@ -27,7 +27,7 @@ command line tool which generates Northern blot and RT-PCR like images from Oxfo
 ## Dependencies 
 
 **Bedtools (> 2.30.0)**<br/>
-**Samtools (> v1.15.1)**<br/>
+**Samtools (> v1.16.1 *Wait for new Samtools ampliconclip patch)**<br/>
 **HTSeq (v> 2.0.2)**<br/>
 **R (> v4.1.2)**<br/>
   ggplot2<br/>
@@ -43,7 +43,7 @@ export PATH="$PATH:/Library/Frameworks/R.framework/Resources"
 source ~/.bash_profile
 ```
 
-## Usage:
+## Basic Usage:
 
 Nanoblot can be run in its entirety via the included bash script "Nanoblot.sh"
 
@@ -92,7 +92,7 @@ In addition, it is not necessary to have an antiprobe, leaving it blank is fine
   WT	/home/guillaume-chanfreau/Sequencing_Data/slu7_rrp6/pass/barcode01/sorted_merged.bam
 ```
 
-## Methods
+## Extended Methods
 
 ### Normalization
 The purpose of normalization is to adjust for factors that prevent for direct comparison of expression of genes between two biological samples. Common normalization procedures include counts per million (CPM), transcripts per kilobase million (TPM), RPKM/FPKM, DeSeq2’s median of ratios, and EdgeR’s trimmed mean of M values (TMM). Because we are not concerned with gene comparisons within samples, the only other normalization method that allows for differential expression analysis of genes between samples is DESeq2’s median of ratios. This normalization method accounts for not only sequencing depth but also RNA composition. This will be Nanoblot’s default normalization method.  
