@@ -263,7 +263,7 @@ then
 					# This norm folder will then be later accessed in the nano_blot_generation which will call the normalization.R script
 					COUNT_FILE_NAME="${COUNT_FOLDER}/${sample}-htseq_counts.tsv"
 					# First check if htseq-count is necessary, if not, then print that it was already counted
-					if [ ! -f $COUNT_FILE_NAME ] 
+					if [ ! -f $COUNT_FILE_NAME ] || [ ! -s $COUNT_FILE_NAME ]
 					then
 						echo "Running htseq-count for $sample"
 						DATA_LINE_T=$(awk -v var="$sample" '$1==var {print $0}' $META_DATA)
