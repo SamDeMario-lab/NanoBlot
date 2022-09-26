@@ -526,7 +526,7 @@ do
 	IFS=$'\t';
 	echo "Running R scripts"
 	BAMS=${fields[1]} 
-	PLOT_TITLE=${fields[0]|}
+	PLOT_TITLE=${fields[0]}
 	Rscript $NANO_BLOT_RSCRIPT $BAMS $PROBE_FIELD $NORM_FACTOR ${PREVIOUS_ANTI_PROBE} $META_DATA $PLOT_TITLE $ANTIPROBE_FIELD
 	# this order has to be this way because if there is no antiprobe, then it collapses to an empty
 	# string and the number of arguments passed to the script decreases by one, that is why the antiprobe
