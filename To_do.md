@@ -2,10 +2,6 @@
 
 ## Code
 
-### Where do we want the master script to run
-Do we want it to be only run in the directory we create and pull from
-Or do we want it to be run absolute path, which will inevitable create a bunch of sub directories in whatever directory the user is in --> we can do a simple check to prevent this
-
 ### RTpcr
 Works but only with a newer patched version of samtools, for now it works in yeast but not in human NMD data
 
