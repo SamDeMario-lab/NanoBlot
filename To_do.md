@@ -5,9 +5,6 @@
 ### RTpcr
 Works but only with a newer patched version of samtools, for now it works in yeast but not in human NMD data
 
-### Check how density plots work
-I noticed that we are using the same dataset for making the Nanoblot as the density plots (ridge/violin) I don't think we should do this.
-
 ### I want to change the RDS output. I think it should be after the normailization but before the oversampling
 
 ## Logistic

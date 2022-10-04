@@ -120,6 +120,7 @@ for (i in 1:length(bio_samples[[1]])) {
 																		 "sample_name"=bio_samples[[1]][[i]],
 																		 "row_number"=i)
 }
+blot_data_unduplicated <- blot_data
 
 for (i in 1:length(duplication_factors)) {
 	added_data <- blot_data %>% filter(row_number == i)
@@ -202,7 +203,7 @@ plot_fuzzed <- ggplot(data = blot_data, aes(x = row_number_fuzz, y = qwidth))+
   ylab(label = "Size in nts")+
   xlab(label = "")
 
-plot_ridge <- ggplot(data = blot_data)+
+plot_ridge <- ggplot(data = blot_data_unduplicated)+
 	geom_density_ridges2(aes(x = qwidth, y = row_number, group = row_number, fill = row_number), show.legend = FALSE)+
 	theme(axis.line = element_line(colour = "white"),
 				panel.grid.major = element_blank(),
@@ -215,7 +216,7 @@ plot_ridge <- ggplot(data = blot_data)+
 	scale_y_continuous(breaks = c(1:length(bio_samples[[1]])), 
 										 labels = c(bio_samples[[1]]))
 
-plot_violin <- ggplot(data = blot_data)+
+plot_violin <- ggplot(data = blot_data_unduplicated)+
 	geom_violin(aes(x = row_number, y = qwidth, group = row_number, fill = row_number), show.legend = FALSE)+
 	theme(axis.line = element_line(colour = "white"),
 				panel.grid.major = element_blank(),
