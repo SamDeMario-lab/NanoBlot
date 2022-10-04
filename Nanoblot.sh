@@ -194,6 +194,12 @@ declare -i END_META=$(grep -c '.' $META_DATA)
 echo "Probes Bed File: $PROBES";
 echo "Plots File: $PLOTS";
 
+#Checks to see if the temp directory exists, if not, creates it
+if [ ! -d "./temp" ]
+then
+	mkdir -p "./temp"
+fi
+
 #This fixes files that have bene generated in windows computers 
 TEMP_PLOT="./temp/temp_plot.tsv"
 TEMP_META="./temp/temp_metadata.tsv"
