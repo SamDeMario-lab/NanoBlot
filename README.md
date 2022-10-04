@@ -45,7 +45,7 @@ source ~/.bash_profile
 
 ## Basic Usage:
 
-Nanoblot can be run in its entirety via the included bash script "Nanoblot.sh"
+Nanoblot can be run via the included bash script "Nanoblot.sh" in the directory Nano_blot. 
 
 Nanoblot (Version 1.0)
 
