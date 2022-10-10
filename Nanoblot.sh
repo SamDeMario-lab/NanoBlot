@@ -11,6 +11,7 @@ SUBSET_BAMS=TRUE
 CDNA=FALSE
 NORM=TRUE
 RT_PCR=FALSE
+RACE=FALSE
 CLEAN_ALL=FALSE
 OVERWRITE_COUNTS=FALSE
 NORM_FACTOR=0 
@@ -19,7 +20,7 @@ NORM_FACTOR=0
 echo -e "Starting Nanoblot" '\u2622' 
 echo "======="
 
-while getopts ":HFCWOR:M:B:T:Y:A:N:" opt; do
+while getopts ":HFCWOR:M:B:T:Y:P:A:N:" opt; do
 	case $opt in
 		H ) 
 		PRINT_HELP=TRUE
@@ -83,6 +84,12 @@ while getopts ":HFCWOR:M:B:T:Y:A:N:" opt; do
 		Y )
 		RT_PCR=TRUE
 		echo "Running Nano RT-PCR"
+		PLOTS=$OPTARG
+			;;
+		P )
+		RT_PCR=TRUE
+		RACE=TRUE
+		echo "Running Nano RACE: Rapid Amplification of CDNA Ends"
 		PLOTS=$OPTARG
 			;;
 		W )
@@ -158,9 +165,11 @@ For an explanation of the required input files see the README.md
 -T  |  Probes bed file 
 -B  |  Plotting file
 -M  |  Location of metadata file
+    |
 -A  |  Annotation file 
 -R  |  Use custom R script
--Y  |  RT-PCR mode, supply with own metadata file 
+-Y  |  RT-PCR mode, supply with own metadata file, uses default if no input given
+-P  |  RACE mode, supply with own metadata file 
 -N  |  Normalization function {differential (default), size, skip}
 -O  |  Overwrite count tables and recalculate
 -C  |  Treat reads as cDNA (disregard strand) 
@@ -490,7 +499,7 @@ do
 		BUFFER_SIZE=5
 		PARIS_JAPONICA=149000000000
 		echo "======="
-		echo "Running viewing window $VIEWING_WINDOW subset now for RT-PCR mode"
+		echo "Running viewing window $VIEWING_WINDOW subset now for RT-PCR or RACE mode"
 		VW_LINE=$(awk -v var="$VIEWING_WINDOW" '$4==var {print $0}' $PROBES)
 		IFS=$'\t'; read -a veels <<< "$VW_LINE"
 		if [[ -z "${veels[@]}" ]]
@@ -512,17 +521,20 @@ do
 				DATA_LOCATION="./temp/${sample}_${PREVIOUS_ANTI_PROBE}.bam"
 				TEMP_DATA_LOCATION="./temp/RTPCR_temp.bam"
 				cp $DATA_LOCATION $TEMP_DATA_LOCATION
-				echo -e "${veels[0]}\t$(($WINDOW_START-$BUFFER_SIZE))\t$WINDOW_START" > "./temp/temp_start.bed"
-				echo -e "${veels[0]}\t$WINDOW_END\t$(($WINDOW_END+$BUFFER_SIZE))" > "./temp/temp_end.bed"
-				bedtools intersect -a $TEMP_DATA_LOCATION -b "./temp/temp_start.bed" -wa -split -nonamecheck > $DATA_LOCATION
-				bedtools intersect -a $DATA_LOCATION -b "./temp/temp_end.bed" -wa -split -nonamecheck > $TEMP_DATA_LOCATION
-				
+				if [ $RACE = FALSE ]
+				then
+					echo -e "${veels[0]}\t$(($WINDOW_START-$BUFFER_SIZE))\t$WINDOW_START" > "./temp/temp_start.bed"
+					echo -e "${veels[0]}\t$WINDOW_END\t$(($WINDOW_END+$BUFFER_SIZE))" > "./temp/temp_end.bed"
+					bedtools intersect -a $TEMP_DATA_LOCATION -b "./temp/temp_start.bed" -wa -split -nonamecheck > $DATA_LOCATION
+					bedtools intersect -a $DATA_LOCATION -b "./temp/temp_end.bed" -wa -split -nonamecheck > $TEMP_DATA_LOCATION
+					rm "./temp/temp_start.bed" "./temp/temp_end.bed"
+				fi
 				#Performing the bedtools complement then running ampliconclip
 				echo "Clipping $sample to $VIEWING_WINDOW"
 				echo -e "${veels[0]}\t0\t$WINDOW_START\n${veels[0]}\t$WINDOW_END\t$PARIS_JAPONICA" > "./temp/temp.bed"
 				samtools ampliconclip --hard-clip --both-ends -b "./temp/temp.bed" $TEMP_DATA_LOCATION | samtools sort > $DATA_LOCATION
 				samtools index $DATA_LOCATION
-				rm $TEMP_DATA_LOCATION "./temp/temp_start.bed" "./temp/temp_end.bed"
+				rm $TEMP_DATA_LOCATION 
 			done
 		fi
 	fi
