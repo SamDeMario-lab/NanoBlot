@@ -57,7 +57,8 @@ Nanoblot (Version 1.0)
 | -M   |  Location of metadata file |
 | -A   |  Annotation file |
 | -R   |  Use custom R script |
-| -Y   |  RT-PCR mode, supply with own metadata file |
+| -Y   |  RT-PCR mode, supply with own metadata file, , uses default if no input given|
+| -P   |  RACE mode, supply with own metadata file |
 | -N   |  Normalization function {differential (default), size, skip} |
 | -O   |  Overwrite count tables and recalculate
 | -C   |  Treat reads as cDNA (disregard strand) |
