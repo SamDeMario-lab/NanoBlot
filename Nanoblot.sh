@@ -392,7 +392,13 @@ do
 			for sample in $BAMS;
 			do
 				DATA_LINE_T=$(awk -v var="$sample" '$1==var {print $0}' $META_DATA)
-				IFS=$'\t' read -a EELS <<<"$DATA_LINE_T" 
+				IFS=$'\t' read -a EELS <<<"$DATA_LINE_T"
+				
+				if [[ -z "${EELS[@]}" ]]
+				then
+					echo "Sample: $sample not found. Check metadata file. Exiting script"
+					exit 1
+				fi
 				SAMPLE_NAME=${EELS[0]} #Need to filter individual data line to get the sample name
 				
 				if [[ -z "DATA_LINE_T" ]]
