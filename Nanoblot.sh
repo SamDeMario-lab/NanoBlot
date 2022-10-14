@@ -519,6 +519,7 @@ do
 		# regions that intersect in that view window 
 		WINDOW_START=${veels[1]}
 		WINDOW_END=${veels[2]}
+		STRAND=${veels[5]}
 		if [[ "$SUBSET_BAMS"  == TRUE ]]
 		then
 			IFS=$',';
@@ -527,8 +528,24 @@ do
 				DATA_LOCATION="./temp/${sample}_${PREVIOUS_ANTI_PROBE}.bam"
 				TEMP_DATA_LOCATION="./temp/RTPCR_temp.bam"
 				cp $DATA_LOCATION $TEMP_DATA_LOCATION
-				if [ $RACE = FALSE ]
+				if [ $RACE = TRUE ]
 				then
+					if [ $STRAND = "+" ]
+					then
+						# If strand of RACE viewing window is positive, we want inclusive start
+						echo -e "${veels[0]}\t$(($WINDOW_START-$BUFFER_SIZE))\t$WINDOW_START" > "./temp/temp_start.bed"
+						bedtools intersect -a $DATA_LOCATION -b "./temp/temp_start.bed" -wa -split -nonamecheck > $TEMP_DATA_LOCATION
+						rm "./temp/temp_start.bed"
+					elif [ $STRAND = "-" ]
+						# If strand of RACE viewing window is negative, we want inclusive end 
+						echo -e "${veels[0]}\t$WINDOW_END\t$(($WINDOW_END+$BUFFER_SIZE))" > "./temp/temp_end.bed"
+						bedtools intersect -a $DATA_LOCATION -b "./temp/temp_end.bed" -wa -split -nonamecheck > $TEMP_DATA_LOCATION
+						rm "./temp/temp_start.bed"
+					else
+						echo "Correct strand for RACE not found. Check probes file. Exiting script"
+						exit
+					fi
+				else
 					echo -e "${veels[0]}\t$(($WINDOW_START-$BUFFER_SIZE))\t$WINDOW_START" > "./temp/temp_start.bed"
 					echo -e "${veels[0]}\t$WINDOW_END\t$(($WINDOW_END+$BUFFER_SIZE))" > "./temp/temp_end.bed"
 					bedtools intersect -a $TEMP_DATA_LOCATION -b "./temp/temp_start.bed" -wa -split -nonamecheck > $DATA_LOCATION
