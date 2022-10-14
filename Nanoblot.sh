@@ -537,6 +537,7 @@ do
 						bedtools intersect -a $DATA_LOCATION -b "./temp/temp_start.bed" -wa -split -nonamecheck > $TEMP_DATA_LOCATION
 						rm "./temp/temp_start.bed"
 					elif [ $STRAND = "-" ]
+					then
 						# If strand of RACE viewing window is negative, we want inclusive end 
 						echo -e "${veels[0]}\t$WINDOW_END\t$(($WINDOW_END+$BUFFER_SIZE))" > "./temp/temp_end.bed"
 						bedtools intersect -a $DATA_LOCATION -b "./temp/temp_end.bed" -wa -split -nonamecheck > $TEMP_DATA_LOCATION
