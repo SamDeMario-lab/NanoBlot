@@ -15,11 +15,7 @@ Works but only with a newer patched version of samtools, for now it works in yea
 An additional thought I had, when we are running RT mode, do we want to add a check to ask if the user would like to run in cDNA mode? 
 
 ### I want to change the RDS output. I think it should be after the normailization but before the oversampling
-<<<<<<< HEAD
-Offer two options, before and after duplication for RDS
-=======
 I think it should output both. There should be 2 RDS outputs.
->>>>>>> e75ffd9e9727083ec493629906b9323991d88228
 
 ## Logistic
 
