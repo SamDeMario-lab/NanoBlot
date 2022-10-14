@@ -8,11 +8,14 @@ A clear example of this is for snR37 between rrp6 and trf4, look at the manuscri
 1) Make edits to script
 2) Reflect changes in Readme
 
+Make sure RACE checks for beginning of strand inclusion 
+
 ### RTpcr
 Works but only with a newer patched version of samtools, for now it works in yeast but not in human NMD data
 An additional thought I had, when we are running RT mode, do we want to add a check to ask if the user would like to run in cDNA mode? 
 
 ### I want to change the RDS output. I think it should be after the normailization but before the oversampling
+Offer two options, before and after duplication for RDS
 
 ## Logistic
 
