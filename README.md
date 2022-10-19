@@ -71,6 +71,8 @@ It requires 3 inputs:
 
 ```./Nanoblot.sh -M 'Test2' -B 'Test3' -T 'Test4'```
 
+When running for the first time, example datasets and plots are provided. Just run ```./Nanoblot.sh``` in the terminal after changing working directory to the right folder. 
+
 #### 1) A set of probes to be used in standard bed format "example.bed" 
 ```
   chrIV	1359922	1359969	RPS18A_Exon1	.	+
@@ -78,6 +80,7 @@ It requires 3 inputs:
   chrIV	1236558	1236842	YRA1_Exon1	.	+
   chrXI	431906	432034	RPL14A_Exon1	.	+
 ```
+Special note: Make sure there are not extra tabs after the last column of each row of probes.bed, or else bedtools intersect will throw an error. 
 
 #### 2) A tsv file listing the plots to be produced 
 ```
