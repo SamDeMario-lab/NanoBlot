@@ -3,7 +3,7 @@
   Nanoblot
 </h1>
 
-<h3 align="center">A Simple Tool for Visualization of RNA Isoforms Usage From Oxford Nanopore RNA-sequencing data</h3>
+<h3 align="center">A Simple Tool for Visualization of RNA Isoform Usage From Third Generation RNA-sequencing Data</h3>
 
 <div align="center">
   <a href="https://bedtools.readthedocs.io/en/latest/" target="_blank">
