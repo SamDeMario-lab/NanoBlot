@@ -178,7 +178,7 @@ Here is an example of what the result of ampliconclip will look like in IGV.
 Alongside the RT-PCR mode, there is an added RACE (Rapid Amplification of CDNA Ends) option with the ```-P``` flag. It uses the same inputs as the RT-PCR with a separate plotting file template, the only difference is that it does not check for inclusive ends as it is effectively a one-sided PCR. Conceptually, this makes sense as the RACE protocol is used to determine regions of unknown sequences. For example, a 3' RACE experiment to determine unknown 3' mRNA sequences that lie between the exon and the poly(A) tail uses a gene-specific primer that anneals to a region of known exon sequences and an adapter primer that targets the poly(A) tail. [^7]  For more information on usage, read 5' or 3' RACE protocols to see what you need. Reference manuscript for example usage. 
 
 
-[^7]: https://www.thermofisher.com/us/en/home/references/protocols/nucleic-acid-amplification-and-expression-profiling/cdna-protocol/3-race-system-for-rapid-amplification-of-cdna-ends.html
+[^7]: “3´ RACE System for Rapid Amplification of CDNA Ends.” Thermo Fisher Scientific - US, https://www.thermofisher.com/us/en/home/references/protocols/nucleic-acid-amplification-and-expression-profiling/cdna-protocol/3-race-system-for-rapid-amplification-of-cdna-ends.html. 
 
 ### R Plotting
 
