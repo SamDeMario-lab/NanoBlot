@@ -129,7 +129,7 @@ Should the user choose to normalize their sequenced bam files themselves, we als
 ### Subsetting
 <img src=https://bedtools.readthedocs.io/en/latest/_images/intersect-glyph.png>[^5]
 
-[^5]: https://bedtools.readthedocs.io/en/latest/
+[^5]: Quinlan AR and Hall IM, 2010. BEDTools: a flexible suite of utilities for comparing genomic features. Bioinformatics. 26, 6, pp. 841–842
 
 After the normalization step is completed off of the sequenced bam files, the next step is to create subsets of each sequenced bam files to the corresponding probes and antiprobes that the user has specified. If skipping subsetting is desired, usually in the case where the user wants to control downstream analysis such as plotting and save computation time, the flag option ```./Nanoblot.sh -F``` can be used
 
