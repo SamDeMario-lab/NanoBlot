@@ -156,7 +156,7 @@ The RT-PCR mode essentially takes everything the base Nanoblot does, with normal
 
 Since ```ampliconclip``` will clip reads that overlap with the BED files, we will use the viewing window and find the complement bed entries to intersect, keeping effectively the reads that are only found within the viewing window. The options we use for ampliconclip include ```--hard-clip``` to ensure that the read width does not calculate clipped bases and ```--both-ends``` to ensure that both the 5' and the 3' ends where the regions match are cut. This genomic window is irrespective of strandedness since the reads are effectively cDNA at this point. 
 
-[^6]: http://www.htslib.org/doc/samtools-ampliconclip.html
+[^6]: Whitwham, Andrew, and Rob Davies. “Samtools Ampliconclip.” Samtools-Ampliconclip(1) Manual Page, Sanger Institute , https://www.htslib.org/doc/samtools-ampliconclip.html
 
 An example of an input BED file for ampliconclip is as follows. Let's say our viewing window of interest is this bed file, which is the entire RPL18A gene of the Saccharomyces cerevisiae. 
 <img width="946" alt="Screen Shot 2022-09-12 at 9 51 12 PM" src="https://user-images.githubusercontent.com/26608622/189811599-bd48c80a-38ca-45c1-9158-910a9f3eb722.png">
