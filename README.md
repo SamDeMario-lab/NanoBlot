@@ -111,7 +111,7 @@ The purpose of normalization is to adjust for factors that prevent for direct co
 | **DESeq2’s median of ratios** | counts divided by sample-specific size factors determined by median ratio of gene counts relative to geometric mean per gene | sequencing depth and RNA composition | gene count comparisons between samples and for **DE analysis; NOT for within sample comparisons** | 
 | EdgeR’s **trimmed mean of M values (TMM)** | uses a weighted trimmed mean of the log expression ratios between samples | sequencing depth, RNA composition, and gene length | gene count comparisons **between and within samples and for DE analysis** | 
 
-[^1]: https://hbctraining.github.io/DGE_workshop/lessons/02_DGE_count_normalization.html
+[^1]: Meeta Mistry, Mary Piper, Jihe Liu, & Radhika Khetani. (2021, May 24). hbctraining/DGE_workshop_salmon_online: Differential Gene Expression Workshop Lessons from HCBC (first release). Zenodo. https://doi.org/10.5281/zenodo.4783481
  
 For the purposes of Nanoblot, because we are only accepting technical replicates of n=1, we will not be using the complete DeSeq2 standard workflow that includes estimating size factors, estimating dispersions, and then conducting a negative binomial Wald test [^2]. We will only be estimating size factors which produces an appropriate normalization factor for each sequencing sample.  
 
