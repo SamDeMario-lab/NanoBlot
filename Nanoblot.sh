@@ -472,7 +472,7 @@ do
 				do
 					DL_ANTI=$(awk -v var="$sample" '$1==var {print $0}' $META_DATA)
 					IFS=$'\t' read -a bells <<<"$DL_ANTI" 
-					SAMPLE_NAME=${bells[0]} #Neeed to filter individual data line to get the sample name
+					SAMPLE_NAME=${bells[0]} #Need to filter individual data line to get the sample name
 					DATA_LOCATION="./temp/"$SAMPLE_NAME"_"$PREVIOUS_ANTI_PROBE".bam"
 					TEMP_NAME=${SAMPLE_NAME}_${PREVIOUS_ANTI_PROBE}_anti_${antiprobe}.bam
 					
