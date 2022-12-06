@@ -3,7 +3,7 @@
   Nanoblot
 </h1>
 
-<h3 align="center">A Simple Tool for Visualization of RNA Isoforms Usage From Oxford Nanopore RNA-sequencing data</h3>
+<h3 align="center">A Simple Tool for Visualization of RNA Isoform Usage From Third Generation RNA-sequencing Data</h3>
 
 <div align="center">
   <a href="https://bedtools.readthedocs.io/en/latest/" target="_blank">
@@ -111,7 +111,7 @@ The purpose of normalization is to adjust for factors that prevent for direct co
 | **DESeq2’s median of ratios** | counts divided by sample-specific size factors determined by median ratio of gene counts relative to geometric mean per gene | sequencing depth and RNA composition | gene count comparisons between samples and for **DE analysis; NOT for within sample comparisons** | 
 | EdgeR’s **trimmed mean of M values (TMM)** | uses a weighted trimmed mean of the log expression ratios between samples | sequencing depth, RNA composition, and gene length | gene count comparisons **between and within samples and for DE analysis** | 
 
-[^1]: https://hbctraining.github.io/DGE_workshop/lessons/02_DGE_count_normalization.html
+[^1]: Meeta Mistry, Mary Piper, Jihe Liu, & Radhika Khetani. (2021, May 24). hbctraining/DGE_workshop_salmon_online: Differential Gene Expression Workshop Lessons from HCBC (first release). Zenodo. https://doi.org/10.5281/zenodo.4783481
  
 For the purposes of Nanoblot, because we are only accepting technical replicates of n=1, we will not be using the complete DeSeq2 standard workflow that includes estimating size factors, estimating dispersions, and then conducting a negative binomial Wald test [^2]. We will only be estimating size factors which produces an appropriate normalization factor for each sequencing sample.  
 
@@ -129,17 +129,15 @@ Should the user choose to normalize their sequenced bam files themselves, we als
 ### Subsetting
 <img src=https://bedtools.readthedocs.io/en/latest/_images/intersect-glyph.png>[^5]
 
-[^5]: https://bedtools.readthedocs.io/en/latest/
+[^5]: Quinlan AR and Hall IM, 2010. BEDTools: a flexible suite of utilities for comparing genomic features. Bioinformatics. 26, 6, pp. 841–842
 
 After the normalization step is completed off of the sequenced bam files, the next step is to create subsets of each sequenced bam files to the corresponding probes and antiprobes that the user has specified. If skipping subsetting is desired, usually in the case where the user wants to control downstream analysis such as plotting and save computation time, the flag option ```./Nanoblot.sh -F``` can be used
 
-The subsetting code goes through each target probe first, then uses those targetted bam files and subsequently goes through each antiprobe. The heart of the subsetting command relies on the bedtools **intersect** function, which you can read about at their wiki page [^6]. Based on whether the user has specified the input sequence files to be treated as cDNA strands or not with the ```./Nanoblot.sh -C```, the bedtools command will be run with different flag options. 
+The subsetting code goes through each target probe first, then uses those targetted bam files and subsequently goes through each antiprobe. The heart of the subsetting command relies on the bedtools **intersect** function, which you can read about at their wiki page [^5]. Based on whether the user has specified the input sequence files to be treated as cDNA strands or not with the ```./Nanoblot.sh -C```, the bedtools command will be run with different flag options. 
 
 While Nanoblot allows for multiple target probes and antiprobes, the bedtools intersect function must be run one at a time for each intersection performed. If you look at the intersect diagram shown above, providing mulitple regions at once to the intersect function will render an effective **OR** intersection when we are looking for **AND** intersection. In order to subset the bam files appropriately, an intersect function must be run for each probe, one at a time. 
 
 It is important to note that formatting of the plotting file is extremely important, as extra spaces and commas will lead to errors in processing column data. For the basic non RT-PCR mode, the probe field is found in column 2 (starting with index = 1), and the antiprobe field which is optional is found in column 3. 
-
-[^6]: https://bedtools.readthedocs.io/en/latest/content/tools/intersect.html
 
 ### RT-PCR
 An additional feature of Nanoblot is the ability to process reads in RT-PCR mode, which the user can specify with the ```./Nanoblot.sh -Y ``` command. This flag does take positional arguments, namely the location of the RT-PCR plotting file. The plotting file for RT-PCR is almost identical to the original plotting format, with the exception of one extra added column. The RT-PCR plotting file takes arguments with the following column information: plot_name, loading_order, viewing window, probe, antiprobe 
@@ -154,11 +152,11 @@ RPS18A_unspliced	WT,RRP6,SLU7,RRP6SLU7	RPS18A_vw	RPS18A_Exon1,RPS18A_intron
 
 The viewing window is a genomic window with the same features as a probe, and for that reason, is included in the probes metadata file. As a result, if the genomic window is not included, the code will exit with a corresponding error that the viewing window was not found. 
 
-The RT-PCR mode essentially takes everything the base Nanoblot does, with normalization and subsetting of probes, and adds an additional step that does a hard cut at sites that only overlap with the viewing window. This is based off of how wet-bench RT-PCR reactions are performed, where the flanking sites represent extension primers that amplify a certain region of interest. First, we filter the subsetted bam files to only reads that include both the start and the end of the viewing window, as primers in a wet bench RT-pCR reaction would not amplify sequences where the flanking sites are not present. We use a bedtools intersect start and end window with a **BUFFER_SIZE** variable of 5 nucleotides to allow for indels at the flanking regions. After selecting for reads that include the start and end sites, we then perform a hard genomic cut that only includes the regions inside the genomic window. To do this, we use the function ```ampliconclip``` from the ```samtools``` package to clip the end of read alignments if they intersect with regions defined in a BED file. [^7] 
+The RT-PCR mode essentially takes everything the base Nanoblot does, with normalization and subsetting of probes, and adds an additional step that does a hard cut at sites that only overlap with the viewing window. This is based off of how wet-bench RT-PCR reactions are performed, where the flanking sites represent extension primers that amplify a certain region of interest. First, we filter the subsetted bam files to only reads that include both the start and the end of the viewing window, as primers in a wet bench RT-pCR reaction would not amplify sequences where the flanking sites are not present. We use a bedtools intersect start and end window with a **BUFFER_SIZE** variable of 5 nucleotides to allow for indels at the flanking regions. After selecting for reads that include the start and end sites, we then perform a hard genomic cut that only includes the regions inside the genomic window. To do this, we use the function ```ampliconclip``` from the ```samtools``` package to clip the end of read alignments if they intersect with regions defined in a BED file. [^6] 
 
 Since ```ampliconclip``` will clip reads that overlap with the BED files, we will use the viewing window and find the complement bed entries to intersect, keeping effectively the reads that are only found within the viewing window. The options we use for ampliconclip include ```--hard-clip``` to ensure that the read width does not calculate clipped bases and ```--both-ends``` to ensure that both the 5' and the 3' ends where the regions match are cut. This genomic window is irrespective of strandedness since the reads are effectively cDNA at this point. 
 
-[^7]: http://www.htslib.org/doc/samtools-ampliconclip.html
+[^6]: Whitwham, Andrew, and Rob Davies. “Samtools Ampliconclip.” Samtools-Ampliconclip(1) Manual Page, Sanger Institute , https://www.htslib.org/doc/samtools-ampliconclip.html
 
 An example of an input BED file for ampliconclip is as follows. Let's say our viewing window of interest is this bed file, which is the entire RPL18A gene of the Saccharomyces cerevisiae. 
 <img width="946" alt="Screen Shot 2022-09-12 at 9 51 12 PM" src="https://user-images.githubusercontent.com/26608622/189811599-bd48c80a-38ca-45c1-9158-910a9f3eb722.png">
@@ -177,10 +175,10 @@ Here is an example of what the result of ampliconclip will look like in IGV.
 
 ### RACE: Rapid Amplification of CDNA Ends
 
-Alongside the RT-PCR mode, there is an added RACE (Rapid Amplification of CDNA Ends) option with the ```-P``` flag. It uses the same inputs as the RT-PCR with a separate plotting file template, the only difference is that it does not check for inclusive ends as it is effectively a one-sided PCR. Conceptually, this makes sense as the RACE protocol is used to determine regions of unknown sequences. For example, a 3' RACE experiment to determine unknown 3' mRNA sequences that lie between the exon and the poly(A) tail uses a gene-specific primer that anneals to a region of known exon sequences and an adapter primer that targets the poly(A) tail. [^8]  For more information on usage, read 5' or 3' RACE protocols to see what you need. Reference manuscript for example usage. 
+Alongside the RT-PCR mode, there is an added RACE (Rapid Amplification of CDNA Ends) option with the ```-P``` flag. It uses the same inputs as the RT-PCR with a separate plotting file template, the only difference is that it does not check for inclusive ends as it is effectively a one-sided PCR. Conceptually, this makes sense as the RACE protocol is used to determine regions of unknown sequences. For example, a 3' RACE experiment to determine unknown 3' mRNA sequences that lie between the exon and the poly(A) tail uses a gene-specific primer that anneals to a region of known exon sequences and an adapter primer that targets the poly(A) tail. [^7]  For more information on usage, read 5' or 3' RACE protocols to see what you need. Reference manuscript for example usage. 
 
 
-[^8]: https://www.thermofisher.com/us/en/home/references/protocols/nucleic-acid-amplification-and-expression-profiling/cdna-protocol/3-race-system-for-rapid-amplification-of-cdna-ends.html
+[^7]: “3´ RACE System for Rapid Amplification of CDNA Ends.” Thermo Fisher Scientific - US, https://www.thermofisher.com/us/en/home/references/protocols/nucleic-acid-amplification-and-expression-profiling/cdna-protocol/3-race-system-for-rapid-amplification-of-cdna-ends.html. 
 
 ### R Plotting
 
