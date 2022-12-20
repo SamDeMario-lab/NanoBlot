@@ -37,6 +37,49 @@ bamFilesToNanoblotData <-
 		return(nanoblotData)
 	}
 
+normalizeNanoblotData <-
+	function(nanoblotData,
+					 normalizationType = "differential", 
+					 unnormalizedFiles, 
+					 annotationFile = NA) {
+		#Different types of checks
+		# vector length of unnormalizedFiles has to be the same as number of samples
+		# all files have to exist
+		# annotationFile has to exist if type is differential
+		# input of nanoblotData has to be correct
+		
+		if (normalizationType == "differential") {
+			fc_SE <- Rsubread::featureCounts(files = unnormalizedFiles,
+														 annot.ext = annotationFile, 
+														 isGTFAnnotationFile = TRUE,
+														 isLongRead = TRUE)
+			coldata <- data.frame(condition = rep("treated", length(levels(nanoblotData$SampleID))))
+			rownames(coldata) <- colnames(fc_SE$counts)
+			dds <- DESeq2::DESeqDataSetFromMatrix(countData = fc_SE$counts,
+																		colData = coldata,
+																		design = ~ 1)
+			#Remove low counts
+			keep <- rowSums(DESeq2::counts(dds)) >= 5
+			dds <- dds[keep,]
+			#Run DESeq2, which is split into these different functions
+			dds <- DESeq2::estimateSizeFactors(dds)
+			size_factors <- DESeq2::sizeFactors(dds)
+			cat("DESeq2 Size Factors\n-------\n")
+			print(size_factors) 
+		}
+		
+		else if (normalizationType == "size") {
+			
+		}
+		
+		else {
+			stop("Normalization type can only be differential or size. Please check spelling and try again")
+		}
+		
+		
+		return(nanoblotData)
+	}
+
 makeNanoblot <-
 	function(nanoblotData,
 					 plotInfo,
@@ -90,6 +133,8 @@ TestDataNames <- c("WT_RPL18A",
 									 "RRP6_RPL18A")
 TestDataFiles <- c("./temp/WT_RPL18A_Exon1.bam",
 										"./temp/RRP6_RPL18A_Exon1.bam")
+annotation <- "./user_input_files/Saccharomyces_cerevisiae.R64-1-1.107.gtf"
+unnormalizedLocations <- c("./data/example/WT_sorted_merged.bam", "./data/example/RRP6_sorted_merged.bam")
 
 WT_RRP6Test <- data.frame(
 	SampleID = c("WT_RPL18A","RRP6_RPL18A"),
@@ -98,7 +143,7 @@ WT_RRP6Test <- data.frame(
 )
 
 BamsWTRRP6 <- scanBamFiles(TestDataNames, TestDataFiles)
-
 NanoBlotDataWTRRP6 <- bamFilesToNanoblotData(BamsWTRRP6)
-
+NanoBlotDataWTRRP6 <- normalizeNanoblotData(
+	NanoBlotDataWTRRP6, "differential", unnormalizedLocations, annotation)
 makeNanoblot(nanoblotData = NanoBlotDataWTRRP6, plotInfo = WT_RRP6Test)
