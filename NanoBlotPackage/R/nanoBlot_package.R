@@ -66,6 +66,39 @@ normalizeNanoblotData <-
 			size_factors <- DESeq2::sizeFactors(dds)
 			cat("DESeq2 Size Factors\n-------\n")
 			print(size_factors) 
+			
+			sampleNames <- as.vector(levels(nanoblotData$SampleID))
+			duplication_factors <- c()
+			raw_reads <- c()
+			for (i in 1:length(size_factors)) {
+				raw_read_number <- nrow(dplyr::filter(nanoblotData, SampleID == sampleNames[i]))
+				# This calculation is taking the "normalization_factor" and finding the inverse, then multiplying by
+				# 10 to have meaningful effect, and then rounding to the nearest digit
+				duplication_factors[i] <- round((1/size_factors[[i]]) * 10, digits = 0)
+				if (raw_read_number == 0){
+					duplication_factors[i] <- NaN #This allows it so that there are no reads mapped to this sample
+				}
+				raw_reads[i] <- raw_read_number
+			}
+			
+			DUPLICATION_CONSTANT = 2000
+			max_raw_read <- max(raw_reads)
+			cat("Max raw read count:", max_raw_read, "\n")
+			duplication_factors <- round(duplication_factors * (DUPLICATION_CONSTANT / max_raw_read), digits = 0)
+			names(duplication_factors) <- sampleNames
+			cat("Duplication Factors\n-------\n")
+			print(duplication_factors) 
+			
+			# This is normally where the unduplicated blot data goes, you can technically unduplicate it by only
+			# keeping unique qnames 
+			
+			for (i in 1:length(duplication_factors)) {
+				added_data <- nanoblotData %>% dplyr::filter(SampleID == sampleNames[i])
+				if (duplication_factors[[i]] <= 1 | is.nan(duplication_factors[[i]])) {next;}
+				for (j in 1:duplication_factors[[i]]) {
+					nanoblotData <- rbind(nanoblotData, added_data)
+				}
+			}
 		}
 		
 		else if (normalizationType == "size") {
