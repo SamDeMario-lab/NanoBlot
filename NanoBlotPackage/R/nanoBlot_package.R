@@ -89,16 +89,17 @@ makeNanoblot <-
 		print(NanoPlot)
 	}
 
+TestDataNames <- c("WT_RPL18A", 
+									 "RRP6_RPL18A")
+TestDataFiles <- c("./temp/WT_RPL18A_Exon1.bam",
+										"./temp/RRP6_RPL18A_Exon1.bam")
+
 WT_RRP6Test <- data.frame(
-	SampleID = c("WT_snR4_ACT1","RRP6_snR4_ACT1"),
+	SampleID = c("WT_RPL18A","RRP6_RPL18A"),
 	SampleLanes = c(1,2),
 	SampleColors = c('red','blue')
 )
 
-TestDataNames <- c("WT_snR4_ACT1", 
-									 "RRP6_snR4_ACT1")
-TestDataFiles <- c("C:/SMD/Nano_blot/data/example/WT_sorted_merged.bam",
-									 "C:/SMD/Nano_blot/data/example/RRP6_sorted_merged.bam")
 BamsWTRRP6 <- scanBamFiles(TestDataNames, TestDataFiles)
 
 NanoBlotDataWTRRP6 <- bamFilesToNanoblotData(BamsWTRRP6)
