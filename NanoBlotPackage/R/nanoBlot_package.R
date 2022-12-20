@@ -15,7 +15,6 @@ extractNanoblotData <-
 scanBamFiles <-
 	function(SampleID,
 					 BamFileLocations) {
-		print("Noice")
 ## check that sampleIDs and locations are unique
 		if (!isUnique(SampleID)) {
 			stop("SampleID contains non-unique names. All IDs must be unique.")
@@ -32,9 +31,9 @@ bamFilesToNanoblotData <-
 	function(BamFileList) {
 		DataframesExtract <- lapply(BamFileList, extractNanoblotData)
 		nanoblotData <- do.call("rbind", DataframesExtract)
-		nanoblotData$'SampleID' <-
-			as.factor(vapply(strsplit(row.names(nanoblotData), "\\."), `[`, 1, FUN.VALUE =
-											 	character(1)))
+		nanoblotData$'SampleID' <-as.factor(vapply(strsplit(row.names(nanoblotData), "\\."), `[`, 1, FUN.VALUE = character(1)))
+		#tried adding mutate to the extractNanoBlotData command instead using lapply, seq_along, and names to no luck, 
+		#can try again if need be to fix the SampleID 
 		return(nanoblotData)
 	}
 
@@ -84,8 +83,6 @@ makeNanoblot <-
 				)
 			}
 		}
-		
-		print("At least the function ran...")
 		print(NanoPlot)
 	}
 
