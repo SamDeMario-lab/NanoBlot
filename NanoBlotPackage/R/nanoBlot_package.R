@@ -6,9 +6,10 @@ isUnique <-
 	}
 
 extractNanoblotData <-
-	function(SampleList) {
-		NBdf <- data.frame("qname"=SampleList[[1]][['qname']],
-							 "qwidth"=SampleList[[1]][['qwidth']])
+	function(SampleList, SampleNames, index) {
+		NBdf <- data.frame("qname"=SampleList[[index]][[1]][['qname']],
+							 "qwidth"=SampleList[[index]][[1]][['qwidth']],
+							 SampleID = as.factor(SampleNames[index]))
 		return(NBdf)
 	}
 
@@ -29,11 +30,11 @@ scanBamFiles <-
 
 bamFilesToNanoblotData <-
 	function(BamFileList) {
-		DataframesExtract <- lapply(BamFileList, extractNanoblotData)
+		DataframesExtract <- lapply(seq_along(BamFileList), extractNanoblotData, 
+																SampleNames = names(BamFileList),
+																SampleList = BamFileList)
 		nanoblotData <- do.call("rbind", DataframesExtract)
-		nanoblotData$'SampleID' <-as.factor(vapply(strsplit(row.names(nanoblotData), "\\."), `[`, 1, FUN.VALUE = character(1)))
-		#tried adding mutate to the extractNanoBlotData command instead using lapply, seq_along, and names to no luck, 
-		#can try again if need be to fix the SampleID 
+		#nanoblotData$'SampleID' <-as.factor(vapply(strsplit(row.names(nanoblotData), "\\."), `[`, 1, FUN.VALUE = character(1)))
 		return(nanoblotData)
 	}
 
