@@ -132,16 +132,15 @@ normalizeNanoblotData <-
 		if (normalizationType == "differential") { size_factors <- calculateDESeqSizeFactors(nanoblotData, unnormalizedFiles, annotationFile) }
 		else if (normalizationType == "size") { size_factors <- calculateCPMSizeFactors(nanoblotData, unnormalizedFiles)}
 		else { stop("Normalization type can only be differential or size. Please check spelling and try again") }
-		
-		duplication_factors <- calculateDuplicationFactors(nanoblotData, size_factors)
-		return(duplicateNanoblotData(nanoblotData, duplication_factors))
-	}
+		return(size_factors)
+}
 
 makeNanoblot <-
 	function(nanoblotData,
 					 plotInfo,
 					 blotType = 'blot',
-					 plotTitle = "") {
+					 plotTitle = "",
+					 size_factors = rep(1,length(levels(nanoblotData$SampleID)))) {
 ## Start with the logical checks
 		infoCol = c("SampleID",
 								"SampleLanes", 
@@ -150,15 +149,21 @@ makeNanoblot <-
 									infoCol)) {
 			stop("names(plotInfo) does not match expected values. Check formatting.")
 		}
+		
+		duplication_factors <- calculateDuplicationFactors(nanoblotData, size_factors)
+		nanoblotData <- duplicateNanoblotData(nanoblotData, duplication_factors)
+		
 ## Add check for if all of the SampleIDs exist in the nanoblotData		
 ## Add sample lanes to nanoblotData
 		nanoblotData <- merge(nanoblotData, plotInfo, by="SampleID")
+		
 ## Add fuzz to lanes
 		columnWidth <- 0.25
 		nanoblotData$SampleLanesFuzz <-
 			nanoblotData$SampleLanes + runif(nrow(nanoblotData),
 																			 min = -columnWidth,
 																			 max = columnWidth)
+		
 ## Create Nanoblot
 		if (blotType == 'blot') {
 			NanoPlot <- ggplot2::ggplot(data = nanoblotData, ggplot2::aes(x = SampleLanesFuzz, y = qwidth))+
@@ -191,15 +196,16 @@ TestDataNames <- c("WT_RPL18A",
 TestDataFiles <- c("./temp/WT_RPL18A_Exon1.bam",
 										"./temp/RRP6_RPL18A_Exon1.bam")
 annotation <- "./user_input_files/Saccharomyces_cerevisiae.R64-1-1.107.gtf"
-unnormalizedLocations <- c("../TRAMP_Direct/WT/sorted_merged.bam", "../TRAMP_Direct/rrp6/sorted_merged.bam")
+unnormalizedLocations <- c("./data/example/WT_sorted_merged.bam", "./data/example/RRP6_sorted_merged.bam")
+
+
 
 WT_RRP6Test <- data.frame(
 	SampleID = c("WT_RPL18A","RRP6_RPL18A"),
 	SampleLanes = c(1,2),
 	SampleColors = c('red','blue')
 )
-
 BamsWTRRP6 <- scanBamFiles(TestDataNames, TestDataFiles)
 NanoBlotDataWTRRP6 <- bamFilesToNanoblotData(BamsWTRRP6)
-NanoBlotDataWTRRP6 <- normalizeNanoblotData(NanoBlotDataWTRRP6, "differential", unnormalizedLocations, annotation)
-makeNanoblot(nanoblotData = NanoBlotDataWTRRP6, plotInfo = WT_RRP6Test)
+ds_size_factors <- normalizeNanoblotData(NanoBlotDataWTRRP6, "differential", unnormalizedLocations, annotation)
+makeNanoblot(nanoblotData = NanoBlotDataWTRRP6, plotInfo = WT_RRP6Test, size_factors = ds_size_factors)
