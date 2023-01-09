@@ -1,0 +1,23 @@
+```{r}
+TestDataNames <- c("WT", 
+									 "RRP6")
+TestDataFiles <- c("./data/example/WT_sorted_merged.bam",
+										"./data/example/RRP6_sorted_merged.bam")
+annotation <- "./user_input_files/Saccharomyces_cerevisiae.R64-1-1.107.gtf"
+unnormalizedLocations <- c("../TRAMP_Direct/WT/sorted_merged.bam", "../TRAMP_Direct/rrp6/sorted_merged.bam")
+
+WT_RRP6Test <- data.frame(
+	SampleID = c("WT","RRP6"),
+	SampleLanes = c(1,2),
+	SampleColors = c('red','blue')
+)
+```
+
+```{r}
+BamsWTRRP6 <- scanBamFiles(TestDataNames, TestDataFiles)
+NanoBlotDataWTRRP6 <- bamFilesToNanoblotData(BamsWTRRP6)
+makeNanoblot(nanoblotData = NanoBlotDataWTRRP6, plotInfo = WT_RRP6Test, blotType = "ridge")
+makeNanoblot(nanoblotData = NanoBlotDataWTRRP6, plotInfo = WT_RRP6Test, blotType = "violin")
+makeNanoblot(nanoblotData = NanoBlotDataWTRRP6, plotInfo = WT_RRP6Test)
+```
+
