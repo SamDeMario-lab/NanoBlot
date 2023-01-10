@@ -4,9 +4,9 @@ isUnique <-
 	}
 
 extractNanoblotData <-
-	function(SampleList) {
-		NBdf <- data.frame("qname"=SampleList[[1]][['qname']],
-											 "qwidth"=SampleList[[1]][['qwidth']])
+	function(SampleList, SampleNames, index) {
+		NBdf <- data.frame("qname"=SampleList[[index]][[1]][['qname']],
+											 "qwidth"=SampleList[[index]][[1]][['qwidth']],
+											 SampleID = as.factor(SampleNames[index]))
 		return(NBdf)
 	}
-

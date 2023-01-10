@@ -12,7 +12,8 @@ makeNanoblot <-
 	function(nanoblotData,
 					 plotInfo,
 					 blotType = 'blot',
-					 plotTitle = "") {
+					 plotTitle = "",
+					 size_factors = rep(1,length(levels(nanoblotData$SampleID)))) {
 		## Start with the logical checks
 		infoCol = c("SampleID",
 								"SampleLanes", 
@@ -21,7 +22,17 @@ makeNanoblot <-
 									 infoCol)) {
 			stop("names(plotInfo) does not match expected values. Check formatting.")
 		}
-		## Add check for if all of the SampleIDs exist in the nanoblotData		
+		## Duplicates data if blotType "blot" was selected
+		if (blotType == 'blot') {
+			duplication_factors <- calculateDuplicationFactors(nanoblotData, size_factors)
+			nanoblotData <- duplicateNanoblotData(nanoblotData, duplication_factors)
+		}
+		
+		## Add check for if all of the SampleIDs exist in the nanoblotData
+		if (!identical(as.vector(levels(nanoblotData$SampleID)), plotInfo$SampleID)) {
+			stop("nanoblotData samples names do not match sample ID's in plotInfo param")
+		}
+		
 		## Add sample lanes to nanoblotData
 		nanoblotData <- merge(nanoblotData, plotInfo, by="SampleID")
 		## Add fuzz to lanes
@@ -95,6 +106,5 @@ makeNanoblot <-
 				ggplot2::scale_fill_manual(values=levels(nanoblotData$SampleColors))
 		}
 		
-		print("At least the function ran...")
 		print(NanoPlot)
 	}
