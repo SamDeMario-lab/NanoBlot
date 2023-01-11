@@ -2,7 +2,7 @@
 calculateDESeqSizeFactors <- function(nanoblotData, unnormalizedFiles, annotationFile) {
 	sampleNames <- as.vector(levels(nanoblotData$SampleID))
 	fc_SE <- Rsubread::featureCounts(files = unnormalizedFiles,
-																	 annot.ext = annotationFile, 
+																	 annot.ext = annotationFile,
 																	 isGTFAnnotationFile = TRUE,
 																	 isLongRead = TRUE)
 	coldata <- data.frame(condition = rep("treated", length(levels(nanoblotData$SampleID))))
@@ -18,13 +18,13 @@ calculateDESeqSizeFactors <- function(nanoblotData, unnormalizedFiles, annotatio
 	size_factors <- DESeq2::sizeFactors(dds)
 	names(size_factors) <- sampleNames
 	cat("DESeq2 Size Factors\n-------\n")
-	print(size_factors) 
+	print(size_factors)
 	return(size_factors)
 }
 
 # Auxillary function to calculate CPM size factors
 calculateCPMSizeFactors <- function(nanoblotData, unnormalizedFiles) {
-	
+
 	cat("=======\nNormalization: Counts Per Million\n")
 	sampleNames <- as.vector(levels(nanoblotData$SampleID))
 	size_factors <- c()
@@ -36,13 +36,13 @@ calculateCPMSizeFactors <- function(nanoblotData, unnormalizedFiles) {
 	}
 	cat("Counts Per Million Size Factor\n-------\n")
 	names(size_factors) <- sampleNames
-	print(size_factors) 
+	print(size_factors)
 	return(size_factors)
 }
 
 # Auxillary function to calculate duplication factors from size factors
 calculateDuplicationFactors <- function(nanoblotData, size_factors, DUPLICATION_CONSTANT = 2000) {
-	
+
 	sampleNames <- as.vector(levels(nanoblotData$SampleID))
 	duplication_factors <- c()
 	raw_reads <- c()
@@ -56,39 +56,47 @@ calculateDuplicationFactors <- function(nanoblotData, size_factors, DUPLICATION_
 		}
 		raw_reads[i] <- raw_read_number
 	}
-	
+
 	max_raw_read <- max(raw_reads)
 	cat("Max raw read count:", max_raw_read, "\n")
 	duplication_factors <- round(duplication_factors * (DUPLICATION_CONSTANT / max_raw_read), digits = 0)
 	names(duplication_factors) <- sampleNames
 	cat("Duplication Factors\n-------\n")
-	print(duplication_factors) 
+	print(duplication_factors)
 }
 
-#Auxillary function that duplicates Nanoblot data frame based on vector of duplication factors 
+#Auxillary function that duplicates Nanoblot data frame based on vector of duplication factors
 duplicateNanoblotData <- function(nanoblotData, duplication_factors) {
 	sampleNames <- as.vector(levels(nanoblotData$SampleID))
+	progressBar <- txtProgressBar(min = 0, max = sum(duplication_factors),
+																style = 3, width = 50, char = "=")
 	for (i in 1:length(duplication_factors)) {
 		added_data <- dplyr::filter(nanoblotData, SampleID == sampleNames[i])
 		if (duplication_factors[[i]] <= 1 | is.nan(duplication_factors[[i]])) {next;}
 		for (j in 1:duplication_factors[[i]]) {
-			nanoblotData <- rbind(nanoblotData, added_data)
+		  nanoblotData <- rbind(nanoblotData, added_data)
+		  if (i == 1) {
+				setTxtProgressBar(progressBar, j)
+			} else {
+				setTxtProgressBar(progressBar, sum(duplication_factors[1:(i-1)]) + j)
+			}
 		}
 	}
+	close(progressBar)
 	return(nanoblotData)
 }
 
 normalizeNanoblotData <-
 	function(nanoblotData,
-					 normalizationType = "differential", 
-					 unnormalizedFiles, 
+					 normalizationType = "differential",
+					 unnormalizedFiles,
 					 annotationFile = NA) {
 		#Different types of checks
 		# vector length of unnormalizedFiles has to be the same as number of samples
 		# all files have to exist
 		# annotationFile has to exist if type is differential
 		# input of nanoblotData has to be correct
-		
+
 		if (normalizationType == "differential") { size_factors <- calculateDESeqSizeFactors(nanoblotData, unnormalizedFiles, annotationFile) }
 		else if (normalizationType == "size") { size_factors <- calculateCPMSizeFactors(nanoblotData, unnormalizedFiles)}
 		else { stop("Normalization type can only be differential or size. Please check spelling and try again") }
