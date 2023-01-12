@@ -23,18 +23,19 @@ calculateDESeqSizeFactors <- function(nanoblotData, unnormalizedFiles, annotatio
 }
 
 # Auxillary function to calculate CPM size factors
-calculateCPMSizeFactors <- function(nanoblotData, unnormalizedFiles) {
+calculateLibrarySizeFactors <- function(nanoblotData, unnormalizedFiles) {
 
-	cat("=======\nNormalization: Counts Per Million\n")
+	cat("=======\nNormalization: Counts Per Library Depth\n")
 	sampleNames <- as.vector(levels(nanoblotData$SampleID))
 	size_factors <- c()
 	param = Rsamtools::ScanBamParam(flag = Rsamtools::scanBamFlag(isUnmappedQuery = FALSE, isSecondaryAlignment = FALSE))
 	for (i in 1:length(levels(nanoblotData$SampleID))) {
 		raw_read_number <- Rsamtools::countBam(file = unnormalizedFiles[i], param = param)[[6]]
 		cat(paste(sampleNames[i], raw_read_number, "reads\n", sep = " "))
-		size_factors[i] <- strtoi(raw_read_number) / 1000000
+		size_factors[i] <- strtoi(raw_read_number)
 	}
-	cat("Counts Per Million Size Factor\n-------\n")
+	size_factors <- max(size_factors) / size_factors
+	cat("Counts Per Library Depth Size Factor\n-------\n")
 	names(size_factors) <- sampleNames
 	print(size_factors)
 	return(size_factors)
@@ -98,7 +99,7 @@ normalizeNanoblotData <-
 		# input of nanoblotData has to be correct
 
 		if (normalizationType == "differential") { size_factors <- calculateDESeqSizeFactors(nanoblotData, unnormalizedFiles, annotationFile) }
-		else if (normalizationType == "size") { size_factors <- calculateCPMSizeFactors(nanoblotData, unnormalizedFiles)}
+		else if (normalizationType == "size") { size_factors <- calculateLibrarySizeFactors(nanoblotData, unnormalizedFiles)}
 		else { stop("Normalization type can only be differential or size. Please check spelling and try again") }
 		return(size_factors)
 	}
