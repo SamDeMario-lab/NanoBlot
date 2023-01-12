@@ -4,7 +4,13 @@
 \alias{makeNanoblot}
 \title{Generate Nanoblot from NanoblotData}
 \usage{
-makeNanoblot(nanoblotData, plotInfo, blotType = "blot", plotTitle = "")
+makeNanoblot(
+  nanoblotData,
+  plotInfo,
+  blotType = "blot",
+  plotTitle = "",
+  size_factors = rep(1, length(levels(nanoblotData$SampleID)))
+)
 }
 \arguments{
 \item{nanoblotData}{The result of running bamFilesToNanoblotData}

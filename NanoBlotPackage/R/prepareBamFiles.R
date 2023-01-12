@@ -20,7 +20,6 @@
 scanBamFiles <-
 	function(SampleID,
 					 BamFileLocations) {
-		print("Noice")
 		## check that sampleIDs and locations are unique
 		if (!isUnique(SampleID)) {
 			stop("SampleID contains non-unique names. All IDs must be unique.")
@@ -35,10 +34,10 @@ scanBamFiles <-
 
 bamFilesToNanoblotData <-
 	function(BamFileList) {
-		DataframesExtract <- lapply(BamFileList, extractNanoblotData)
+		DataframesExtract <- lapply(seq_along(BamFileList), extractNanoblotData, 
+																SampleNames = names(BamFileList),
+																SampleList = BamFileList)
 		nanoblotData <- do.call("rbind", DataframesExtract)
-		nanoblotData$'SampleID' <-
-			as.factor(vapply(strsplit(row.names(nanoblotData), "\\."), `[`, 1, FUN.VALUE =
-											 	character(1)))
+		#nanoblotData$'SampleID' <-as.factor(vapply(strsplit(row.names(nanoblotData), "\\."), `[`, 1, FUN.VALUE = character(1)))
 		return(nanoblotData)
 	}
