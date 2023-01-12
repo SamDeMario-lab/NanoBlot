@@ -4,6 +4,8 @@
 #' returns a ggplot object
 #' @param nanoblotData The result of running bamFilesToNanoblotData
 #' @param plotInfo A data frame.with 3 columns of equal lengths called SampleID, SampleLanes and, SampleColors
+#' @param blotType The type of Nanoblot to produce. There are 3 acceptable options: 'blot', 'violin', and 'ridge'. Default 'blot'
+#' @param plotTitle An optional title for the resulting plot.
 #' @export
 #' @examples
 #' makeNanoblot()

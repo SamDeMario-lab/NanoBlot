@@ -10,6 +10,10 @@ makeNanoblot(nanoblotData, plotInfo, blotType = "blot", plotTitle = "")
 \item{nanoblotData}{The result of running bamFilesToNanoblotData}
 
 \item{plotInfo}{A data frame.with 3 columns of equal lengths called SampleID, SampleLanes and, SampleColors}
+
+\item{blotType}{The type of Nanoblot to produce. There are 3 acceptable options: 'blot', 'violin', and 'ridge'. Default 'blot'}
+
+\item{plotTitle}{An optional title for the resulting plot.}
 }
 \description{
 This function takes a NanoblotData object, a plotInfo dataframe, and
