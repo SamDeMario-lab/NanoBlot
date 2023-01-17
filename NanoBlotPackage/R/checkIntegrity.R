@@ -12,5 +12,5 @@ calculateIntegrity <- function(GeneTargets, DataSet) {
 	print("This function should do somthing but it doesn't 
 I'm not sure what this is supposed to do. I needs to report what percentage of 
 transcripts are full length. As part of that the gene targets need to have known length
-and ideally be homgenious. This is way harder than it sounds. Review 3 can eat my ass. <3")
+and ideally be homgenious. This is way harder than it sounds.")
 }
