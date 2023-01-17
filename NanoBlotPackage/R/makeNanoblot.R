@@ -105,8 +105,9 @@ makeNanoblot <-
 					data = nanoblotData,
 					show.legend = FALSE
 				)+
-				ggplot2::scale_fill_manual(values=levels(nanoblotData$SampleColors))
+				ggplot2::scale_fill_manual(values=levels(nanoblotData$SampleColors))+
+				ggplot2::ggtitle(label = plotTitle)
 		}
 		
-		print(NanoPlot)
+		return(NanoPlot)
 	}
