@@ -5,10 +5,23 @@
 #' @param nanoblotData The result of running bamFilesToNanoblotData
 #' @param plotInfo A data frame.with 3 columns of equal lengths called SampleID, SampleLanes and, SampleColors
 #' @param blotType The type of Nanoblot to produce. There are 3 acceptable options: 'blot', 'violin', and 'ridge'. Default 'blot'
-#' @param plotTitle An optional title for the resulting plot.
+#' @param plotTitle An optional title for the resulting plot. Default blank
 #' @export
 #' @examples
-#' makeNanoblot()
+#' 
+#' ExampleDataset <- bamFilesToNanoblotData()
+#' 
+#' ExamplePlotInfo <- data.frame(
+#'   SampleID = c(WT,Test),
+#'   SampleLanes = c(1,2),
+#'   SampleColors = c('Red','Blue')
+#'     )
+#' 
+#' makeNanoblot(nanoblotData = ExampleDataset,
+#' plotInfo = ExamplePlotInfo,
+#' plotTitle = "Test plot",
+#' )
+#' 
 
 makeNanoblot <-
 	function(nanoblotData,

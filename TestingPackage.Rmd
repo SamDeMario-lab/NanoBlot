@@ -1,15 +1,15 @@
 ```{r}
 TestDataNames <- c("WT_RPL18A", 
 									 "RRP6_RPL18A")
-TestDataFiles <- c("./temp/WT_RPL18A_Exon1.bam",
-										"./temp/RRP6_RPL18A_Exon1.bam")
+TestDataFiles <- c("./data/example/WT_sorted_merged.bam",
+										"./data/example/RRP6_sorted_merged.bam")
 annotation <- "./user_input_files/Saccharomyces_cerevisiae.R64-1-1.107.gtf"
 unnormalizedLocations <- c("./data/example/WT_sorted_merged.bam", "./data/example/RRP6_sorted_merged.bam")
 
 WT_RRP6Test <- data.frame(
 	SampleID = c("WT_RPL18A","RRP6_RPL18A"),
 	SampleLanes = c(1,2),
-	SampleColors = c('red','blue')
+	SampleColors = c('red','red')
 )
 ```
 
