@@ -15,10 +15,10 @@ WT_RRP6Test <- data.frame(
 
 ```{r}
 BamsWTRRP6 <- scanBamFiles(TestDataNames, TestDataFiles)
-NanoBlotDataWTRRP6 <- bamFilesToNanoblotData(BamsWTRRP6)
-ds_size_factors <- normalizeNanoblotData(NanoBlotDataWTRRP6, "differential", unnormalizedLocations, annotation)
-makeNanoblot(nanoblotData = NanoBlotDataWTRRP6, plotInfo = WT_RRP6Test, blotType = "ridge")
-makeNanoblot(nanoblotData = NanoBlotDataWTRRP6, plotInfo = WT_RRP6Test, blotType = "violin")
-makeNanoblot(nanoblotData = NanoBlotDataWTRRP6, plotInfo = WT_RRP6Test, size_factors = ds_size_factors)
+NanoblotDataWTRRP6 <- bamFilesToNanoblotData(BamsWTRRP6)
+ds_size_factors <- normalizeNanoblotData(NanoblotDataWTRRP6, "differential", unnormalizedLocations, annotation)
+makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6Test, blotType = "ridge")
+makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6Test, blotType = "violin")
+makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6Test, size_factors = ds_size_factors)
 ```
 

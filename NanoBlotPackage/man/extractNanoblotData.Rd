@@ -4,7 +4,7 @@
 \alias{extractNanoblotData}
 \title{Extract Nanoblot Data from Rsamtools::scanBam()}
 \usage{
-extractNanoblotData(SampleList)
+extractNanoblotData(SampleList, SampleNames, index)
 }
 \arguments{
 \item{SampleList}{A list of the outputs of Rsamtools::scanBam() to extract the qname and qwidth from}
