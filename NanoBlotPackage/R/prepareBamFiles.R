@@ -28,6 +28,7 @@ scanBamFiles <-
 			stop("BamFileLocations contains non-unique files. Check filenames.")
 		}
 		BamFileList <- lapply(BamFileLocations, Rsamtools::scanBam)
+		lapply(BamFileLocations, checkForMultimapped)
 		names(BamFileList) <- SampleID
 		return(BamFileList)
 	}
