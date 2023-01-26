@@ -1,0 +1,16 @@
+name: nanoblot_env
+channels:
+  - r
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - bedtools=2.30.0
+  - samtools=1.16.1
+  - htseq=2.0.2
+  - r-base=4.2.1
+  - r-dplyr
+  - r-ggplot2
+  - r-ggridges
+  - bioconductor-rsamtools
+  - bioconductor-deseq2
