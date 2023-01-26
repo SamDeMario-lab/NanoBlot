@@ -25,6 +25,9 @@ I think it should output both. There should be 2 RDS outputs.
 
 ### Clean GitHub Repo
 
+### Test the checkForMultimapping() function
+I want to make sure it behaves as expected
+
 ### README
 ## Remove dependencies
 ## Add Function Descriptions
