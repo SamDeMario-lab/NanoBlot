@@ -13,3 +13,7 @@ An additional thought I had, when we are running RT mode, do we want to add a ch
 I think it should output both. There should be 2 RDS outputs.
 
 ## Logistic
+
+## Genes for multimapping test
+TDH1
+UBI UB4
