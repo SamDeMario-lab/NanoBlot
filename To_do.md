@@ -3,6 +3,9 @@
 ## Code
 
 ### Check YML file
+MAC
+LINUX
+WINDOWS
 
 ### Add step checking probe specificity
 Just before writing the final bam we should check for a multimapped flag. 
@@ -11,6 +14,8 @@ Just before writing the final bam we should check for a multimapped flag.
 I think it should output both. There should be 2 RDS outputs.
 
 ### Check integrity of user specified regions.  
+
+### 
 
 ## Genes for multimapping test
 TDH1
