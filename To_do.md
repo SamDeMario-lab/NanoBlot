@@ -21,6 +21,10 @@ I think it should output both. There should be 2 RDS outputs.
 
 ### Clean GitHub Repo
 
+### README
+## Remove dependencies
+## Add Function Descriptions
+
 ## Genes for multimapping test
 TDH1
 UBI UB4
