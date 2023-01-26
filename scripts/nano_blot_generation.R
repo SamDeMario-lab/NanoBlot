@@ -1,7 +1,4 @@
 #Load libraries 
-if (!require("BiocManager", quietly = TRUE))
-	install.packages("BiocManager")
-
 suppressPackageStartupMessages(library("BiocManager", quietly = TRUE))
 suppressPackageStartupMessages(library("ggplot2", quietly = TRUE))
 suppressPackageStartupMessages(library("Rsamtools", quietly = TRUE))
