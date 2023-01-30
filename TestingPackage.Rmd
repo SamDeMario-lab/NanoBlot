@@ -3,8 +3,13 @@ TestDataNames <- c("WT_RPL18A",
 									 "RRP6_RPL18A")
 TestDataFiles <- c("./data/example/WT_sorted_merged.bam",
 										"./data/example/RRP6_sorted_merged.bam")
+TestBamFileList <- BamFileList(c("./data/example/WT_sorted_merged.bam",
+							"./data/example/RRP6_sorted_merged.bam"))
 annotation <- "./user_input_files/Saccharomyces_cerevisiae.R64-1-1.107.gtf"
 unnormalizedLocations <- c("./data/example/WT_sorted_merged.bam", "./data/example/RRP6_sorted_merged.bam")
+
+rpl18_grand <- GRanges(seqnames = c('chrXV','chrXV'), ranges = c(IRanges(94293, 94387),IRanges(94363,94469)), strand = c('-','-'))
+test_param <- ScanBamParam(which = rpl18_grand)
 
 WT_RRP6Test <- data.frame(
 	SampleID = c("WT_RPL18A","RRP6_RPL18A"),
