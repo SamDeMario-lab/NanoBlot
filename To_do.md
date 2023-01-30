@@ -24,6 +24,9 @@ I think we only have to change 2 functions
 
 ### Clean GitHub Repo
 
+### Test the checkForMultimapping() function
+I want to make sure it behaves as expected
+
 ### README
 ## Remove dependencies
 ## Add Function Descriptions
