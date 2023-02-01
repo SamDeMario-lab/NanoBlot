@@ -7,6 +7,7 @@
 #' @param nanoblotData This is a data frame that is generated from bamFilesToNanoblotData
 #' @param unnormalizedFiles This is a vector that contains the string file locations of all the samples in nanoblotData
 #' @param annotationFile This is a gtf file obtained from a database that contains the organism of interest's genomic annotations
+#' @param coldata This is a DeSeq2 coldata argument that is called with the DeSeq2 function DESeqDataSetFromMatrix
 #' @export
 #' @examples
 #' TestDataNames <- c("WT_RPL18A", "RRP6_RPL18A")
@@ -19,20 +20,36 @@
 #' calculateDESeqSizeFactors(NanoblotDataWTRRP6, unnormalizedLocations, annotation)
 #'
 #' returns a vector with 2 elements
-calculateDESeqSizeFactors <- function(nanoblotData, unnormalizedFiles, annotationFile) {
+calculateDESeqSizeFactors <- function(nanoblotData, unnormalizedFiles, annotationFile, coldata) {
 	sampleNames <- as.vector(levels(nanoblotData$SampleID))
 	fc_SE <- Rsubread::featureCounts(files = unnormalizedFiles,
 																	 annot.ext = annotationFile,
 																	 isGTFAnnotationFile = TRUE,
 																	 isLongRead = TRUE)
-	coldata <- data.frame(condition = rep("treated", length(levels(nanoblotData$SampleID))))
-	rownames(coldata) <- colnames(fc_SE$counts)
-	dds <- DESeq2::DESeqDataSetFromMatrix(countData = fc_SE$counts,
-																				colData = coldata,
-																				design = ~ 1)
-	#Remove low counts
-	keep <- rowSums(DESeq2::counts(dds)) >= 5
-	dds <- dds[keep,]
+	if (is.na(coldata)) {
+	  coldata <- data.frame(condition = rep("treated", length(levels(nanoblotData$SampleID))))
+	  rownames(coldata) <- colnames(fc_SE$counts)
+	  dds <- DESeq2::DESeqDataSetFromMatrix(countData = fc_SE$counts,
+	                                        colData = coldata,
+	                                        design = ~ 1)
+	  #Remove low counts
+	  keep <- rowSums(DESeq2::counts(dds)) >= 5
+	  dds <- dds[keep,]
+	}
+	else {
+	  dds <- DESeq2::DESeqDataSetFromMatrix(countData = fc_SE$counts,
+	                                        colData = coldata,
+	                                        design = ~ condition)
+	  #Remove low counts
+	  keep <- rowSums(DESeq2::counts(dds)) >= 5
+	  dds <- dds[keep,]
+	  dds <- DESeq2::DESeq(dds)
+	  res <- DESeq2::results(dds)
+	  res #Prints out the DESeq2 result
+	  summary(res) #Prints out a summary of the DESeq2 result
+
+	}
+
 	#Run DESeq2, which is split into these different functions
 	dds <- DESeq2::estimateSizeFactors(dds)
 	size_factors <- DESeq2::sizeFactors(dds)
@@ -189,14 +206,15 @@ normalizeNanoblotData <-
 	function(nanoblotData,
 					 normalizationType = "differential",
 					 unnormalizedFiles,
-					 annotationFile = NA) {
+					 annotationFile = NA,
+					 coldata = NA) {
 		#Different types of checks
 		# vector length of unnormalizedFiles has to be the same as number of samples
 		# all files have to exist
 		# annotationFile has to exist if type is differential
 		# input of nanoblotData has to be correct
 
-		if (normalizationType == "differential") { size_factors <- calculateDESeqSizeFactors(nanoblotData, unnormalizedFiles, annotationFile) }
+		if (normalizationType == "differential") { size_factors <- calculateDESeqSizeFactors(nanoblotData, unnormalizedFiles, annotationFile,coldata) }
 		else if (normalizationType == "size") { size_factors <- calculateLibrarySizeFactors(nanoblotData, unnormalizedFiles)}
 		else { stop("Normalization type can only be differential or size. Please check spelling and try again") }
 		return(size_factors)
