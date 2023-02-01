@@ -16,8 +16,6 @@ Review 3 suggested we use it for replicates. The only reasonable way to do this 
 so the psuedocode for this is to make the normalizeNanoblot take an argument that is basically the DeSeq info argument --> and basically helps them call DeSeq but they are literally calling DeSeq --> and then have the DeSeq just output the Deseq adjusted or whatever table it normally outputs 
 And then make the plotting function take different plotting infos 
 
-makeNanoblot line 46-48 change to a check for %in%
-
 ### Fix Rsamtools BamFileList()
 We have a function called Scanbamfiles() which we should replace with BamFileList()
 I think we only have to change 2 functions
