@@ -26,7 +26,7 @@ calculateDESeqSizeFactors <- function(nanoblotData, unnormalizedFiles, annotatio
 																	 annot.ext = annotationFile,
 																	 isGTFAnnotationFile = TRUE,
 																	 isLongRead = TRUE)
-	if (is.na(coldata)) {
+	if (is.null(coldata)) {
 	  coldata <- data.frame(condition = rep("treated", length(levels(nanoblotData$SampleID))))
 	  rownames(coldata) <- colnames(fc_SE$counts)
 	  dds <- DESeq2::DESeqDataSetFromMatrix(countData = fc_SE$counts,
@@ -207,7 +207,7 @@ normalizeNanoblotData <-
 					 normalizationType = "differential",
 					 unnormalizedFiles,
 					 annotationFile = NA,
-					 coldata = NA) {
+					 coldata = NULL) {
 		#Different types of checks
 		# vector length of unnormalizedFiles has to be the same as number of samples
 		# all files have to exist
