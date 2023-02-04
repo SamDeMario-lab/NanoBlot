@@ -1,0 +1,177 @@
+```{r}
+TestDataNames <- c("WT_RPL18A", 
+									 "RRP6_RPL18A")
+TestDataFiles <- c("./data/example/WT_sorted_merged.bam",
+										"./data/example/RRP6_sorted_merged.bam")
+TestBamFileList <- Rsamtools::BamFileList(c("./data/example/WT_sorted_merged.bam",
+																 "./data/example/RRP6_sorted_merged.bam"))
+annotation <- "./user_input_files/Saccharomyces_cerevisiae.R64-1-1.107.gtf"
+unnormalizedLocations <- c("./data/example/WT_sorted_merged.bam", "./data/example/RRP6_sorted_merged.bam")
+
+rpl18_grand <- GRanges(seqnames = c('chrXV','chrXV'), ranges = c(IRanges(94293, 94387),IRanges(94363,94469)), strand = c('-','-'))
+test_param <- ScanBamParam(which = rpl18_grand)
+
+WT_RRP6Test <- data.frame(
+	SampleID = c("WT_RPL18A","RRP6_RPL18A"),
+	SampleLanes = c(1,2),
+	SampleColors = c('red','red')
+)
+
+```
+
+```{r}
+BamsWTRRP6 <- scanBamFiles(TestDataNames, TestDataFiles)
+NanoblotDataWTRRP6 <- bamFilesToNanoblotData(BamsWTRRP6)
+ds_size_factors <- normalizeNanoblotData(NanoblotDataWTRRP6, "differential", unnormalizedLocations, annotation)
+makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6Test, blotType = "ridge")
+makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6Test, blotType = "violin")
+makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6Test, size_factors = ds_size_factors)
+```
+
+```{r}
+TestBamFileList <- Rsamtools::BamFileList(c("/media/guillaume-chanfreau/HD3/TRAMP_Direct/TRF4_3.bam", "/media/guillaume-chanfreau/HD3/TRAMP_Direct/slu7AA_IVP.bam"))
+
+YeastCDSGFF <- import.gff("/home/guillaume-chanfreau/Annotation_files/saccharomyces_cerevisiae.20210411.CDS.no_mito.gff")
+
+TRF4slu7Integrity <- calculateIntegrity(GeneTargets = YeastCDSGFF, BamFiles = TestBamFileList)
+```
+```{r}
+for (file_name in levels(TRF4slu7Integrity$file)) {
+	print(file_name)
+	PlotData <- TRF4slu7Integrity[c(TRF4slu7Integrity$file == file_name),]
+	
+	PlotData$TranscriptNumber <- as.numeric(str_split_i(row.names(PlotData), "\\.", -1))
+	
+	IntegrityPlot <-ggplot(data = PlotData)+
+	geom_point(aes(x = TranscriptNumber, y = ReadEndsInRegion, color = space, size = records), alpha = .5)+
+	xlab(label = "")+
+	ylab(label = "% Partial Sequence")+
+	theme_bw()+
+	theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+				legend.position = "none"
+        )+
+	ggtitle(label = paste(file_name, "- Mean:" , mean(PlotData$ReadEndsInRegion, na.rm = TRUE)))+
+	scale_y_reverse()
+	
+	print(IntegrityPlot)
+	
+	pic_name <- paste("/home/guillaume-chanfreau/Desktop/",file_name, "Integrity.png", sep = "")
+	
+	ggsave(filename = pic_name, device = "png", units = "in", width = 6, height = 4.5)
+}
+```
+
+
+```{r}
+
+mean(x = WTRRP6Integrity[c(WTRRP6Integrity$file == "WT.bam"),]$ReadEndsInRegion, na.rm = TRUE)
+mean(x = WTRRP6Integrity[c(WTRRP6Integrity$file == "RRP6.bam"),]$ReadEndsInRegion, na.rm = TRUE)
+
+WTIntegrity <- WTRRP6Integrity[c(WTRRP6Integrity$file == "WT.bam"),]
+RRP6Integrity<- WTRRP6Integrity[c(WTRRP6Integrity$file == "RRP6.bam"),]
+
+difffromWT <- WTRRP6Integrity[c(WTRRP6Integrity$file == "WT.bam"),]$ReadEndsInRegion - WTRRP6Integrity[c(WTRRP6Integrity$file == "RRP6.bam"),]$ReadEndsInRegion
+DivfromWT <- WTRRP6Integrity[c(WTRRP6Integrity$file == "WT.bam"),]$ReadEndsInRegion / WTRRP6Integrity[c(WTRRP6Integrity$file == "RRP6.bam"),]$ReadEndsInRegion
+
+WTIntegrity$diffRRP6 <- difffromWT
+WTIntegrity$WToverRRP6 <- DivfromWT
+
+WTIntegritySmall <- WTIntegrity[WTIntegrity$records > 100,]
+```
+
+```{r}
+ggplot(data = WTIntegrity)+
+	geom_point(aes(x = TranscriptNumber, y = ReadEndsInRegion, color = space, size = records), alpha = .5)+
+	xlab(label = "")+
+#	scale_y_continuous(limits = c(0.1,10), trans = "log", breaks = c(0.1, 0.5, 1, 5, 10))+
+	ylab(label = "% Partial Sequence")+
+	theme_bw()+
+	theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+				legend.position = "none"
+        )+
+	ggtitle(label = paste("WT - Mean:" , mean(WTIntegrity$ReadEndsInRegion, na.rm = TRUE)))+
+	scale_y_reverse()
+
+ggsave(filename = "/home/guillaume-chanfreau/Desktop/WTIntegrity.png", device = "png", units = "in", width = 6, height = 4.5)
+
+ggplot(data = RRP6Integrity)+
+	geom_point(aes(x = TranscriptNumber, y = ReadEndsInRegion, color = space, size = records), alpha = .5)+
+	xlab(label = "")+
+#	scale_y_continuous(limits = c(0.1,10), trans = "log", breaks = c(0.1, 0.5, 1, 5, 10))+
+	ylab(label = "% Partial Sequence")+
+	theme_bw()+
+	theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+				legend.position = "none"
+        )+
+	ggtitle(label = paste("rrp6\U1D6AB - Mean:" , mean(RRP6Integrity$ReadEndsInRegion, na.rm = TRUE)))+
+	scale_y_reverse()
+
+ggsave(filename = "/home/guillaume-chanfreau/Desktop/RRP6Integrity.png", device = "png", units = "in", width = 6, height = 4.5)
+```
+
+
+```{r}
+ggplot(data = WTIntegrity)+
+	geom_point(aes(x = TranscriptNumber, y = DivfromWT, color = space, size = records), alpha  = 0.25)+
+	geom_hline(yintercept = 1, alpha = 0.5)+
+	xlab(label = "")+
+	scale_y_continuous(limits = c(0.1,10), trans = "log", breaks = c(0.1,1,10))+
+	ylab(label = "WT / rrp6 \U1D6AB")+
+	theme_bw()+
+	theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()
+        )
+
+ggsave(filename = "/home/guillaume-chanfreau/Desktop/WToverRRP6Integrity.png", device = "png", units = "in", width = 6, height = 4.5)
+```
+
+
+```{r}
+
+WTRRP6Integrity$TranscriptNumber <- as.numeric(str_split_i(row.names(WTRRP6Integrity), "\\.", -1))
+
+TransTargs <- WTRRP6Integrity[(WTRRP6Integrity[c(WTRRP6Integrity$file == "WT.bam"),]$records > 100) & (WTRRP6Integrity[c(WTRRP6Integrity$file == "RRP6.bam"),]$records > 100), "TranscriptNumber"]
+
+Data <- WTRRP6Integrity[WTRRP6Integrity$TranscriptNumber %in% TransTargs,]
+
+plotoutput <- ggplot2::ggplot(data = Data)+
+	ggplot2::geom_point(ggplot2::aes(x=width,y=ReadEndsInRegion, colour=file))
+
+print(plotoutput)
+
+WTData <- Data[Data$file=="WT.bam",]
+plotoutput2 <- ggplot2::ggplot(data = WTRRP6Integrity)+
+	ggplot2::geom_point(ggplot2::aes(x=TranscriptNumber,y=ReadEndsInRegion, colour=space))
+print(plotoutput2)
+```
+```{r}
+TRF4Integrity <- TRF4slu7Integrity[TRF4slu7Integrity$file == "TRF4_3.bam",]
+TRF4chrIVIntegrity <- TRF4Integrity[TRF4Integrity$space == "chrIV",]
+TRF4chrIVIntegritylow <- TRF4chrIVIntegrity[TRF4chrIVIntegrity$records < 2000,]
+
+
+ggplot(data = TRF4chrIVIntegritylow, aes(x=start, y=ReadEndsInRegion, color=records))+
+	geom_point()
+```
+```{r}
+abnormal <- TRF4chrIVIntegritylow[((TRF4chrIVIntegritylow$start > 900000)&(TRF4chrIVIntegritylow$start < 1300000)),]
+normal <- TRF4chrIVIntegritylow[!((TRF4chrIVIntegritylow$start > 900000)&(TRF4chrIVIntegritylow$start < 1300000)),]
+
+ggplot()+
+	geom_point(data = normal, color = "blue", aes(x=start, y=ReadEndsInRegion))+
+	geom_point(data = abnormal, color = "green", aes(x=start, y=ReadEndsInRegion))
+
+
+ggplot()+
+	geom_point(data = normal, color = "blue", aes(x=width, y=ReadEndsInRegion))+
+	geom_point(data = abnormal, color = "green", aes(x=width, y=ReadEndsInRegion))
+
+
+ggplot()+
+	geom_point(data = normal, color = "blue", aes(x=records, y=ReadEndsInRegion))+
+	geom_point(data = abnormal, color = "green", aes(x=records, y=ReadEndsInRegion))
+```
+
