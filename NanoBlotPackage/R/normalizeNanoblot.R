@@ -44,9 +44,10 @@ calculateDESeqSizeFactors <- function(nanoblotData, unnormalizedFiles, annotatio
 	  keep <- rowSums(DESeq2::counts(dds)) >= 5
 	  dds <- dds[keep,]
 	  dds <- DESeq2::DESeq(dds)
-	  res <- DESeq2::results(dds)
-	  res #Prints out the DESeq2 result
-	  summary(res) #Prints out a summary of the DESeq2 result
+	  res <- DESeq2::results(dds, alpha = 0.05)
+	  
+	  print(DESeq2::summary(res)) #Prints out a summary of the DESeq2 result
+	  print(res) #Prints out the DESeq2 result
 
 	}
 
