@@ -10,11 +10,11 @@
 #' 
 
 calculateIntegrity <- function(GeneTargets, BamFiles) {
-GRanFilter <- ScanBamParam(which = GeneTargets)
-totalCounts <- countBam(file = BamFiles, param = GRanFilter)
+GRanFilter <- Rsamtools::ScanBamParam(which = GeneTargets)
+totalCounts <- Rsamtools::countBam(file = BamFiles, param = GRanFilter)
 
-GRanFilterEnds <- ScanBamParam(what = c("pos","cigar"),which = GeneTargets )
-PosList <- lapply(BamFiles, scanBam, param = GRanFilterEnds)
+GRanFilterEnds <- Rsamtools::ScanBamParam(what = c("pos","cigar"),which = GeneTargets )
+PosList <- lapply(BamFiles, Rsamtools::scanBam, param = GRanFilterEnds)
 ReadsEnding <- c()
 for (SampleNum in seq_along(PosList)) {
 	for (RangeNum in seq_along(PosList[[SampleNum]])){

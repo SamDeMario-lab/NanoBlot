@@ -42,7 +42,7 @@ rownames(coldata) <- c("WT_rep2_mapped.sorted.bam","KO_rep1_mapped.sorted.bam",
 											 "KO_rep2_mapped.sorted.bam","WT_rep3_mapped.sorted.bam",
 											 "KO_rep3_mapped.sorted.bam")
 
-ds_size_factors <- normalizeNanoblotData(nanoblotData, "differential", unnormalizedLocations, annotation, coldata)
+ds_size_factors <- normalizeNanoblotData(nanoblotData, "differential", unnormalizedLocations, annotation, coldata,  "/home/guillaume-chanfreau/Desktop/WT_KO_DESeq2.csv")
 
 
 ```
