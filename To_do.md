@@ -25,7 +25,7 @@ I think we only have to change 2 functions
 ### Test the checkForMultimapping() function
 I want to make sure it behaves as expected
 
-### README
+### Update README 
 ## Remove dependencies
 ## Add Function Descriptions
 
