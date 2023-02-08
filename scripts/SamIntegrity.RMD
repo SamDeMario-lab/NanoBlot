@@ -36,7 +36,6 @@ YeastCDSGFF <- rtracklayer::import.gff("/home/guillaume-chanfreau/Annotation_fil
 WTIntegrity <- calculateIntegrity(GeneTargets = YeastCDSGFF, BamFiles = TestBamFileList)
 ```
 
-
 ```{r}
 #for (file_name in levels(WTIntegrity$file)) {
 #	print(file_name)
