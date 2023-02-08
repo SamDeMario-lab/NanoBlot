@@ -54,7 +54,7 @@ TestBamFileList <- Rsamtools::BamFileList(c("/media/guillaume-chanfreau/HD3/TRAM
 
 YeastCDSGFF <- rtracklayer::import.gff("/home/guillaume-chanfreau/Annotation_files/saccharomyces_cerevisiae.20210411.CDS.no_mito.gff")
 
-calculateIntegrity(GeneTargets = YeastCDSGFF, BamFiles = TestBamFileList)
+checkIntegrity(GeneTargets = YeastCDSGFF, BamFiles = TestBamFileList)
 ```
 
 ```{r}
