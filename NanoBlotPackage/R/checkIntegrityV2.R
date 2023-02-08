@@ -25,8 +25,8 @@ calculateIntegrity2 <- function(GeneTargets, BamFiles) {
     while(length(chunk <- GenomicAlignments::readGAlignments(bf))) {
       currentRecords <- countsPerBam$records
       currentFivePrimeEnds <- countsPerBam$FivePrimeEnds
-      newRecords <- GenomicAlignments::countOverlaps(GeneTargets, chunk)
-      newFivePrimeEnds <- GenomicAlignments::countOverlaps(GeneTargets, chunk, type = "within")
+      newRecords <- GenomicRanges::countOverlaps(GeneTargets, chunk)
+      newFivePrimeEnds <- GenomicRanges::countOverlaps(GeneTargets, chunk, type = "within")
       countsPerBam <- dplyr::mutate(countsPerBam,
                                     records = currentRecords + newRecords,
                                     FivePrimeEnds = currentFivePrimeEnds + newFivePrimeEnds)
