@@ -18,9 +18,16 @@
 checkIntegrity <- function(GeneTargets, BamFiles) {
 
   GRanFilter <- Rsamtools::ScanBamParam(which = GeneTargets)
+  totalBamCounts <- Rsamtools::countBam(file = BamFiles)
+  totalRecords <- sum(totalBamCounts$records)
+  uniqueBamNames <- unique(totalBamCounts$file)
   totalCounts <- c()
+  progressBar <- txtProgressBar(min = 0, max = totalRecords,
+  															style = 3, width = 50, char = "=")
+  currentRecordCount <- 0
+  setTxtProgressBar(progressBar, currentRecordCount)
   for (SampleNum in seq_along(BamFiles)) {
-    countsPerBam <- Rsamtools::countBam(file = BamFiles[[SampleNum]], param = GRanFilter)
+    countsPerBam <- Rsamtools::countBam(file = BamFiles, param = GRanFilter)
     countsPerBam <- dplyr::select(countsPerBam, -records)
     countsPerBam <- dplyr::mutate(countsPerBam, records = c(0), FivePrimeEnds = c(0))
 
@@ -35,6 +42,9 @@ checkIntegrity <- function(GeneTargets, BamFiles) {
       countsPerBam <- dplyr::mutate(countsPerBam,
                                     records = currentRecords + newRecords,
                                     FivePrimeEnds = currentFivePrimeEnds + newFivePrimeEnds)
+      currentRecordCount <- currentRecordCount + length(chunk)
+      if (currentRecordCount > totalRecords) {currentRecordCount = totalRecords}
+      setTxtProgressBar(progressBar, currentRecordCount)
     }
     Rsamtools::close.BamFile(bf)
 

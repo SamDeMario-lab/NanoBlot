@@ -11,6 +11,8 @@ WINDOWS
 We have a function called Scanbamfiles() which we should replace with BamFileList()
 I think we only have to change 2 functions
 
+### Update yml file with dependencies in R once linked
+
 ### Clean GitHub Repo
 
 ### Test the checkForMultimapping() function
