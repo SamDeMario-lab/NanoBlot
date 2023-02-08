@@ -27,7 +27,7 @@ checkIntegrity <- function(GeneTargets, BamFiles) {
   currentRecordCount <- 0
   setTxtProgressBar(progressBar, currentRecordCount)
   for (SampleNum in seq_along(BamFiles)) {
-    countsPerBam <- Rsamtools::countBam(file = BamFiles, param = GRanFilter)
+    countsPerBam <- Rsamtools::countBam(file = BamFiles[[SampleNum]], param = GRanFilter)
     countsPerBam <- dplyr::select(countsPerBam, -records)
     countsPerBam <- dplyr::mutate(countsPerBam, records = c(0), FivePrimeEnds = c(0))
 
