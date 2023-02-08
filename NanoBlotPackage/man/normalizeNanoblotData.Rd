@@ -8,7 +8,9 @@ normalizeNanoblotData(
   nanoblotData,
   normalizationType = "differential",
   unnormalizedFiles,
-  annotationFile = NA
+  annotationFile = NA,
+  coldata = NULL,
+  writeOutFile = NULL
 )
 }
 \arguments{
@@ -20,6 +22,10 @@ normalizeNanoblotData(
 
 \item{annotationFile}{This is a gtf file obtained from a database that contains the organism of interest's genomic annotations.
 This is only needed for the 'differential' normalization method}
+
+\item{coldata}{This is a DeSeq2 coldata argument that is called with the DeSeq2 function DESeqDataSetFromMatrix}
+
+\item{writeOutFile}{This is the write out file for DeSeq2 if the user specifies, NULL by default}
 }
 \description{
 This function is used to generate size factors for Nanoblot data normalization. The user can specify two

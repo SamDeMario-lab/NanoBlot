@@ -4,7 +4,13 @@
 \alias{calculateDESeqSizeFactors}
 \title{Calculate DESeq Size Factors using DESeq2}
 \usage{
-calculateDESeqSizeFactors(nanoblotData, unnormalizedFiles, annotationFile)
+calculateDESeqSizeFactors(
+  nanoblotData,
+  unnormalizedFiles,
+  annotationFile,
+  coldata,
+  writeOutFile
+)
 }
 \arguments{
 \item{nanoblotData}{This is a data frame that is generated from bamFilesToNanoblotData}
@@ -12,6 +18,10 @@ calculateDESeqSizeFactors(nanoblotData, unnormalizedFiles, annotationFile)
 \item{unnormalizedFiles}{This is a vector that contains the string file locations of all the samples in nanoblotData}
 
 \item{annotationFile}{This is a gtf file obtained from a database that contains the organism of interest's genomic annotations}
+
+\item{coldata}{This is a DeSeq2 coldata argument that is called with the DeSeq2 function DESeqDataSetFromMatrix}
+
+\item{writeOutFile}{This is the write out file for DeSeq2 if the user specifies, NULL by default}
 }
 \description{
 This function is required to normalize Nanoblots using the DeSeq normalization method.
