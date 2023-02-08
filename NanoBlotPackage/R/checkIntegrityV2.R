@@ -7,47 +7,40 @@ TestBamFileList <- Rsamtools::BamFileList(c("./../data/example/WT_sorted_merged.
 GeneTargets = YeastCDSGFF
 BamFiles = TestBamFileList
 
-GRanFilter <- Rsamtools::ScanBamParam(which = GeneTargets)
-Rsamtools::yieldSize(BamFiles) <- 50000
-totalCounts <- Rsamtools::countBam(file = BamFiles, param = GRanFilter)
-
-GRanFilterEnds <- Rsamtools::ScanBamParam(what = c("pos","cigar"),which = GeneTargets )
-PosList <- lapply(BamFiles, Rsamtools::scanBam, param = GRanFilterEnds)
+counts1 <- calculateIntegrity(GeneTargets, BamFiles)
+counts2 <- calculateIntegrity2(GeneTargets, BamFiles)
 
 calculateIntegrity2 <- function(GeneTargets, BamFiles) {
 
-  Rsamtools::yieldSize(BamFiles) <- 50000
-  Rsamtools::open(BamFiles)
   GRanFilter <- Rsamtools::ScanBamParam(which = GeneTargets)
-  totalCounts <- Rsamtools::countBam(file = BamFiles, param = GRanFilter)
+  totalCounts <- c()
+  for (SampleNum in seq_along(BamFiles)) {
+    countsPerBam <- Rsamtools::countBam(file = BamFiles[[SampleNum]], param = GRanFilter)
+    countsPerBam <- dplyr::select(countsPerBam, -records)
+    countsPerBam <- dplyr::mutate(countsPerBam, records = c(0), FivePrimeEnds = c(0))
 
-  GRanFilterEnds <- Rsamtools::ScanBamParam(what = c("pos","cigar"),which = GeneTargets )
-  PosList <- lapply(BamFiles, Rsamtools::scanBam, param = GRanFilterEnds)
-  ReadsEnding <- c()
-  for (SampleNum in seq_along(PosList)) {
-    for (RangeNum in seq_along(PosList[[SampleNum]])){
-      StartPos <- PosList[[SampleNum]][[RangeNum]][["pos"]]
-      RefWidth <- GenomicAlignments::cigarWidthAlongReferenceSpace(PosList[[SampleNum]][[RangeNum]][["cigar"]])
-      EndPos <- StartPos + RefWidth
-
-      GranStart <- GeneTargets@ranges@start[RangeNum]
-      GranEnd <-GranStart + GeneTargets@ranges@width[RangeNum]
-      if (identical(as.vector(GeneTargets@strand[RangeNum]),"-")) {
-        PosList[[SampleNum]][[RangeNum]]$EndsWithin <- (EndPos > GranStart & EndPos < GranEnd)
-      } else if (identical(as.vector(GeneTargets@strand[RangeNum]),"+")) {
-        PosList[[SampleNum]][[RangeNum]]$EndsWithin <- (StartPos > GranStart & StartPos < GranEnd)
-      }
-      ReadsEnding <- c(ReadsEnding, sum(PosList[[SampleNum]][[RangeNum]]$EndsWithin))
+    currentBamFile <- BamFiles[[SampleNum]]
+    Rsamtools::yieldSize(currentBamFile) <- 50000
+    bf <- Rsamtools::open.BamFile(currentBamFile)
+    while(length(chunk <- GenomicAlignments::readGAlignments(bf))) {
+      currentRecords <- countsPerBam$records
+      currentFivePrimeEnds <- countsPerBam$FivePrimeEnds
+      newRecords <- countOverlaps(GeneTargets, chunk)
+      newFivePrimeEnds <- countOverlaps(GeneTargets, chunk, type = "within")
+      countsPerBam <- dplyr::mutate(countsPerBam,
+                                    records = currentRecords + newRecords,
+                                    FivePrimeEnds = currentFivePrimeEnds + newFivePrimeEnds)
     }
-  }
-  totalCounts$FivePrimeEnds <- ReadsEnding
-  totalCounts$ReadEndsInRegion <- (totalCounts$FivePrimeEnds/totalCounts$records)*100
-  totalCounts$file <- as.factor(totalCounts$file)
+    Rsamtools::close.BamFile(bf)
 
+    countsPerBam <- dplyr::mutate(countsPerBam, ReadEndsInRegion = (FivePrimeEnds/records) * 100)
+    # Combine the countsPerBam into the totalCounts data frame
+    totalCounts <- rbind(totalCounts, countsPerBam)
+  }
+  totalCounts$file <- as.factor(totalCounts$file)
   plotoutput <- ggplot2::ggplot(data = totalCounts)+
     ggplot2::geom_point(ggplot2::aes(x=width,y=ReadEndsInRegion, colour=file))
-
   print(plotoutput)
-  Rsamtools::close(BamFiles)
+
   return(totalCounts)
 }
