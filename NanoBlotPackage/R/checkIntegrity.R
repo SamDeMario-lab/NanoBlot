@@ -1,14 +1,13 @@
-#' Calculate Integrity 
-#' 
-#' @param GeneTargets A GRanges object with the target genomic regions. 
-#' These genomic regions should theoretically have no 5' transcripts ends. 
-#' @param BamFiles A BamFileList() from Rsamtools 
+#' Calculate Integrity
+#'
+#' @param GeneTargets A GRanges object with the target genomic regions.
+#' These genomic regions should theoretically have no 5' transcripts ends.
+#' @param BamFiles A BamFileList() from Rsamtools
 #' @export
 #' @examples
 #' makeNanoblot()
-#' 
-#' 
-
+#'
+#'
 calculateIntegrity <- function(GeneTargets, BamFiles) {
 GRanFilter <- Rsamtools::ScanBamParam(which = GeneTargets)
 totalCounts <- Rsamtools::countBam(file = BamFiles, param = GRanFilter)
@@ -21,7 +20,7 @@ for (SampleNum in seq_along(PosList)) {
 		StartPos <- PosList[[SampleNum]][[RangeNum]][["pos"]]
 		RefWidth <- GenomicAlignments::cigarWidthAlongReferenceSpace(PosList[[SampleNum]][[RangeNum]][["cigar"]])
 		EndPos <- StartPos + RefWidth
-		
+
 		GranStart <- GeneTargets@ranges@start[RangeNum]
 		GranEnd <-GranStart + GeneTargets@ranges@width[RangeNum]
 		if (identical(as.vector(GeneTargets@strand[RangeNum]),"-")) {
