@@ -29,6 +29,7 @@ makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6Test, size_fac
 ```
 
 ```{r}
+# To be run only on Nanopore computer --> checking DESeq2 with replicate samples 
 nanoblotData <- data.frame(SampleID = c())
 annotation <- "./user_input_files/Saccharomyces_cerevisiae.R64-1-1.107.gtf"
 unnormalizedLocations <- c("/media/guillaume-chanfreau/HD3/KX_Reps/ERR5767189/WT_rep2_mapped.sorted.bam",
@@ -46,4 +47,26 @@ ds_size_factors <- normalizeNanoblotData(nanoblotData, "differential", unnormali
 
 
 ```
+
+```{r}
+# To be only run on Nanopore computer --> calculating integrity
+TestBamFileList <- Rsamtools::BamFileList(c("/media/guillaume-chanfreau/HD3/TRAMP_Direct/WT.bam", "/media/guillaume-chanfreau/HD3/TRAMP_Direct/RRP6.bam", "/media/guillaume-chanfreau/HD3/TRAMP_Direct/TRF4_3.bam"))
+
+YeastCDSGFF <- rtracklayer::import.gff("/home/guillaume-chanfreau/Annotation_files/saccharomyces_cerevisiae.20210411.CDS.no_mito.gff")
+
+calculateIntegrity(GeneTargets = YeastCDSGFF, BamFiles = TestBamFileList)
+```
+
+```{r}
+# To be only run on Kevin's computer 
+YeastCDSGFF <- rtracklayer::import.gff("~/Downloads/saccharomyces_cerevisiae.20210411.CDS.no_mito.gff")
+TestBamFileList <- Rsamtools::BamFileList(c("./data/example/WT_sorted_merged.bam",
+                                            "./data/example/RRP6_sorted_merged.bam"))
+
+counts <- checkIntegrity(GeneTargets = YeastCDSGFF, BamFiles = TestBamFileList)
+
+
+```
+
+
 
