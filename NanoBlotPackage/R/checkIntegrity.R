@@ -52,6 +52,7 @@ checkIntegrity <- function(GeneTargets, BamFiles) {
     # Combine the countsPerBam into the totalCounts data frame
     totalCounts <- rbind(totalCounts, countsPerBam)
   }
+  setTxtProgressBar(progressBar, totalRecords)
   totalCounts$file <- as.factor(totalCounts$file)
 
   scatterOutput <- ggplot2::ggplot(data = totalCounts)+
