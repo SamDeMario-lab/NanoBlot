@@ -1,4 +1,5 @@
 ```{r}
+# Meant to be run on all computers
 TestDataNames <- c("WT_RPL18A", 
 									 "RRP6_RPL18A")
 TestDataFiles <- c("./data/example/WT_sorted_merged.bam",
@@ -14,12 +15,28 @@ test_param <- Rsamtools::ScanBamParam(which = rpl18_grand)
 WT_RRP6Test <- data.frame(
 	SampleID = c("WT_RPL18A","RRP6_RPL18A"),
 	SampleLanes = c(1,2),
-	SampleColors = c('red','red')
+	SampleColors = c('blue','red')
 )
 
 ```
 
 ```{r}
+# Meant to be run on all computers
+WT_RRP6Test2 <- data.frame(
+	SampleID = c("WT_sorted_merged.bam","RRP6_sorted_merged.bam"),
+	SampleLanes = c(1,2),
+	SampleColors = c('blue','red')
+)
+
+NanoblotDataWTRRP6 <- bamFileListToNanoblotData(TestBamFileList)
+ds_size_factors <- normalizeNanoblotData(NanoblotDataWTRRP6, "differential", unnormalizedLocations, annotation)
+makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6Test2, blotType = "ridge")
+makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6Test2, blotType = "violin")
+makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6Test2, size_factors = ds_size_factors)
+```
+
+```{r}
+# Meant to be run on all computers
 BamsWTRRP6 <- scanBamFiles(TestDataNames, TestDataFiles)
 NanoblotDataWTRRP6 <- bamFilesToNanoblotData(BamsWTRRP6)
 ds_size_factors <- normalizeNanoblotData(NanoblotDataWTRRP6, "differential", unnormalizedLocations, annotation)
