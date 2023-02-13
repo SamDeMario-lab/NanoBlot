@@ -8,6 +8,7 @@
 #' @param unnormalizedFiles This is a vector that contains the string file locations of all the samples in nanoblotData
 #' @param annotationFile This is a gtf file obtained from a database that contains the organism of interest's genomic annotations
 #' @param coldata This is a DeSeq2 coldata argument that is called with the DeSeq2 function DESeqDataSetFromMatrix
+#' @param writeOutFile This is the write out file for DeSeq2 if the user specifies, NULL by default
 #' @export
 #' @examples
 #' TestDataNames <- c("WT_RPL18A", "RRP6_RPL18A")
@@ -20,7 +21,7 @@
 #' calculateDESeqSizeFactors(NanoblotDataWTRRP6, unnormalizedLocations, annotation)
 #'
 #' returns a vector with 2 elements
-calculateDESeqSizeFactors <- function(nanoblotData, unnormalizedFiles, annotationFile, coldata) {
+calculateDESeqSizeFactors <- function(nanoblotData, unnormalizedFiles, annotationFile, coldata, writeOutFile) {
 	sampleNames <- as.vector(levels(nanoblotData$SampleID))
 	fc_SE <- Rsubread::featureCounts(files = unnormalizedFiles,
 																	 annot.ext = annotationFile,
@@ -45,9 +46,14 @@ calculateDESeqSizeFactors <- function(nanoblotData, unnormalizedFiles, annotatio
 	  dds <- dds[keep,]
 	  dds <- DESeq2::DESeq(dds)
 	  res <- DESeq2::results(dds, alpha = 0.05)
-	  
+
 	  print(DESeq2::summary(res)) #Prints out a summary of the DESeq2 result
 	  print(res) #Prints out the DESeq2 result
+
+	  #Writes out the DESeq2 result
+	  if (!(is.null(writeOutFile))) {
+	    write.csv(res, file=writeOutFile)
+	  }
 
 	}
 
@@ -192,6 +198,9 @@ duplicateNanoblotData <- function(nanoblotData, duplication_factors) {
 #' @param unnormalizedFiles This is a vector that contains the string file locations of all the samples in nanoblotData.
 #' @param annotationFile This is a gtf file obtained from a database that contains the organism of interest's genomic annotations.
 #' This is only needed for the 'differential' normalization method
+#' @param coldata This is a DeSeq2 coldata argument that is called with the DeSeq2 function DESeqDataSetFromMatrix
+#' @param writeOutFile This is the write out file for DeSeq2 if the user specifies, NULL by default
+#'
 #' @export
 #' @examples
 #' TestDataNames <- c("WT_RPL18A", "RRP6_RPL18A")
@@ -208,14 +217,16 @@ normalizeNanoblotData <-
 					 normalizationType = "differential",
 					 unnormalizedFiles,
 					 annotationFile = NA,
-					 coldata = NULL) {
+					 coldata = NULL,
+					 writeOutFile = NULL) {
 		#Different types of checks
 		# vector length of unnormalizedFiles has to be the same as number of samples
 		# all files have to exist
 		# annotationFile has to exist if type is differential
 		# input of nanoblotData has to be correct
 
-		if (normalizationType == "differential") { size_factors <- calculateDESeqSizeFactors(nanoblotData, unnormalizedFiles, annotationFile,coldata) }
+		if (normalizationType == "differential") { size_factors <- calculateDESeqSizeFactors(nanoblotData, unnormalizedFiles,
+		                                                                                     annotationFile, coldata, writeOutFile) }
 		else if (normalizationType == "size") { size_factors <- calculateLibrarySizeFactors(nanoblotData, unnormalizedFiles)}
 		else { stop("Normalization type can only be differential or size. Please check spelling and try again") }
 		return(size_factors)

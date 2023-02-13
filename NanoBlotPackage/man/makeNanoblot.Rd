@@ -19,12 +19,25 @@ makeNanoblot(
 
 \item{blotType}{The type of Nanoblot to produce. There are 3 acceptable options: 'blot', 'violin', and 'ridge'. Default 'blot'}
 
-\item{plotTitle}{An optional title for the resulting plot.}
+\item{plotTitle}{An optional title for the resulting plot. Default blank}
 }
 \description{
 This function takes a NanoblotData object, a plotInfo dataframe, and
 returns a ggplot object
 }
 \examples{
-makeNanoblot()
+
+ExampleDataset <- bamFilesToNanoblotData()
+
+ExamplePlotInfo <- data.frame(
+  SampleID = c(WT,Test),
+  SampleLanes = c(1,2),
+  SampleColors = c('Red','Blue')
+    )
+
+makeNanoblot(nanoblotData = ExampleDataset,
+plotInfo = ExamplePlotInfo,
+plotTitle = "Test plot",
+)
+
 }

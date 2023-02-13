@@ -1,3 +1,9 @@
+###To Do
+#Normalization
+#plot title
+#Make all types of plots
+#Save plots to a reasonable place. 
+
 ### Notes/todo
 ### For loop for creating filenames should probobly be changed. 
 # $BAMS $PROBE_FIELD $NORM_FACTOR ${PREVIOUS_ANTI_PROBE} $META_DATA $PLOT_TITLE $ANTIPROBE_FIELD
