@@ -8,8 +8,8 @@ TestBamFileList <- Rsamtools::BamFileList(c("./data/example/WT_sorted_merged.bam
 annotation <- "./user_input_files/Saccharomyces_cerevisiae.R64-1-1.107.gtf"
 unnormalizedLocations <- c("./data/example/WT_sorted_merged.bam", "./data/example/RRP6_sorted_merged.bam")
 
-rpl18_grand <- GRanges(seqnames = c('chrXV','chrXV'), ranges = c(IRanges(94293, 94387),IRanges(94363,94469)), strand = c('-','-'))
-test_param <- ScanBamParam(which = rpl18_grand)
+rpl18_grand <- GenomicRanges::GRanges(seqnames = c('chrXV','chrXV'), ranges = c(IRanges::IRanges(94293, 94387),IRanges::IRanges(94363,94469)), strand = c('-','-'))
+test_param <- Rsamtools::ScanBamParam(which = rpl18_grand)
 
 WT_RRP6Test <- data.frame(
 	SampleID = c("WT_RPL18A","RRP6_RPL18A"),
@@ -29,21 +29,23 @@ makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6Test, size_fac
 ```
 
 ```{r}
-TestBamFileList <- Rsamtools::BamFileList(c("/media/guillaume-chanfreau/HD3/TRAMP_Direct/TRF4_3.bam", "/media/guillaume-chanfreau/HD3/TRAMP_Direct/slu7AA_IVP.bam"))
+TestBamFileList <- Rsamtools::BamFileList(c("/media/guillaume-chanfreau/HD3/TRAMP_Direct/WT.bam", "/media/guillaume-chanfreau/HD3/TRAMP_Direct/RRP6.bam", "/media/guillaume-chanfreau/HD3/TRAMP_Direct/TRF4_3.bam"),yieldSize = 100000)
 
-YeastCDSGFF <- import.gff("/home/guillaume-chanfreau/Annotation_files/saccharomyces_cerevisiae.20210411.CDS.no_mito.gff")
+YeastCDSGFF <- rtracklayer::import.gff("/home/guillaume-chanfreau/Annotation_files/saccharomyces_cerevisiae.20210411.CDS.no_mito.gff")
 
-TRF4slu7Integrity <- calculateIntegrity(GeneTargets = YeastCDSGFF, BamFiles = TestBamFileList)
+WTIntegrity <- calculateIntegrity(GeneTargets = YeastCDSGFF, BamFiles = TestBamFileList)
 ```
+
+
 ```{r}
-for (file_name in levels(TRF4slu7Integrity$file)) {
-	print(file_name)
-	PlotData <- TRF4slu7Integrity[c(TRF4slu7Integrity$file == file_name),]
+#for (file_name in levels(WTIntegrity$file)) {
+#	print(file_name)
+	PlotData <- WTIntegrity[c(WTIntegrity$file == file_name),]
 	
 	PlotData$TranscriptNumber <- as.numeric(str_split_i(row.names(PlotData), "\\.", -1))
 	
-	IntegrityPlot <-ggplot(data = PlotData)+
-	geom_point(aes(x = TranscriptNumber, y = ReadEndsInRegion, color = space, size = records), alpha = .5)+
+	IntegrityPlot <-ggplot(data = WTIntegrity)+
+	stat_ecdf(aes(x = ReadEndsInRegion, color = file))+
 	xlab(label = "")+
 	ylab(label = "% Partial Sequence")+
 	theme_bw()+
@@ -51,15 +53,28 @@ for (file_name in levels(TRF4slu7Integrity$file)) {
         axis.ticks.x=element_blank(),
 				legend.position = "none"
         )+
-	ggtitle(label = paste(file_name, "- Mean:" , mean(PlotData$ReadEndsInRegion, na.rm = TRUE)))+
-	scale_y_reverse()
+	ggtitle(label = paste(file_name, "- Mean:" , mean(PlotData$ReadEndsInRegion, na.rm = TRUE)))
 	
 	print(IntegrityPlot)
 	
 	pic_name <- paste("/home/guillaume-chanfreau/Desktop/",file_name, "Integrity.png", sep = "")
 	
-	ggsave(filename = pic_name, device = "png", units = "in", width = 6, height = 4.5)
+#	ggsave(filename = pic_name, device = "png", units = "in", width = 6, height = 4.5)
 }
+```
+```{r}
+	PlotData <- WTIntegrity[c(WTIntegrity$file == file_name),]
+	
+	PlotData$TranscriptNumber <- as.numeric(str_split_i(row.names(PlotData), "\\.", -1))
+	
+	IntegrityPlot <-ggplot(data = WTIntegrity)+
+	stat_ecdf(aes(x = ReadEndsInRegion, color = file))+
+	ylab(label = "Probability")+
+	xlab(label = "% Partial Sequence")+
+	theme_bw()+
+	ggtitle(label = paste(file_name, "- Mean:" , mean(PlotData$ReadEndsInRegion, na.rm = TRUE)))
+	
+	print(IntegrityPlot)
 ```
 
 
