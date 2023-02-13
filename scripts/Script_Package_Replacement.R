@@ -19,16 +19,17 @@ bio_samples <- strsplit(x = args[1], split = ",") #Splits the sample loading ord
 filenames <- as.vector("ERROR") 
 
 #Make locations of bamfiles
+print(args)
 
-print(file_path)
-for (i in 1:length(bio_samples[[1]])) {
-	filenames[i] <- paste(getwd(), "/temp/", bio_samples[[1]][i], "_", file_path, ".bam", sep="")
-	bam_samples[[i]] <- scanBam(filenames[i])
-	}
-###
-
-subset_bam_files <- 
-plot_data <- 
-
-
-NanoBlotPackage::makeNanoblot(plotTitle = plot_title)
+# print(file_path)
+# for (i in 1:length(bio_samples[[1]])) {
+# 	filenames[i] <- paste(getwd(), "/temp/", bio_samples[[1]][i], "_", file_path, ".bam", sep="")
+# 	bam_samples[[i]] <- scanBam(filenames[i])
+# 	}
+# ###
+# 
+# subset_bam_files <- 
+# plot_data <- 
+# 
+# 
+# NanoBlotPackage::makeNanoblot(plotTitle = plot_title)
