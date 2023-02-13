@@ -1,7 +1,0 @@
-There are five columns for the RT-PCR plot metadata file, four are the same as 
-their northern blot counterparts. The only new column is the viewing_window.
-The viewing_window specifies what region the subsets should be trimmed too.
-It should be given as the name of one of the lines from 'probes.bed'.
-
-The easiest way to do the viewing window subset is to use bedtools intersect.
-Treat the viewing_window bed annotation as A and the bam file as B.
