@@ -2,14 +2,26 @@
 
 ## Code
 
-### Add python to dependencies 
-python3 is used during HTseq counting
+### Check YML file
+MAC
+LINUX
+WINDOWS
 
-### RTpcr
-Works but only with a newer patched version of samtools, for now it works in yeast but not in human NMD data
-An additional thought I had, when we are running RT mode, do we want to add a check to ask if the user would like to run in cDNA mode? 
+### Fix Rsamtools BamFileList()
+We have a function called Scanbamfiles() which we should replace with BamFileList()
+I think we only have to change 2 functions
 
-### I want to change the RDS output. I think it should be after the normailization but before the oversampling
-I think it should output both. There should be 2 RDS outputs.
+### Update yml file with dependencies in R once linked
 
-## Logistic
+### Clean GitHub Repo
+
+### Test the checkForMultimapping() function
+I want to make sure it behaves as expected
+
+### Update README 
+## Remove dependencies
+## Add Function Descriptions
+
+## Genes for multimapping test
+TDH1
+UBI UB4

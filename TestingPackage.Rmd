@@ -1,0 +1,92 @@
+```{r}
+# Meant to be run on all computers
+TestDataNames <- c("WT_RPL18A", 
+									 "RRP6_RPL18A")
+TestDataFiles <- c("./data/example/WT_sorted_merged.bam",
+										"./data/example/RRP6_sorted_merged.bam")
+TestBamFileList <- Rsamtools::BamFileList(c("./data/example/WT_sorted_merged.bam",
+																 "./data/example/RRP6_sorted_merged.bam"))
+annotation <- "./user_input_files/Saccharomyces_cerevisiae.R64-1-1.107.gtf"
+unnormalizedLocations <- c("./data/example/WT_sorted_merged.bam", "./data/example/RRP6_sorted_merged.bam")
+
+rpl18_grand <- GenomicRanges::GRanges(seqnames = c('chrXV','chrXV'), ranges = c(IRanges::IRanges(94293, 94387),IRanges::IRanges(94363,94469)), strand = c('-','-'))
+test_param <- Rsamtools::ScanBamParam(which = rpl18_grand)
+
+WT_RRP6Test <- data.frame(
+	SampleID = c("WT_RPL18A","RRP6_RPL18A"),
+	SampleLanes = c(1,2),
+	SampleColors = c('blue','red')
+)
+
+```
+
+```{r}
+# Meant to be run on all computers
+BamsWTRRP6 <- scanBamFiles(TestDataNames, TestDataFiles)
+NanoblotDataWTRRP6 <- bamFilesToNanoblotData(BamsWTRRP6)
+ds_size_factors <- normalizeNanoblotData(NanoblotDataWTRRP6, "differential", unnormalizedLocations, annotation)
+makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6Test, blotType = "ridge")
+makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6Test, blotType = "violin")
+makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6Test, size_factors = ds_size_factors)
+```
+
+```{r}
+# Shortened workflow, Meant to be run on all computers
+TestBamFileList <- Rsamtools::BamFileList(c("./data/example/WT_sorted_merged.bam",
+																 "./data/example/RRP6_sorted_merged.bam"))
+annotation <- "./user_input_files/Saccharomyces_cerevisiae.R64-1-1.107.gtf"
+unnormalizedLocations <- c("./data/example/WT_sorted_merged.bam", "./data/example/RRP6_sorted_merged.bam")
+
+WT_RRP6Test2 <- data.frame(
+	SampleID = c("WT_sorted_merged.bam","RRP6_sorted_merged.bam"),
+	SampleLanes = c(1,2),
+	SampleColors = c('blue','red')
+)
+
+NanoblotDataWTRRP6 <- bamFileListToNanoblotData(TestBamFileList)
+ds_size_factors <- normalizeNanoblotData(NanoblotDataWTRRP6, "differential", unnormalizedLocations, annotation)
+makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6Test2, blotType = "ridge")
+makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6Test2, blotType = "violin")
+makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6Test2, size_factors = ds_size_factors)
+```
+
+```{r}
+# To be run only on Nanopore computer --> checking DESeq2 with replicate samples 
+nanoblotData <- data.frame(SampleID = c())
+annotation <- "./user_input_files/Saccharomyces_cerevisiae.R64-1-1.107.gtf"
+unnormalizedLocations <- c("/media/guillaume-chanfreau/HD3/KX_Reps/ERR5767189/WT_rep2_mapped.sorted.bam",
+													 "/media/guillaume-chanfreau/HD3/KX_Reps/ERR5767190/KO_rep1_mapped.sorted.bam",
+													 "/media/guillaume-chanfreau/HD3/KX_Reps/ERR5767191/KO_rep2_mapped.sorted.bam",
+													 "/media/guillaume-chanfreau/HD3/KX_Reps/ERR5767192/WT_rep3_mapped.sorted.bam",
+													 "/media/guillaume-chanfreau/HD3/KX_Reps/ERR5767193/KO_rep3_mapped.sorted.bam")
+
+coldata <- data.frame(condition = c("WT","KO","KO","WT","KO"))
+rownames(coldata) <- c("WT_rep2_mapped.sorted.bam","KO_rep1_mapped.sorted.bam",
+											 "KO_rep2_mapped.sorted.bam","WT_rep3_mapped.sorted.bam",
+											 "KO_rep3_mapped.sorted.bam")
+
+ds_size_factors <- normalizeNanoblotData(nanoblotData, "differential", unnormalizedLocations, annotation, coldata,  "/home/guillaume-chanfreau/Desktop/WT_KO_DESeq2.csv")
+
+
+```
+
+```{r}
+# To be only run on Nanopore computer --> calculating integrity
+TestBamFileList <- Rsamtools::BamFileList(c("/media/guillaume-chanfreau/HD3/TRAMP_Direct/WT.bam", "/media/guillaume-chanfreau/HD3/TRAMP_Direct/RRP6.bam", "/media/guillaume-chanfreau/HD3/TRAMP_Direct/TRF4_3.bam"))
+
+YeastCDSGFF <- rtracklayer::import.gff("/home/guillaume-chanfreau/Annotation_files/saccharomyces_cerevisiae.20210411.CDS.no_mito.gff")
+
+checkIntegrity(GeneTargets = YeastCDSGFF, BamFiles = TestBamFileList)
+```
+
+```{r}
+# To be only run on Kevin's computer 
+YeastCDSGFF <- rtracklayer::import.gff("/home/guillaume-chanfreau/Annotation_files/saccharomyces_cerevisiae.20210411.CDS.no_mito.gff")
+TestBamFileList <- Rsamtools::BamFileList(c("./data/example/WT_sorted_merged.bam",
+                                            "./data/example/RRP6_sorted_merged.bam"))
+
+counts <- checkIntegrity(GeneTargets = YeastCDSGFF, BamFiles = TestBamFileList)
+```
+
+
+
