@@ -44,19 +44,19 @@ bamFilesToNanoblotData <-
 	}
 
 bamFileListToNanoblotData <-
-  function(BamFileList) {
+  function(BamFileList, BamFileListNames = names(BiocGenerics::path(BamFileList))) {
     ## check that sampleIDs and locations are unique
     if (!isUnique(BiocGenerics::path(BamFileList))) {
       stop("BamFileList paths contain non-unique names. All file paths must be unique.")
     }
 
-    if (!isUnique(names(BiocGenerics::path(BamFileList)))) {
+    if (!isUnique(BamFileListNames)) {
       stop("BamFileList indexes contain non-unique names. All indexes must be unique.")
     }
 
     ListOfBams <- lapply(BamFileList, Rsamtools::scanBam)
     lapply(as.vector(BiocGenerics::path(BamFileList)), checkForMultimapped)
-    names(ListOfBams) <- names(BiocGenerics::path(BamFileList))
+    names(ListOfBams) <- BamFileListNames
     DataframesExtract <- lapply(seq_along(ListOfBams), extractNanoblotData,
                                 SampleNames = names(ListOfBams),
                                 SampleList = ListOfBams)
