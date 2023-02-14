@@ -1,4 +1,25 @@
 ```{r}
+system2("/Users/kevinxu/opt/anaconda3/bin/conda", 
+				args = c("env", "create", "-f", "./scripts/nanoblotenv.yml"))
+```
+
+```{r}
+system2("/Users/kevinxu/opt/anaconda3/bin/conda", 
+				args = c("run", "-n", "nanoblotenv", "R"))
+```
+
+```{r}
+# Testing if system commands work with bedtools 
+system2("/Users/kevinxu/opt/anaconda3/bin/bedtools", 
+				args=c("intersect", "-a", "./data/example/RRP6_sorted_merged.bam",
+							 "-b", "./temp/temp_bed.bed", "-wa", "-split", "-nonamecheck"), 
+				stdout = "/Users/kevinxu/Desktop/RRP6_RPL18A_Exon1.bam")
+
+#bedtools intersect -a $DATA_LOCATION -b "./temp/temp_bed.bed" -wa -split -nonamecheck
+```
+
+
+```{r}
 # Shortened workflow, Meant to be run on all computers
 TestBamFileList <- Rsamtools::BamFileList(c("./data/example/WT_sorted_merged.bam",
 																 "./data/example/RRP6_sorted_merged.bam"))
