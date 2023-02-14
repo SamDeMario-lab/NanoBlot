@@ -54,7 +54,7 @@ bamFileListToNanoblotData <-
       stop("BamFileList indexes contain non-unique names. All indexes must be unique.")
     }
 
-    ListOfBams <- lapply(BamFileList, Rsamtools::scanBam)
+    ListOfBams <- lapply(BamFileList, Rsamtools::scanBam, param = Rsamtools::ScanBamParam(what = c("qname","qwidth")))
     lapply(as.vector(BiocGenerics::path(BamFileList)), checkForMultimapped)
     names(ListOfBams) <- BamFileListNames
     DataframesExtract <- lapply(seq_along(ListOfBams), extractNanoblotData,

@@ -9,8 +9,6 @@ WINDOWS
 
 ### Update yml file with dependencies in R once linked
 
-### Fix parameter issue with bamFilesToNanoblot in scanBam lapply --> need only qname and qwidth
-
 ### Clean GitHub Repo
 
 ### Test the checkForMultimapping() function
