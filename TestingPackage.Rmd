@@ -18,6 +18,13 @@ system2("/Users/kevinxu/opt/anaconda3/bin/bedtools",
 #bedtools intersect -a $DATA_LOCATION -b "./temp/temp_bed.bed" -wa -split -nonamecheck
 ```
 
+```{r}
+TestBamFileList <- Rsamtools::BamFileList(c("./data/example/WT_sorted_merged.bam",
+																 "./data/example/RRP6_sorted_merged.bam"))
+subsetNanoblot(TestBamFileList, "./user_input_files/probes.bed", c("RPL18A_Exon1"))
+```
+
+
 
 ```{r}
 # Shortened workflow, Meant to be run on all computers

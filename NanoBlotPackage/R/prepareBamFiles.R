@@ -51,7 +51,7 @@ bamFileListToNanoblotData <-
     }
 
     if (!isUnique(BamFileListNames)) {
-      stop("BamFileList indexes contain non-unique names. All indexes must be unique.")
+      stop("BamFileList names are non unique. All names must be unique.")
     }
 
     ListOfBams <- lapply(BamFileList, Rsamtools::scanBam, param = Rsamtools::ScanBamParam(what = c("qname","qwidth")))
