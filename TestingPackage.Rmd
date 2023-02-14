@@ -5,17 +5,7 @@ system2("/Users/kevinxu/opt/anaconda3/bin/conda",
 
 ```{r}
 system2("/Users/kevinxu/opt/anaconda3/bin/conda", 
-				args = c("run", "-n", "nanoblotenv", "R"))
-```
-
-```{r}
-# Testing if system commands work with bedtools 
-system2("/Users/kevinxu/opt/anaconda3/bin/bedtools", 
-				args=c("intersect", "-a", "./data/example/RRP6_sorted_merged.bam",
-							 "-b", "./temp/temp_bed.bed", "-wa", "-split", "-nonamecheck"), 
-				stdout = "/Users/kevinxu/Desktop/RRP6_RPL18A_Exon1.bam")
-
-#bedtools intersect -a $DATA_LOCATION -b "./temp/temp_bed.bed" -wa -split -nonamecheck
+				args = c("run", "-n", "nanoblotenv", "bedtools", "intersect"))
 ```
 
 ```{r}
@@ -28,18 +18,18 @@ subsetNanoblot(TestBamFileList, "./user_input_files/probes.bed", c("RPL18A_Exon1
 
 ```{r}
 # Shortened workflow, Meant to be run on all computers
-TestBamFileList <- Rsamtools::BamFileList(c("./data/example/WT_sorted_merged.bam",
-																 "./data/example/RRP6_sorted_merged.bam"))
+TestBamFileList <- Rsamtools::BamFileList(c("./temp/WT_sorted_merged_RPL18A_Exon1.bam",
+																 "./temp/RRP6_sorted_merged_RPL18A_Exon1.bam"))
 annotation <- "./data/annotations/Saccharomyces_cerevisiae.R64-1-1.107.gtf"
 unnormalizedLocations <- c("./data/example/WT_sorted_merged.bam", "./data/example/RRP6_sorted_merged.bam")
 
 WT_RRP6Test2 <- data.frame(
-	SampleID = c("WT_sorted_merged.bam","RRP6_sorted_merged.bam"),
+	SampleID = c("WT","RRP6"),
 	SampleLanes = c(1,2),
 	SampleColors = c('blue','red')
 )
 
-NanoblotDataWTRRP6 <- bamFileListToNanoblotData(TestBamFileList)
+NanoblotDataWTRRP6 <- bamFileListToNanoblotData(TestBamFileList, BamFileListNames = c("WT","RRP6"))
 ds_size_factors <- normalizeNanoblotData(NanoblotDataWTRRP6, "differential", unnormalizedLocations, annotation)
 makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6Test2, blotType = "ridge")
 makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6Test2, blotType = "violin")

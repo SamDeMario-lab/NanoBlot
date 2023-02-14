@@ -12,7 +12,8 @@
 subsetNanoblot <- function(BamFileList,
                            probesFile,
                            targetProbes,
-                           targetAntiProbes = NULL) {
+                           targetAntiProbes = NULL,
+                           cDNA = FALSE) {
   # So basically, we skip the bash script where it deals with plotting files and metadata file
   # locations --> we only really just need a probes bed file
 
@@ -68,13 +69,52 @@ subsetNanoblot <- function(BamFileList,
       stop("BamFileList names contain non-unique names. All names must be unique.")
     }
 
+    dataLocation <- ""
+    tempName <- ""
     for (bamFileIndex in seq_along(BamFileList)) {
       bamFilePath <- BiocGenerics::path(BamFileList[[bamFileIndex]])
       sampleName <- strsplit(names(BiocGenerics::path(BamFileList))[[bamFileIndex]], split = "[.]")[[1]][[1]]
-      print(sampleName)
+
+      # checks if its an empty string
+      if (previousProbe != "") {
+        dataLocation <- paste("./temp/",sampleName,"_",previousProbe,".bam",sep = "")
+        tempName <- paste(sampleName,"_",previousProbe,"_",probe,".bam",sep = "")
+      }
+      else {
+        dataLocation <- bamFilePath
+        tempName <- paste(sampleName,"_",probe,".bam", sep = "")
+      }
+      print(paste("Subsetting: ",dataLocation, sep = ""))
+      print(paste("Naming Subset: ",tempName, sep = ""))
+
+      outFile <- paste("./temp/", tempName, sep = "")
+      if (cDNA == TRUE) {
+        system2("/Users/kevinxu/opt/anaconda3/bin/bedtools",
+                args=c("intersect", "-a", dataLocation,
+                       "-b", "./temp/temp_bed.bed", "-wa", "-split", "-nonamecheck"),
+                stdout = outFile)
+      }
+      else
+      {
+        system2("/Users/kevinxu/opt/anaconda3/bin/bedtools",
+                args=c("intersect", "-a", dataLocation,
+                       "-b", "./temp/temp_bed.bed", "-wa", "-split", "-s", "-nonamecheck"),
+                stdout = outFile)
+      }
+      system2("/usr/local/bin/samtools",
+              args=c("index", outFile))
+    } #end for loop through each bam file in BamFileList
+
+    if (previousProbe != "")
+    {
+      previousProbe <- paste(previousProbe, "_", probe, sep = "")
+    }
+    else
+    {
+      previousProbe <- probe
     }
 
-  }
+  } #end for loop through each probe
 
   # Then for loop through each antitarget probe
 
