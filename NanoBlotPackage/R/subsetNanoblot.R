@@ -193,10 +193,30 @@ subsetNanoblot <- function(BamFileList,
 
       if (RACE == TRUE) {
         if (STRAND == "+") {
-
+          # If strand of RACE viewing window is positive, we want inclusive start
+          start_frame <- data.frame(viewingWindowLine[[1]],
+                                    WINDOW_START - BUFFER_SIZE,
+                                    WINDOW_START)
+          write.table(start_frame, file = "./temp/temp_start.bed",
+                      sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
+          system2("bedtools",
+                  args=c("intersect", "-a", dataLocation,
+                         "-b", "./temp/temp_start.bed", "-wa", "-split", "-nonamecheck"),
+                  stdout = tempDataLocation)
+          rm <- file.remove("./temp/temp_start.bed")
         }
         else if (STRAND == "-") {
-
+          # If strand of RACE viewing window is negative, we want inclusive end
+          end_frame <- data.frame(viewingWindowLine[[1]],
+                                    WINDOW_END,
+                                    WINDOW_END + BUFFER_SIZE)
+          write.table(end_frame, file = "./temp/temp_end.bed",
+                      sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
+          system2("bedtools",
+                  args=c("intersect", "-a", dataLocation,
+                         "-b", "./temp/temp_end.bed", "-wa", "-split", "-nonamecheck"),
+                  stdout = tempDataLocation)
+          rm <- file.remove("./temp/temp_end.bed")
         }
         else {
           message("Correct strand for RACE not found. Check probes file. Exiting")
@@ -204,12 +224,41 @@ subsetNanoblot <- function(BamFileList,
         }
       }
       else {
-
+        start_frame <- data.frame(viewingWindowLine[[1]],
+                                  WINDOW_START - BUFFER_SIZE,
+                                  WINDOW_START)
+        write.table(start_frame, file = "./temp/temp_start.bed",
+                    sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
+        end_frame <- data.frame(viewingWindowLine[[1]],
+                                WINDOW_END,
+                                WINDOW_END + BUFFER_SIZE)
+        write.table(end_frame, file = "./temp/temp_end.bed",
+                    sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
+        system2("bedtools",
+                args=c("intersect", "-a", tempDataLocation,
+                       "-b", "./temp/temp_start.bed", "-wa", "-split", "-nonamecheck"),
+                stdout = dataLocation)
+        system2("bedtools",
+                args=c("intersect", "-a", dataLocation,
+                       "-b", "./temp/temp_end.bed", "-wa", "-split", "-nonamecheck"),
+                stdout = tempDataLocation)
+        rm <- file.remove(c("./temp/temp_start.bed", "./temp/temp_end.bed"))
       }
-
       #Performing the bedtools complement then running ampliconclip
-
-
+      print(paste("Clipping ", sampleName, " to ", viewingWindow))
+      amplicon_frame <- data.frame(a = c(viewingWindowLine[[1]],viewingWindowLine[[1]]),
+                                b = c(0, WINDOW_END),
+                                c = c(WINDOW_START, PARIS_JAPONICA))
+      write.table(amplicon_frame, file = "./temp/temp.bed",
+                  sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
+      system2("samtools",
+              args=c("ampliconclip", "--hard-clip", "--both-ends",
+                     "-b", "./temp/temp.bed", tempDataLocation, "|",
+                     "samtools", "sort"),
+              stdout = dataLocation)
+      system2("samtools",
+              args=c("index", dataLocation))
+      rm <- file.remove(tempDataLocation)
     } #end for loop through each bam file in BamFileList
 
   } # end if statement for RT-PCR
