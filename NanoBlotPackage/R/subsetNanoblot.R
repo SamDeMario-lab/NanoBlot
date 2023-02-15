@@ -13,7 +13,10 @@ subsetNanoblot <- function(BamFileList,
                            probesFile,
                            targetProbes,
                            targetAntiProbes = NULL,
-                           cDNA = FALSE) {
+                           viewingWindow = NULL,
+                           cDNA = FALSE,
+                           RTPCR = FALSE,
+                           RACE = FALSE) {
   # So basically, we skip the bash script where it deals with plotting files and metadata file
   # locations --> we only really just need a probes bed file
 
@@ -43,7 +46,15 @@ subsetNanoblot <- function(BamFileList,
     return(NULL)
   }
 
-  # If temp directory does not exist --> create it
+  BamFileListNames = names(BiocGenerics::path(BamFileList))
+  if (!isUnique(BiocGenerics::path(BamFileList))) {
+    stop("BamFileList paths contain non-unique names. All file paths must be unique.") }
+
+  if (!isUnique(BamFileListNames)) {
+    stop("BamFileList names contain non-unique names. All names must be unique.") }
+
+  # TO DO
+  # If temp directory does not exist --> create it, OR, we can let the user specify what they want as the temp folder
   # Since we are running the markdown folder in the Nanoblot directory, this is okay for now
 
   previousProbe <- ""
@@ -59,15 +70,6 @@ subsetNanoblot <- function(BamFileList,
     print(paste(probeLine[[1]], ":", probeLine[[2]], "-", probeLine[[3]], sep = ""))
     write.table(probeLine, file = "./temp/temp_bed.bed",
                 sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
-
-    BamFileListNames = names(BiocGenerics::path(BamFileList))
-    if (!isUnique(BiocGenerics::path(BamFileList))) {
-      stop("BamFileList paths contain non-unique names. All file paths must be unique.")
-    }
-
-    if (!isUnique(BamFileListNames)) {
-      stop("BamFileList names contain non-unique names. All names must be unique.")
-    }
 
     dataLocation <- ""
     tempName <- ""
@@ -89,37 +91,127 @@ subsetNanoblot <- function(BamFileList,
 
       outFile <- paste("./temp/", tempName, sep = "")
       if (cDNA == TRUE) {
-        system2("/Users/kevinxu/opt/anaconda3/bin/bedtools",
+        system2("bedtools",
                 args=c("intersect", "-a", dataLocation,
                        "-b", "./temp/temp_bed.bed", "-wa", "-split", "-nonamecheck"),
                 stdout = outFile)
       }
       else
       {
-        system2("/Users/kevinxu/opt/anaconda3/bin/bedtools",
+        system2("bedtools",
                 args=c("intersect", "-a", dataLocation,
                        "-b", "./temp/temp_bed.bed", "-wa", "-split", "-s", "-nonamecheck"),
                 stdout = outFile)
       }
-      system2("/usr/local/bin/samtools",
+      system2("samtools",
               args=c("index", outFile))
     } #end for loop through each bam file in BamFileList
 
     if (previousProbe != "")
-    {
-      previousProbe <- paste(previousProbe, "_", probe, sep = "")
-    }
-    else
-    {
-      previousProbe <- probe
-    }
+    { previousProbe <- paste(previousProbe, "_", probe, sep = "") }
+    else { previousProbe <- probe }
 
   } #end for loop through each probe
 
   # Then for loop through each antitarget probe
+  previousAntiProbe <- previousProbe
+  if (is.null(targetAntiProbes)) {
+    print("No negative probe used")
+  }
+  else {print("Negative Probe used")}
+
+  for (antiprobe in targetAntiProbes) {
+    if (!(antiprobe %in% probesData[[4]])){
+      message(paste("Antiprobe: ", antiprobe, " not found. Check bed file or antiprobe spelling. Exiting"))
+      return(NULL)
+    }
+
+    antiProbeLine <- dplyr::filter(probesData, probesData[4] == antiprobe)
+    print(paste("Antiprobe:", antiprobe, sep = ""))
+    print(paste(antiProbeLine[[1]], ":", antiProbeLine[[2]], "-", antiProbeLine[[3]], sep = ""))
+    write.table(antiProbeLine, file = "./temp/temp_anti_bed.bed",
+                sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
+
+    dataLocation <- ""
+    tempName <- ""
+    for (bamFileIndex in seq_along(BamFileList)) {
+      sampleName <- strsplit(names(BiocGenerics::path(BamFileList))[[bamFileIndex]], split = "[.]")[[1]][[1]]
+
+      dataLocation <- paste("./temp/",sampleName,"_",previousAntiProbe,".bam",sep = "")
+      tempName <- paste(sampleName,"_",previousAntiProbe,"_anti_",antiprobe,".bam",sep = "")
+
+      print(paste("Subsetting: ",dataLocation, sep = ""))
+      print(paste("Naming Subset: ",tempName, sep = ""))
+      outFile <- paste("./temp/", tempName, sep = "")
+      if (cDNA == TRUE) {
+        system2("bedtools",
+                args=c("intersect", "-a", dataLocation,
+                       "-b", "./temp/temp_anti_bed.bed", "-wa", "-split", "-v", "-nonamecheck"),
+                stdout = outFile)
+      }
+      else
+      {
+        system2("bedtools",
+                args=c("intersect", "-a", dataLocation,
+                       "-b", "./temp/temp_anti_bed.bed", "-wa", "-split", "-v", "-s", "-nonamecheck"),
+                stdout = outFile)
+      }
+      system2("samtools",
+              args=c("index", outFile))
+    } #end for loop through each bam file in BamFileList
+
+    previousAntiProbe <- paste(previousAntiProbe, "_anti_", antiprobe, sep = "")
+  }
 
   # If RT-PCR is true, then go through this loop here
   # Includes the RACE option too
+  if (RTPCR == TRUE)
+  {
+    BUFFER_SIZE <- 5
+    PARIS_JAPONICA <- 149000000000
+    print("=======")
+    print(paste("Running viewing window ", viewingWindow, " subset now for RT-PCR or RACE mode"))
+
+    if (!(viewingWindow %in% probesData[[4]])){
+      message(paste("Viewing window: ", viewingWindow, " not found. Check probes file. Exiting"))
+      return(NULL)
+    }
+
+    viewingWindowLine <- dplyr::filter(probesData, probesData[4] == viewingWindow)
+    WINDOW_START <- viewingWindowLine[[2]]
+    WINDOW_END <- viewingWindowLine[[3]]
+    STRAND <- viewingWindowLine[[6]]
+
+    dataLocation <- ""
+    tempName <- ""
+    for (bamFileIndex in seq_along(BamFileList)) {
+      sampleName <- strsplit(names(BiocGenerics::path(BamFileList))[[bamFileIndex]], split = "[.]")[[1]][[1]]
+
+      dataLocation <- paste("./temp/",sampleName,"_",previousAntiProbe,".bam",sep = "")
+      tempDataLocation <- "./temp/RTPCR_temp.bam"
+      file.copy(dataLocation, tempDataLocation, overwrite = TRUE)
+
+      if (RACE == TRUE) {
+        if (STRAND == "+") {
+
+        }
+        else if (STRAND == "-") {
+
+        }
+        else {
+          message("Correct strand for RACE not found. Check probes file. Exiting")
+          return(NULL)
+        }
+      }
+      else {
+
+      }
+
+      #Performing the bedtools complement then running ampliconclip
 
 
+    } #end for loop through each bam file in BamFileList
+
+  } # end if statement for RT-PCR
+print("=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=")
 }

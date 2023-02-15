@@ -7,7 +7,10 @@ MAC
 LINUX
 WINDOWS
 
-### Update yml file with dependencies in R once linked
+### To do list for subsetNanoblot
+#### Add the RT-PCR and ampliconclip feature
+#### Add a user specified temp file that they can use
+#### Test function with human NMD files 
 
 ### Clean GitHub Repo
 

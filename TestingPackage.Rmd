@@ -1,14 +1,12 @@
 ```{r}
+# These are necessary to start the conda environment --> the only thing we need the user to identify is the path to their conda library. Users can get this using which conda in their terminal. 
 system2("/Users/kevinxu/opt/anaconda3/bin/conda", 
 				args = c("env", "create", "-f", "./scripts/nanoblotenv.yml"))
+reticulate::use_condaenv("nanoblotenv")
 ```
 
 ```{r}
-system2("/Users/kevinxu/opt/anaconda3/bin/conda", 
-				args = c("run", "-n", "nanoblotenv", "bedtools", "intersect"))
-```
-
-```{r}
+# This should run on all computers
 TestBamFileList <- Rsamtools::BamFileList(c("./data/example/WT_sorted_merged.bam",
 																 "./data/example/RRP6_sorted_merged.bam"))
 subsetNanoblot(TestBamFileList, "./user_input_files/probes.bed", c("RPL18A_Exon1"))
