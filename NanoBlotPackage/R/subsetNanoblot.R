@@ -16,14 +16,14 @@ subsetNanoblot <- function(BamFileList,
                            viewingWindow = NULL,
                            cDNA = FALSE,
                            RTPCR = FALSE,
-                           RACE = FALSE) {
+                           RACE = FALSE,
+                           tempFilePath = "./temp") {
   # So basically, we skip the bash script where it deals with plotting files and metadata file
   # locations --> we only really just need a probes bed file
 
   # Instead of taking in a metadata file --> we can just take in a BamFileList
   # And essentially, there are 3 modes of subsetting, basic mode, RT-PCR mode, and RACE mode
   # There is the additional argument of whether the reads are treated as cDNA or not
-  # And there is the option to clear all files from ./temp/ after plot generation
 
   probesData <- tryCatch({
     read.delim(probesFile, sep = "\t", header = FALSE)},
@@ -53,9 +53,10 @@ subsetNanoblot <- function(BamFileList,
   if (!isUnique(BamFileListNames)) {
     stop("BamFileList names contain non-unique names. All names must be unique.") }
 
-  # TO DO
-  # If temp directory does not exist --> create it, OR, we can let the user specify what they want as the temp folder
-  # Since we are running the markdown folder in the Nanoblot directory, this is okay for now
+  if (!file.exists(tempFilePath)) {
+    message("Temp file folder path does not exist. Creating directory")
+    dir.create(tempFilePath)
+  }
 
   previousProbe <- ""
   # For loop through each target probe
@@ -68,7 +69,7 @@ subsetNanoblot <- function(BamFileList,
     probeLine <- dplyr::filter(probesData, probesData[4] == probe)
     print(paste("Probe:", probe, sep = ""))
     print(paste(probeLine[[1]], ":", probeLine[[2]], "-", probeLine[[3]], sep = ""))
-    write.table(probeLine, file = "./temp/temp_bed.bed",
+    write.table(probeLine, file = paste(tempFilePath, "/temp_bed.bed", sep = ""),
                 sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
 
     dataLocation <- ""
@@ -79,7 +80,7 @@ subsetNanoblot <- function(BamFileList,
 
       # checks if its an empty string
       if (previousProbe != "") {
-        dataLocation <- paste("./temp/",sampleName,"_",previousProbe,".bam",sep = "")
+        dataLocation <- paste(tempFilePath,"/",sampleName,"_",previousProbe,".bam",sep = "")
         tempName <- paste(sampleName,"_",previousProbe,"_",probe,".bam",sep = "")
       }
       else {
@@ -89,18 +90,19 @@ subsetNanoblot <- function(BamFileList,
       print(paste("Subsetting: ",dataLocation, sep = ""))
       print(paste("Naming Subset: ",tempName, sep = ""))
 
-      outFile <- paste("./temp/", tempName, sep = "")
+      outFile <- paste(tempFilePath,"/", tempName, sep = "")
+      intersectTempBed <- paste(tempFilePath, "/temp_bed.bed", sep = "")
       if (cDNA == TRUE) {
         system2("bedtools",
                 args=c("intersect", "-a", dataLocation,
-                       "-b", "./temp/temp_bed.bed", "-wa", "-split", "-nonamecheck"),
+                       "-b", intersectTempBed, "-wa", "-split", "-nonamecheck"),
                 stdout = outFile)
       }
       else
       {
         system2("bedtools",
                 args=c("intersect", "-a", dataLocation,
-                       "-b", "./temp/temp_bed.bed", "-wa", "-split", "-s", "-nonamecheck"),
+                       "-b", intersectTempBed, "-wa", "-split", "-s", "-nonamecheck"),
                 stdout = outFile)
       }
       system2("samtools",
@@ -129,7 +131,7 @@ subsetNanoblot <- function(BamFileList,
     antiProbeLine <- dplyr::filter(probesData, probesData[4] == antiprobe)
     print(paste("Antiprobe:", antiprobe, sep = ""))
     print(paste(antiProbeLine[[1]], ":", antiProbeLine[[2]], "-", antiProbeLine[[3]], sep = ""))
-    write.table(antiProbeLine, file = "./temp/temp_anti_bed.bed",
+    write.table(antiProbeLine, file = paste(tempFilePath, "/temp_anti_bed.bed", sep = ""),
                 sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
 
     dataLocation <- ""
@@ -137,23 +139,24 @@ subsetNanoblot <- function(BamFileList,
     for (bamFileIndex in seq_along(BamFileList)) {
       sampleName <- strsplit(names(BiocGenerics::path(BamFileList))[[bamFileIndex]], split = "[.]")[[1]][[1]]
 
-      dataLocation <- paste("./temp/",sampleName,"_",previousAntiProbe,".bam",sep = "")
+      dataLocation <- paste(tempFilePath,"/",sampleName,"_",previousAntiProbe,".bam",sep = "")
       tempName <- paste(sampleName,"_",previousAntiProbe,"_anti_",antiprobe,".bam",sep = "")
 
       print(paste("Subsetting: ",dataLocation, sep = ""))
       print(paste("Naming Subset: ",tempName, sep = ""))
-      outFile <- paste("./temp/", tempName, sep = "")
+      outFile <- paste(tempFilePath,"/", tempName, sep = "")
+      intersectTempAntiBed <- paste(tempFilePath, "/temp_anti_bed.bed", sep = "")
       if (cDNA == TRUE) {
         system2("bedtools",
                 args=c("intersect", "-a", dataLocation,
-                       "-b", "./temp/temp_anti_bed.bed", "-wa", "-split", "-v", "-nonamecheck"),
+                       "-b", intersectTempAntiBed, "-wa", "-split", "-v", "-nonamecheck"),
                 stdout = outFile)
       }
       else
       {
         system2("bedtools",
                 args=c("intersect", "-a", dataLocation,
-                       "-b", "./temp/temp_anti_bed.bed", "-wa", "-split", "-v", "-s", "-nonamecheck"),
+                       "-b", intersectTempAntiBed, "-wa", "-split", "-v", "-s", "-nonamecheck"),
                 stdout = outFile)
       }
       system2("samtools",
@@ -187,36 +190,38 @@ subsetNanoblot <- function(BamFileList,
     for (bamFileIndex in seq_along(BamFileList)) {
       sampleName <- strsplit(names(BiocGenerics::path(BamFileList))[[bamFileIndex]], split = "[.]")[[1]][[1]]
 
-      dataLocation <- paste("./temp/",sampleName,"_",previousAntiProbe,".bam",sep = "")
-      tempDataLocation <- "./temp/RTPCR_temp.bam"
+      dataLocation <- paste(tempFilePath,"/",sampleName,"_",previousAntiProbe,".bam",sep = "")
+      tempDataLocation <- paste(tempFilePath, "/RTPCR_temp.bam", sep = "")
       file.copy(dataLocation, tempDataLocation, overwrite = TRUE)
 
+      tempStartBed <- paste(tempFilePath, "/temp_start.bed", sep = "")
+      tempEndBed <- paste(tempFilePath, "/temp_end.bed", sep = "")
       if (RACE == TRUE) {
         if (STRAND == "+") {
           # If strand of RACE viewing window is positive, we want inclusive start
           start_frame <- data.frame(viewingWindowLine[[1]],
                                     WINDOW_START - BUFFER_SIZE,
                                     WINDOW_START)
-          write.table(start_frame, file = "./temp/temp_start.bed",
+          write.table(start_frame, file = tempStartBed,
                       sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
           system2("bedtools",
                   args=c("intersect", "-a", dataLocation,
-                         "-b", "./temp/temp_start.bed", "-wa", "-split", "-nonamecheck"),
+                         "-b", tempStartBed, "-wa", "-split", "-nonamecheck"),
                   stdout = tempDataLocation)
-          rm <- file.remove("./temp/temp_start.bed")
+          rm <- file.remove(tempStartBed)
         }
         else if (STRAND == "-") {
           # If strand of RACE viewing window is negative, we want inclusive end
           end_frame <- data.frame(viewingWindowLine[[1]],
                                     WINDOW_END,
                                     WINDOW_END + BUFFER_SIZE)
-          write.table(end_frame, file = "./temp/temp_end.bed",
+          write.table(end_frame, file = tempEndBed,
                       sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
           system2("bedtools",
                   args=c("intersect", "-a", dataLocation,
-                         "-b", "./temp/temp_end.bed", "-wa", "-split", "-nonamecheck"),
+                         "-b", tempEndBed, "-wa", "-split", "-nonamecheck"),
                   stdout = tempDataLocation)
-          rm <- file.remove("./temp/temp_end.bed")
+          rm <- file.remove(tempEndBed)
         }
         else {
           message("Correct strand for RACE not found. Check probes file. Exiting")
@@ -227,33 +232,34 @@ subsetNanoblot <- function(BamFileList,
         start_frame <- data.frame(viewingWindowLine[[1]],
                                   WINDOW_START - BUFFER_SIZE,
                                   WINDOW_START)
-        write.table(start_frame, file = "./temp/temp_start.bed",
+        write.table(start_frame, file = tempStartBed,
                     sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
         end_frame <- data.frame(viewingWindowLine[[1]],
                                 WINDOW_END,
                                 WINDOW_END + BUFFER_SIZE)
-        write.table(end_frame, file = "./temp/temp_end.bed",
+        write.table(end_frame, file = tempEndBed,
                     sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
         system2("bedtools",
                 args=c("intersect", "-a", tempDataLocation,
-                       "-b", "./temp/temp_start.bed", "-wa", "-split", "-nonamecheck"),
+                       "-b", tempStartBed, "-wa", "-split", "-nonamecheck"),
                 stdout = dataLocation)
         system2("bedtools",
                 args=c("intersect", "-a", dataLocation,
-                       "-b", "./temp/temp_end.bed", "-wa", "-split", "-nonamecheck"),
+                       "-b", tempEndBed, "-wa", "-split", "-nonamecheck"),
                 stdout = tempDataLocation)
-        rm <- file.remove(c("./temp/temp_start.bed", "./temp/temp_end.bed"))
+        rm <- file.remove(c(tempStartBed, tempEndBed))
       }
       #Performing the bedtools complement then running ampliconclip
       print(paste("Clipping ", sampleName, " to ", viewingWindow))
       amplicon_frame <- data.frame(a = c(viewingWindowLine[[1]],viewingWindowLine[[1]]),
                                 b = c(0, WINDOW_END),
                                 c = c(WINDOW_START, PARIS_JAPONICA))
-      write.table(amplicon_frame, file = "./temp/temp.bed",
+      tempBed <- paste(tempFilePath, "/temp.bed", sep = "")
+      write.table(amplicon_frame, file = tempBed,
                   sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
       system2("samtools",
               args=c("ampliconclip", "--hard-clip", "--both-ends",
-                     "-b", "./temp/temp.bed", tempDataLocation, "|",
+                     "-b", tempBed, tempDataLocation, "|",
                      "samtools", "sort"),
               stdout = dataLocation)
       system2("samtools",
