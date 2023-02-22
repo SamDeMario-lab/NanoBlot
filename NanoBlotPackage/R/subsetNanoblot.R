@@ -2,8 +2,18 @@
 #' @title Subsetting Bam files for Nanoblot generation
 #' @description Essentially calls bedtools intersect and samtools ampliconclip with various different parameters
 #'
-#' @param
-#' @param
+#' @param BamFileList Takes a BamFileList object type from the RSamtools class. If user wants to specify naming of the samples, make sure
+#' to use the names(BamFileList) accessor function and assign names. Names and file paths must be unique.
+#' @param probesFile Takes a .bed traditional BED file format with 6 columns. chrom, chromStart, chromEnd, name, score, and strand.
+#' File must be tab delimited as well.
+#' @param targetProbes Vector of target probes thare are located in the probesFile argument
+#' @param targetAntiProbes Vector of target anti probes that are located in the probesFile argument. This is default to NULL
+#' @param viewingWindow Viewing window for RT-PCR and RACE modes. Viewing window must befound in probesFile
+#' @param cDNA Boolean paramter to determines whether to treat reads as cDNA or not. Default to FALSE
+#' @param RTPCR Boolean parameter to determine whether to use RT-PCR mode for viewing window. Default to FALSE
+#' @param RACE Boolean parameter to determine whether to use RACE mode. RT-PCR must be TRUE for RACE to work. Default to FALSE
+#' @param tempFilePath File path to specify where temp bam subset files will be stored. Default is ./temp folder in the
+#' current working directory. If the directory does not exist, this function will create it.
 #' @export
 #' @examples
 #'

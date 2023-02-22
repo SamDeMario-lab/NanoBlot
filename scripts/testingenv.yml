@@ -1,9 +1,19 @@
-name: testingenv
+name: testingenv1
 channels:
   - r
   - bioconda
   - conda-forge
   - defaults
 dependencies:
-  - samtools=1.16.1
-  - bioconductor-rsubread=2.8.1
+  - bedtools=2.30.0
+  - htseq=2.0.2
+  - r-base=4.2.2
+  - r-dplyr=1.0.10
+  - r-ggplot2=3.4.0
+  - r-ggridges=0.5.4
+  - r-biocmanager=1.30.19
+  - bioconductor-rsamtools=2.14.0
+  - bioconductor-deseq2=1.38.0
+  - bioconductor-biocgenerics=0.44.0
+  - bioconductor-genomicalignments=1.34.0
+  - bioconductor-genomicranges=1.50.0
