@@ -1,0 +1,9 @@
+name: testingenv
+channels:
+  - r
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - samtools=1.16.1
+  - bioconductor-rsubread=2.8.1
