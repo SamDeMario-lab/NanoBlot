@@ -2,7 +2,11 @@
 # These are necessary to start the conda environment --> the only thing we need the user to identify is the path to their conda library. Users can get this using which conda in their terminal. 
 system2("/Users/kevinxu/opt/anaconda3/bin/conda", 
 				args = c("env", "create", "-f", "./scripts/nanoblotenv.yml"))
-reticulate::use_condaenv("nanoblotenv")
+reticulate::use_condaenv("nanoblotenv", required = FALSE)
+reticulate::conda_list()
+
+#old_path <- Sys.getenv("PATH")
+#Sys.setenv(PATH = paste(old_path, "/Users/kevinxu/opt/anaconda3/envs/nanoblotenv/bin", sep = ":"))
 ```
 
 ```{r}
