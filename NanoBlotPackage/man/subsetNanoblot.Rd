@@ -41,3 +41,9 @@ current working directory. If the directory does not exist, this function will c
 \description{
 Essentially calls bedtools intersect and samtools ampliconclip with various different parameters
 }
+\examples{
+
+TestBamFileList <- Rsamtools::BamFileList(c("./data/example/WT_sorted_merged.bam","./data/example/RRP6_sorted_merged.bam"))
+subsetNanoblot(TestBamFileList, "./user_input_files/probes.bed", c("RPL18A_Exon1"))
+
+}

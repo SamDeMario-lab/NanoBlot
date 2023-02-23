@@ -17,6 +17,8 @@
 #' @export
 #' @examples
 #'
+#' TestBamFileList <- Rsamtools::BamFileList(c("./data/example/WT_sorted_merged.bam","./data/example/RRP6_sorted_merged.bam"))
+#' subsetNanoblot(TestBamFileList, "./user_input_files/probes.bed", c("RPL18A_Exon1"))
 #'
 
 subsetNanoblot <- function(BamFileList,
