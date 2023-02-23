@@ -35,6 +35,8 @@ subsetNanoblot <- function(BamFileList,
   # And essentially, there are 3 modes of subsetting, basic mode, RT-PCR mode, and RACE mode
   # There is the additional argument of whether the reads are treated as cDNA or not
 
+	# To do
+	# need the data frame to not read in NA or skip NA in the talbe
   probesData <- tryCatch({
     read.delim(probesFile, sep = "\t", header = FALSE)},
     error=function(cond) {
@@ -181,7 +183,7 @@ subsetNanoblot <- function(BamFileList,
   if (RTPCR == TRUE)
   {
     BUFFER_SIZE <- 5
-    PARIS_JAPONICA <- 149000000000
+    PARIS_JAPONICA <- "149000000000"
     print("=======")
     print(paste("Running viewing window ", viewingWindow, " subset now for RT-PCR or RACE mode"))
 
@@ -264,7 +266,7 @@ subsetNanoblot <- function(BamFileList,
       amplicon_frame <- data.frame(a = c(viewingWindowLine[[1]],viewingWindowLine[[1]]),
                                 b = c(0, WINDOW_END),
                                 c = c(WINDOW_START, PARIS_JAPONICA))
-      tempBed <- paste(tempFilePath, "/temp.bed", sep = "")
+      tempBed <- paste(tempFilePath, "/temp_bed.bed", sep = "")
       write.table(amplicon_frame, file = tempBed,
                   sep = "\t", quote = FALSE, col.names = FALSE, row.names = FALSE)
       system2("samtools",
