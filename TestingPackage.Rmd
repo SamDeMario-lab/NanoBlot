@@ -1,33 +1,33 @@
 ```{r}
+# These are necessary to start the conda environment --> the only thing we need the user to identify is the path to their conda library. Users can get this using which conda in their terminal. 
 system2("/Users/kevinxu/opt/anaconda3/bin/conda", 
 				args = c("env", "create", "-f", "./scripts/nanoblotenv.yml"))
+reticulate::use_condaenv("nanoblotenv", required = FALSE)
+reticulate::conda_list()
+
+#old_path <- Sys.getenv("PATH")
+#Sys.setenv(PATH = paste(old_path, "/Users/kevinxu/opt/anaconda3/envs/nanoblotenv/bin", sep = ":"))
 ```
 
 ```{r}
-system2("/Users/kevinxu/opt/anaconda3/bin/conda", 
-				args = c("run", "-n", "nanoblotenv", "R"))
+# This should run on all computers
+TestBamFileList <- Rsamtools::BamFileList(c("./data/example/WT_sorted_merged.bam",
+																 "./data/example/RRP6_sorted_merged.bam"))
+subsetNanoblot(TestBamFileList, "./user_input_files/probes.bed", c("RPL18A_Exon1"))
 ```
 
-```{r}
-# Testing if system commands work with bedtools 
-system2("/Users/kevinxu/opt/anaconda3/bin/bedtools", 
-				args=c("intersect", "-a", "./data/example/RRP6_sorted_merged.bam",
-							 "-b", "./temp/temp_bed.bed", "-wa", "-split", "-nonamecheck"), 
-				stdout = "/Users/kevinxu/Desktop/RRP6_RPL18A_Exon1.bam")
-
-#bedtools intersect -a $DATA_LOCATION -b "./temp/temp_bed.bed" -wa -split -nonamecheck
-```
 
 
 ```{r}
 # Shortened workflow, Meant to be run on all computers
-TestBamFileList <- Rsamtools::BamFileList(c("./data/example/WT_sorted_merged.bam",
-																 "./data/example/RRP6_sorted_merged.bam"))
+TestBamFileList <- Rsamtools::BamFileList(c("./temp/WT_sorted_merged_RPL18A_Exon1.bam",
+																 "./temp/RRP6_sorted_merged_RPL18A_Exon1.bam"))
+names(TestBamFileList) <- c("WT","RRP6")
 annotation <- "./data/annotations/Saccharomyces_cerevisiae.R64-1-1.107.gtf"
 unnormalizedLocations <- c("./data/example/WT_sorted_merged.bam", "./data/example/RRP6_sorted_merged.bam")
 
 WT_RRP6Test2 <- data.frame(
-	SampleID = c("WT_sorted_merged.bam","RRP6_sorted_merged.bam"),
+	SampleID = c("WT","RRP6"),
 	SampleLanes = c(1,2),
 	SampleColors = c('blue','red')
 )
@@ -38,6 +38,40 @@ makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6Test2, blotTyp
 makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6Test2, blotType = "violin")
 makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6Test2, size_factors = ds_size_factors)
 ```
+
+```{r}
+## Testing BAG1 workflow, to be run on Nanopore computer
+UnnormalizedBamFileList <- 
+	Rsamtools::BamFileList(c(
+"/media/guillaume-chanfreau/HD3/human_NMD_data/scr1/sorted_merged.bam",
+"/media/guillaume-chanfreau/HD3/human_NMD_data/scr2/sorted_merged.bam",
+"/media/guillaume-chanfreau/HD3/human_NMD_data/UPF1/sorted_merged.bam",
+"/media/guillaume-chanfreau/HD3/human_NMD_data/SMG6/sorted_merged.bam",
+"/media/guillaume-chanfreau/HD3/human_NMD_data/SMG7/sorted_merged.bam",
+"/media/guillaume-chanfreau/HD3/human_NMD_data/SMG6SMG7/sorted_merged.bam"))
+names(UnnormalizedBamFileList) <- c("scr1","scr2","upf1","smg6","smg7","smg67")
+subsetNanoblot(UnnormalizedBamFileList, "/home/guillaume-chanfreau/Desktop/user_input_files/probes.bed", c("BAG1_Exon"), viewingWindow = "BAG1_vw", cDNA = TRUE, RTPCR = TRUE)
+
+annotation <- "/home/guillaume-chanfreau/Downloads/Homo_sapiens.GRCh38.107.gtf"
+unnormalizedLocations <-as.vector(BiocGenerics::path(UnnormalizedBamFileList))
+SubsetBamFileList <- 
+	Rsamtools::BamFileList(c(
+"./temp/scr1_BAG1_Exon.bam", "./temp/scr2_BAG1_Exon.bam",
+"./temp/upf1_BAG1_Exon.bam", "./temp/smg6_BAG1_Exon.bam",
+"./temp/smg7_BAG1_Exon.bam", "./temp/smg67_BAG1_Exon.bam"
+	))
+names(SubsetBamFileList) <- c("scr1","scr2","upf1","smg6","smg7","smg67")
+
+NanoblotData <- bamFileListToNanoblotData(SubsetBamFileList)
+NanoblotDataInfo <- data.frame(
+	SampleID = c("scr1","scr2","upf1","smg6","smg7","smg67"),
+	SampleLanes = seq_along(c("scr1","scr2","upf1","smg6","smg7","smg67")),
+	SampleColors = rep("black",6))
+ds_size_factors <- normalizeNanoblotData(NanoblotData, "differential", unnormalizedLocations, annotation)
+makeNanoblot(nanoblotData = NanoblotData, plotInfo = NanoblotDataInfo, size_factors = ds_size_factors)
+
+```
+
 
 ```{r}
 # To be run only on Nanopore computer --> checking DESeq2 with replicate samples 
