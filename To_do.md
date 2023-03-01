@@ -8,6 +8,7 @@ LINUX
 WINDOWS
 
 ### To do list for subsetNanoblot
+#### Remove the RACE parameter it is redundent with ViewingWindow
 #### Add the RT-PCR and ampliconclip feature
 #### Add a user specified temp file that they can use
 #### Test function with human NMD files 
