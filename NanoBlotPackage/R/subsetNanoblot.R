@@ -8,10 +8,10 @@
 #' File must be tab delimited as well.
 #' @param targetProbes Vector of target probes thare are located in the probesFile argument
 #' @param targetAntiProbes Vector of target anti probes that are located in the probesFile argument. This is default to NULL
-#' @param viewingWindow Viewing window for RT-PCR and RACE modes. Viewing window must befound in probesFile
+#' @param viewingWindow Viewing window for RT-PCR and RACE modes. Viewing window must be found in probesFile. If viewing window is
+#' specified, then subsetNanoblot will automatically run in RT-PCR mode.
 #' @param cDNA Boolean paramter to determines whether to treat reads as cDNA or not. Default to FALSE
-#' @param RTPCR Boolean parameter to determine whether to use RT-PCR mode for viewing window. Default to FALSE
-#' @param RACE Boolean parameter to determine whether to use RACE mode. RT-PCR must be TRUE for RACE to work. Default to FALSE
+#' @param RACE Boolean parameter to determine whether to use RACE mode. viewingWindow must be provided. Default to FALSE
 #' @param tempFilePath File path to specify where temp bam subset files will be stored. Default is ./temp folder in the
 #' current working directory. If the directory does not exist, this function will create it.
 #' @export
@@ -27,7 +27,6 @@ subsetNanoblot <- function(BamFileList,
                            targetAntiProbes = NULL,
                            viewingWindow = NULL,
                            cDNA = FALSE,
-                           RTPCR = FALSE,
                            RACE = FALSE,
                            tempFilePath = "./temp") {
   # So basically, we skip the bash script where it deals with plotting files and metadata file
@@ -180,6 +179,7 @@ subsetNanoblot <- function(BamFileList,
     previousAntiProbe <- paste(previousAntiProbe, "_anti_", antiprobe, sep = "")
   }
 
+  if (!is.null(viewingWindow)) {RTPCR <- TRUE}
   # If RT-PCR is true, then go through this loop here
   # Includes the RACE option too
   if (RTPCR == TRUE)
