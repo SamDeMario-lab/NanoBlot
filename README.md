@@ -12,9 +12,6 @@
   <a href="http://www.htslib.org" target="_blank">
     <img src="https://img.shields.io/badge/Dependencies-Samtools-informational" />
   </a>
-  <a href="https://htseq.readthedocs.io/en/master/" target="_blank">
-    <img src="https://img.shields.io/badge/Dependencies-HTSeq-informational" />
-  </a>
   <a href="http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html" target="_blank">
       <img src="https://img.shields.io/badge/Bioconductor-DESeq2-important">
   </a>
@@ -69,18 +66,18 @@ The purpose of normalization is to adjust for factors that prevent for direct co
 
 [^1]: Meeta Mistry, Mary Piper, Jihe Liu, & Radhika Khetani. (2021, May 24). hbctraining/DGE_workshop_salmon_online: Differential Gene Expression Workshop Lessons from HCBC (first release). Zenodo. https://doi.org/10.5281/zenodo.4783481
  
-For the purposes of Nanoblot, because we are only accepting technical replicates of n=1, we will not be using the complete DeSeq2 standard workflow that includes estimating size factors, estimating dispersions, and then conducting a negative binomial Wald test [^2]. We will only be estimating size factors which produces an appropriate normalization factor for each sequencing sample.  
+Depending on the user's intended usage of NanoBlot, the user can either run normalization using one technical replicate or multiple replicates for normalization. The standard workflow includes running one technical replicate with a n=1, and skips the estimation of dispersion and negative bionomial wald test, and instead only uses an estimation of size factors which we call in the script as ```size factors```[^2]. This size factor produces an appropriate normalization factor for each sequencing sample.  
 
 [^2]: Anders, S., Huber, W. Differential expression analysis for sequence count data. Genome Biol 11, R106 (2010). https://doi.org/10.1186/gb-2010-11-10-r106
  
-There are many ways to run DeSeq2. For Nanoblot, we will be first generating count tables using the **htseq-count method**, which is part of the high-throughput sequence analysis in Python (HTSeq) [^3]. This method will require an annotation file as input, which the user can specify using the –A flag. HTSeq performs best when the annotation file is supplied using the **Ensembl** [^4] database. Nanoblot will then run HTSeq for each sample required using the sequence bam files and store the count tables .tsv file in the ``` temp/count-tables ``` folder.  
+There are many ways to run DeSeq2. For Nanoblot, we will be first generating count tables through the Rsubread R package, which is used for mapping, quantification, and variant analysis of sequencing data. [^3] In the backend, the function ```normalizeNanoblot``` will call the helper function ```calculateDESeqSizeFactors``` which takes as input an annotation file as well as the unnormalized files to calculate the normalization based on the entire sequencing library as opposed to a subset of it. The annotation file should be in the gtf format supplied using the **Ensembl** [^4] database. 
 
-[^3]: G Putri, S Anders, PT Pyl, JE Pimanda, F Zanini Analysing high-throughput sequencing data in Python with HTSeq 2.0 https://doi.org/10.1093/bioinformatics/btac166 (2022)
+[^3]: Liao Y, Smyth GK, Shi W (2019). “The R package Rsubread is easier, faster, cheaper and better for alignment and quantification of RNA sequencing reads.” Nucleic Acids Research, 47, e47. doi: 10.1093/nar/gkz114.
 [^4]: Ensembl 2022. Nucleic Acids Res. 2022, vol. 50(1):D988-D995 PubMed PMID: 34791404. doi:10.1093/nar/gkab1049
  
-These count tables will then be used by DeSeq2’s **estimateSizeFactors()** method [^2], with the size factors printed to the console. In the event the user is interested in plotting reads that are not accurately annotated or do not have annotation regions, the HTSeq counts table might misrepresent the true sequencing depth of the samples. In this specific case example, we have provided a normalization method based off of counts per million that will calculate a scaling factor based off of sequencing depth alone. We understand this is an imperfect method as CPM should not be used for differential expression analysis and should be proceeded with caution. We recommend users who are interested in using this normalization method to cross-validate this approach with the DeSeq normalization as well. 
- 
-Should the user choose to normalize their sequenced bam files themselves, we also provided a way to skip normalization that sets each samples size factor to 1. 
+These count tables will then be used by DeSeq2’s **estimateSizeFactors()** method [^2], with the size factors printed to the console. Should the user choose to normalize technical replicates of more than 1 using DeSeq2, there is an optional argument to ```normalizeNanoblotData``` which takes a coldata argument, which will be passed into DeSeq2's command ```DeSeq2::DESeqDataSetFromMatrix```. The user should read the documentation for DeSeq2 for more information on how to specify the coldata argument. 
+
+In the event the user is interested in plotting reads that are not accurately annotated or do not have annotation regions, the Rsubread counts table might misrepresent the true sequencing depth of the samples. In these instances we have provided a normalization method based off of counts per million that will calculate a scaling factor based off of sequencing depth alone. We understand this is an imperfect method as CPM should not be used for differential expression analysis and should be proceeded with caution. We recommend users who are interested in using this normalization method to cross-validate this approach with the DeSeq normalization as well. 
 
 ### Subsetting
 <img src=https://bedtools.readthedocs.io/en/latest/_images/intersect-glyph.png>[^5]
