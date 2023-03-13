@@ -27,12 +27,12 @@ RT-PCR and Northern blots have long been used to study RNA isoforms usage for si
 
 ## Basic Usage 
 
-The NanoBlot R package can be loaded entirely using the devtools package built into R. First, make sure that you have the devtools package in R. 
+The NanoBlot R package can be loaded entirely using the devtools package built into R. First, make sure that you have the devtools package in R. <br>
 ``` install.packages("devtools") ```
 
-Then, make sure you are in the right directory for the R NanoBlot package folder, which should end in something like "/NanoBlotPackage". Then, run this code to compile NanoBlot
+Then, make sure you are in the right directory for the R NanoBlot package folder, which should end in something like "/NanoBlotPackage". Then, run this code to compile NanoBlot <br>
 ```devtools::install()``` 
-After installing, you can load the package using a simple library command
+After installing, you can load the package using a simple library command <br>
 ```library("NanoBlotPackage")``` 
 
 NanoBlot is now ready for use! 
@@ -41,12 +41,12 @@ NanoBlot is now ready for use!
 
 Some core Nanoblot functions will rely on system() commands that are expected to be built into the user's console. These commands include packages like ```bedtools``` and ```samtools``` as there is no R equivalent that works as efficiently. Thus, if the user does not have previous path commands in their console environment, the user can utilize the prewritten conda environment for easy installation. The provided conda .yml environment is listed under the scripts folder and titled ```nanoblotenv.yml``` 
 
-The steps to install the conda environment are as followed
-Step 1: Install anaconda if not already on computer. Then find the system path to conda using the command ```which conda``` in any terminal of your choice. 
-Step 2: Call the function ```conda create -f {your path}/scripts/nanoblotenv.yml``` in either the terminal, or you can call it in R using the function 
+The steps to install the conda environment are as followed <br>
+Step 1: Install anaconda if not already on computer. Then find the system path to conda using the command ```which conda``` in any terminal of your choice. <br>
+Step 2: Call the function ```conda create -f {your path}/scripts/nanoblotenv.yml``` in either the terminal, or you can call it in R using the function <br>
 ```system2("{your path to conda}, args = c("env", "create", "-f", "{your path}/scripts/nanoblotenv.yml"))```
 
-Step 3: Add the newly created environment into R's system path so that R will automatically search for it using this code block
+Step 3: Add the newly created environment into R's system path so that R will automatically search for it using this code block <br>
 ```
 old_path <- Sys.getenv("PATH")
 Sys.setenv(PATH = paste(old_path, "{path to conda environment}", sep = ":"))
