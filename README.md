@@ -115,7 +115,9 @@ chrXV 94402 149000000000
 ```
 
 Here is an example of what the result of ampliconclip will look like in IGV. It subsets all reads that overlap with the start and end of the RPL18A gene, and then trims excess nucleotides for each read that lie outside that gene window. 
-<img width="736" alt="Screen Shot 2022-09-12 at 9 55 45 PM" src="https://user-images.githubusercontent.com/26608622/189812111-76b54d01-4018-426d-b4a9-5c215d339e60.png">
+<p align="center">
+  <img width="736" alt="Screen Shot 2022-09-12 at 9 55 45 PM" src="https://user-images.githubusercontent.com/26608622/189812111-76b54d01-4018-426d-b4a9-5c215d339e60.png">
+</p>
 
 ### RACE: Rapid Amplification of CDNA Ends
 
@@ -128,6 +130,10 @@ Alongside the RT-PCR subsetting, there is an added 3' RACE (Rapid Amplification 
 An additional method we provide is for users to check a psuedo measure of their sample integrity based off of long-read sequencing data alone. This serves as a proxy to a measure like a RIN score analysis. The function ```checkIntegrity``` takes two arguments, one which is a GRanges object from the Genomic Ranges class which contains all the expected full length features, and a BamFileList object from the Rsamtools package which contains all the original non subsetted bam files. 
 
 The integrity function then goes through each individual feature in the GeneTargets argument and calculates the percentage of full length reads over total reads that map to that given feature. For a short diagram of this overlap, please reference the paper. The function then outputs a cumulative distribitution plot that visualizes each sample's overall percetange of intact full length reads. A sample graph of this output is pictured down below. 
+
+<p align="center">
+  <img src=https://user-images.githubusercontent.com/26608622/224847614-e56ebe07-1e66-4f20-820c-d9c3921f314d.png>
+</p>
 
 ### R Plotting
 
