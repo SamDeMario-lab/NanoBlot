@@ -3,7 +3,7 @@
   Nanoblot
 </h1>
 
-<h3 align="center">A Simple Tool for Visualization of RNA Isoform Usage From Third Generation RNA-sequencing Data</h3>
+<h3 align="center">NanoBlot: An R Package for Visualization of RNA Isoforms from Long Read RNA-sequencing Data</h3>
 
 <div align="center">
   <a href="https://bedtools.readthedocs.io/en/latest/" target="_blank">
@@ -25,77 +25,33 @@
 
 RT-PCR and Northern blots have long been used to study RNA isoforms usage for single genes. Recently, advancements in long read sequencing have yielded unprecedented information about the usage and abundance of these RNA isoforms. However, visualization of long-read sequencing data remains challenging due to the high information density. To alleviate these issues we have developed NanoBlot, a simple, open-source, command line tool, which generates Northern blot and RT-PCR-like images from third generation sequencing data. NanoBlot accepts processed bam files. Plotting is based around ggplot2 and is easily customizable. Advantages of NanoBlots include: designing probes to visualize isoforms which would be impossible with traditional RT-PCR or Northern blots, excluding reads from the Nanoblots based on the presence or absence of a specified region and, multiplexing plots with multiple colors. We present examples of Nanoblots compared to actual northern blot data. In addition to traditional gel-like images, NanoBlot also outputs other visualizations such as violin plots. The use of Nanoblot should provide a simple answer to the challenge of visualization of long-read RNA sequencing data. 
 
-## Dependencies 
+## Basic Usage 
 
-**Bedtools (> 2.30.0)**<br/>
-**Samtools (> v1.16.1 *Wait for new Samtools ampliconclip patch)**<br/>
-**HTSeq (v> 2.0.2)**<br/>
-**R (> v4.1.2)**<br/>
-  ggplot2<br/>
-  Rsamtools (installed using Bioconductor)<br/>
-  ggridges<br/>
-  Deseq2 (installed using Bioconductor)<br/>
-  dplyr<br/>
-  
-The Nanoblot.sh script will require the different dependices to run from the bash terminal. When running using the command line interface, I recommend attaching it to $PATH. 
-A sample function would look like<br/>
+The NanoBlot R package can be loaded entirely using the devtools package built into R. First, make sure that you have the devtools package in R. 
+``` install.packages("devtools") ```
+
+Then, make sure you are in the right directory for the R NanoBlot package folder, which should end in something like "/NanoBlotPackage". Then, run this code to compile NanoBlot
+```devtools::install()``` 
+After installing, you can load the package using a simple library command
+```library("NanoBlotPackage")``` 
+
+NanoBlot is now ready for use! 
+
+## Setting up conda environment 
+
+Some core Nanoblot functions will rely on system() commands that are expected to be built into the user's console. These commands include packages like ```bedtools``` and ```samtools``` as there is no R equivalent that works as efficiently. Thus, if the user does not have previous path commands in their console environment, the user can utilize the prewritten conda environment for easy installation. The provided conda .yml environment is listed under the scripts folder and titled ```nanoblotenv.yml``` 
+
+The steps to install the conda environment are as followed
+Step 1: Install anaconda if not already on computer. Then find the system path to conda using the command ```which conda``` in any terminal of your choice. 
+Step 2: Call the function ```conda create -f {your path}/scripts/nanoblotenv.yml``` in either the terminal, or you can call it in R using the function 
+```system2("{your path to conda}, args = c("env", "create", "-f", "{your path}/scripts/nanoblotenv.yml"))```
+
+Step 3: Add the newly created environment into R's system path so that R will automatically search for it using this code block
 ```
-export PATH="$PATH:/Library/Frameworks/R.framework/Resources"
-source ~/.bash_profile
+old_path <- Sys.getenv("PATH")
+Sys.setenv(PATH = paste(old_path, "{path to conda environment}", sep = ":"))
 ```
 
-## Basic Usage:
-
-Nanoblot can be run via the included bash script "Nanoblot.sh" in the directory Nano_blot. 
-
-Nanoblot (Version 1.0)
-
-| Flag | Description |
-| ---  | --- |
-| -H   |  Print help menu |
-| -T   |  Probes bed file |
-| -B   |  Blots metadata file |
-| -M   |  Location of metadata file |
-| -A   |  Annotation file |
-| -R   |  Use custom R script |
-| -Y   |  RT-PCR mode, supply with own metadata file, , uses default if no input given|
-| -P   |  RACE mode, supply with own metadata file |
-| -N   |  Normalization function {differential (default), size, skip} |
-| -O   |  Overwrite count tables and recalculate
-| -C   |  Treat reads as cDNA (disregard strand) |
-| -F   |  Skip subsetting BAM files for plot generation |
-| -W   |  Clear all files from ./temp/ after plot generation |
-
-
-It requires 3 inputs:
-
-```./Nanoblot.sh -M 'Test2' -B 'Test3' -T 'Test4'```
-
-When running for the first time, example datasets and plots are provided. Just run ```./Nanoblot.sh``` in the terminal after changing working directory to the right folder. 
-
-#### 1) A set of probes to be used in standard bed format "example.bed" 
-```
-  chrIV	1359922	1359969	RPS18A_Exon1	.	+
-  chrVI	54686	54696	ACT1_Exon1	.	-
-  chrIV	1236558	1236842	YRA1_Exon1	.	+
-  chrXI	431906	432034	RPL14A_Exon1	.	+
-```
-Special note: Make sure there are not extra tabs after the last column of each row of probes.bed, or else bedtools intersect will throw an error. 
-
-#### 2) A tsv file listing the plots to be produced 
-```
-  plot_name	loading_order	probe	antiprobe
-  ACT1_5exon	WT,RRP6,SLU7,RRP6SLU7	ACT1_Exon1	
-  #RPL18A WT,RRP6 RPL18A_EXon1
-```
-Special note: Adding a # in the first character of a plot line will cause the script to skip plotting of that line. I.e. in the above example, adding #RPL18A will cause the script to skip normalization and plotting of the RPL18A plot
-In addition, it is not necessary to have an antiprobe, leaving it blank is fine
-
-#### 3) A tsv listing the names of input data file and their locations
-```
-  Sample_name	Location
-  WT	/home/guillaume-chanfreau/Sequencing_Data/slu7_rrp6/pass/barcode01/sorted_merged.bam
-```
 
 ## Extended Methods
 
