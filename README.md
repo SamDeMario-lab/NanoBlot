@@ -125,8 +125,9 @@ Alongside the RT-PCR subsetting, there is an added 3' RACE (Rapid Amplification 
 [^7]: “3´ RACE System for Rapid Amplification of CDNA Ends.” Thermo Fisher Scientific - US, https://www.thermofisher.com/us/en/home/references/protocols/nucleic-acid-amplification-and-expression-profiling/cdna-protocol/3-race-system-for-rapid-amplification-of-cdna-ends.html. 
 
 ### Checking Sample Integrity 
+An additional method we provide is for users to check a psuedo measure of their sample integrity based off of long-read sequencing data alone. This serves as a proxy to a measure like a RIN score analysis. The function ```checkIntegrity``` takes two arguments, one which is a GRanges object from the Genomic Ranges class which contains all the expected full length features, and a BamFileList object from the Rsamtools package which contains all the original non subsetted bam files. 
 
-
+The integrity function then goes through each individual feature in the GeneTargets argument and calculates the percentage of full length reads over total reads that map to that given feature. For a short diagram of this overlap, please reference the paper. The function then outputs a cumulative distribitution plot that visualizes each sample's overall percetange of intact full length reads. A sample graph of this output is pictured down below. 
 
 ### R Plotting
 
