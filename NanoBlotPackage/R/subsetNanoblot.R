@@ -179,10 +179,9 @@ subsetNanoblot <- function(BamFileList,
     previousAntiProbe <- paste(previousAntiProbe, "_anti_", antiprobe, sep = "")
   }
 
-  if (!is.null(viewingWindow)) {RTPCR <- TRUE}
   # If RT-PCR is true, then go through this loop here
   # Includes the RACE option too
-  if (RTPCR == TRUE)
+  if (!is.null(viewingWindow))
   {
     BUFFER_SIZE <- 5
     PARIS_JAPONICA <- "149000000000"
