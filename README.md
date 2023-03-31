@@ -50,6 +50,12 @@ Sys.setenv(PATH = paste(old_path, "{path to conda environment}", sep = ":"))
 ```
 
 
+<h2 align="center" > Basic Workflow </h2>
+
+<p align="center">
+  <img width="400" src="https://user-images.githubusercontent.com/26608622/225143476-9e22a4f4-a9f3-426b-880d-e477f91dfab9.png">
+</p>
+
 ## Extended Methods
 
 ### Normalization

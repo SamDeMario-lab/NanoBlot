@@ -40,6 +40,41 @@ makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6Test2, size_fa
 ```
 
 ```{r}
+## Creating smaller BAG1 subset files WITHOUT RTPCR for vignette usage, to be run on Nanopore computer
+UnnormalizedBamFileList <- 
+	Rsamtools::BamFileList(c(
+"/media/guillaume-chanfreau/HD3/human_NMD_data/scr1/sorted_merged.bam",
+"/media/guillaume-chanfreau/HD3/human_NMD_data/scr2/sorted_merged.bam",
+"/media/guillaume-chanfreau/HD3/human_NMD_data/UPF1/sorted_merged.bam",
+"/media/guillaume-chanfreau/HD3/human_NMD_data/SMG6/sorted_merged.bam",
+"/media/guillaume-chanfreau/HD3/human_NMD_data/SMG7/sorted_merged.bam",
+"/media/guillaume-chanfreau/HD3/human_NMD_data/SMG6SMG7/sorted_merged.bam"))
+names(UnnormalizedBamFileList) <- c("scr1","scr2","upf1","smg6","smg7","smg67")
+subsetNanoblot(UnnormalizedBamFileList, "/home/guillaume-chanfreau/Desktop/user_input_files/probes.bed", c("BAG1_Exon"), cDNA = TRUE)
+
+annotation <- "/home/guillaume-chanfreau/Downloads/Homo_sapiens.GRCh38.107.gtf"
+unnormalizedLocations <-as.vector(BiocGenerics::path(UnnormalizedBamFileList))
+SubsetBamFileList <- 
+	Rsamtools::BamFileList(c(
+"./temp/scr1_BAG1_Exon.bam", "./temp/scr2_BAG1_Exon.bam",
+"./temp/upf1_BAG1_Exon.bam", "./temp/smg6_BAG1_Exon.bam",
+"./temp/smg7_BAG1_Exon.bam", "./temp/smg67_BAG1_Exon.bam"
+	))
+names(SubsetBamFileList) <- c("scr1","scr2","upf1","smg6","smg7","smg67")
+
+NanoblotData <- bamFileListToNanoblotData(SubsetBamFileList)
+NanoblotDataInfo <- data.frame(
+	SampleID = c("scr1","scr2","upf1","smg6","smg7","smg67"),
+	SampleLanes = seq_along(c("scr1","scr2","upf1","smg6","smg7","smg67")),
+	SampleColors = rep("black",6))
+ds_size_factors <- normalizeNanoblotData(NanoblotData, "differential", unnormalizedLocations, annotation)
+makeNanoblot(nanoblotData = NanoblotData, plotInfo = NanoblotDataInfo, size_factors = ds_size_factors)
+
+```
+
+
+
+```{r}
 ## Testing BAG1 workflow, to be run on Nanopore computer
 UnnormalizedBamFileList <- 
 	Rsamtools::BamFileList(c(
@@ -50,7 +85,7 @@ UnnormalizedBamFileList <-
 "/media/guillaume-chanfreau/HD3/human_NMD_data/SMG7/sorted_merged.bam",
 "/media/guillaume-chanfreau/HD3/human_NMD_data/SMG6SMG7/sorted_merged.bam"))
 names(UnnormalizedBamFileList) <- c("scr1","scr2","upf1","smg6","smg7","smg67")
-subsetNanoblot(UnnormalizedBamFileList, "/home/guillaume-chanfreau/Desktop/user_input_files/probes.bed", c("BAG1_Exon"), viewingWindow = "BAG1_vw", cDNA = TRUE, RTPCR = TRUE)
+subsetNanoblot(UnnormalizedBamFileList, "/home/guillaume-chanfreau/Desktop/user_input_files/probes.bed", c("BAG1_Exon"), viewingWindow = "BAG1_vw", cDNA = TRUE)
 
 annotation <- "/home/guillaume-chanfreau/Downloads/Homo_sapiens.GRCh38.107.gtf"
 unnormalizedLocations <-as.vector(BiocGenerics::path(UnnormalizedBamFileList))
