@@ -37,6 +37,8 @@ Sys.setenv(PATH = paste(old_path, "/anaconda3/envs/nanoblotenv/bin", sep = ":"))
 ```
 Note, the absolute path will change for each user, so make sure to check the path location to your conda environment. You can find this by calling ```conda env list``` in terminal and copy and pasting the conda env list
 
+Since the R system path is reset with every session, should the user wish not to reset the path each time, it is recommended to download the dependencies directly to the user's console through the pacakge installation program. This pertains exclusively to system2() commands, whereas the rest of the packages can be installed within Rstudio through Bioconductor. 
+
 ```{r, include=TRUE}
 # If your environment was set up correctly, there should not be an error from calling this command. If you have an error with the build, that means that the source was not properly set up. Call Sys.getenv("PATH") to check if nanoblot env is in system path. 
 system2("bedtools")

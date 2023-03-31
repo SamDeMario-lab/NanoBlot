@@ -171,7 +171,7 @@ calculateDuplicationFactors <- function(nanoblotData, size_factors, DUPLICATION_
 duplicateNanoblotData <- function(nanoblotData, duplication_factors) {
 	sampleNames <- as.vector(levels(nanoblotData$SampleID))
 	progressBar <- txtProgressBar(min = 0, max = sum(duplication_factors),
-																style = 3, width = 50, char = "=")
+																style = 1, width = 50, char = "=")
 	for (i in 1:length(duplication_factors)) {
 		added_data <- dplyr::filter(nanoblotData, SampleID == sampleNames[i])
 		if (duplication_factors[[i]] <= 1 | is.nan(duplication_factors[[i]])) {next;}
