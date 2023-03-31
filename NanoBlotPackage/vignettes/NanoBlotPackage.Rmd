@@ -14,6 +14,86 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+## Package Installation
+If devtools is not installed yet, run ```install.packages("devtools")```  
+Then, install NanoBlot from source using ```devtools::install(build_vignettes = TRUE)```  
+To load vignette, run ```browseVignettes("NanoBlotPackage")```
+To load, package, run
+```{r}
 library(NanoBlotPackage)
 ```
+
+
+## Setting up Environment 
+NanoBlotPackage requires some core dependencies in order for the package to run.  
+We have created a yml environment file that can be run to load all dependencies located at ```../scripts/nanoblotenv.yml```
+
+The user can create the conda environment either from terminal or directly within R by invoking the system2() command. A terminal command would look like ```conda env create -f ../scripts/nanoblotenv.yml```      
+
+The last step is to add the nanoblot environment into R's system command so that it can call the functions. 
+```
+old_path <- Sys.getenv("PATH")
+Sys.setenv(PATH = paste(old_path, "/anaconda3/envs/nanoblotenv/bin", sep = ":"))
+```
+Note, the absolute path will change for each user, so make sure to check the path location to your conda environment. You can find this by calling ```conda env list``` in terminal and copy and pasting the conda env list
+
+```{r, include=TRUE}
+# If your environment was set up correctly, there should not be an error from calling this command. If you have an error with the build, that means that the source was not properly set up. Call Sys.getenv("PATH") to check if nanoblot env is in system path. 
+system2("bedtools")
+```
+
+## Basic Workflow 
+We start by subsetting our example data files to the probe RPL18A   
+Note that we store this in a specified temp folder. If a temp folder is not specified, one will be created automatically for the user
+```{r, warning=FALSE}
+## Creating BamFileList object to store data
+OriginalBamFileList <- Rsamtools::BamFileList(c("./data/example/WT_sorted_merged.bam",
+																 "./data/example/RRP6_sorted_merged.bam"))
+## Then subsetting original bam files based on RPL18A probe
+subsetNanoblot(OriginalBamFileList, "./user_input_files/probes.bed", c("RPL18A_Exon1"), tempFilePath = "./temp")
+```
+
+We then prepare for plotting by creating the necessary objects such as the BamFileList that contains all the subsetted bam files, the annotation file, as well as the plotInfo table that will be passed to the ```makeNanoblot``` function
+``` {r} 
+## Create a new BamFileList object using the newly subsetted bam files
+subsettedBamFileList <- Rsamtools::BamFileList(c("./temp/WT_sorted_merged_RPL18A_Exon1.bam",
+																 "./temp/RRP6_sorted_merged_RPL18A_Exon1.bam"))
+## Change the names of the BamFileList for easier visualization
+names(subsettedBamFileList) <- c("WT","RRP6")
+## Supply annotation file for yeast provided in example annotations
+annotation <- "./data/annotations/Saccharomyces_cerevisiae.R64-1-1.107.gtf"
+# Creating the plot info data table
+WT_RRP6_plot_info <- data.frame(
+	SampleID = c("WT","RRP6"),
+	SampleLanes = c(1,2),
+	SampleColors = c('blue','red')
+)
+```
+
+Before plotting, we need to normalize based on differential expression using DESeq2. We supply the code below for a DESeq2 normalization, but keep in mind that the datasets are truncated so it will not be an accurate representation of the actual normalization with the full complete sequencing data. 
+```{r}
+# First converting the subsettedBamFileList object to Nanoblot data
+NanoblotDataWTRRP6 <- bamFileListToNanoblotData(subsettedBamFileList)
+# Then performing DESeq2 normalization
+unnormalizedLocations <- BiocGenerics::path(OriginalBamFileList)
+ds_size_factors <- normalizeNanoblotData(NanoblotDataWTRRP6, "differential", unnormalizedLocations, annotation)
+```
+
+This is the default plot output. 
+```{r}
+makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6_plot_info, size_factors = ds_size_factors)
+```
+
+
+This is the ridge plot output. 
+```{r}
+makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6_plot_info, blotType = "ridge")
+```
+
+This is the violin plot output. 
+```{r}
+makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6_plot_info, blotType = "violin")
+```
+
+
+

@@ -28,7 +28,7 @@ The NanoBlot R package can be loaded entirely using the devtools package built i
 ``` install.packages("devtools") ```
 
 Then, make sure you are in the right directory for the R NanoBlot package folder, which should end in something like "/NanoBlotPackage". Then, run this code to compile NanoBlot <br>
-```devtools::install()``` 
+```devtools::install(build_vignettes = TRUE)``` 
 After installing, you can load the package using a simple library command <br>
 ```library("NanoBlotPackage")``` 
 

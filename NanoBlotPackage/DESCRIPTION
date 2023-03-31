@@ -10,6 +10,18 @@ License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
+Depends:
+    R (>= 4.1.3),
+    ggplot2 (>= 3.4.0),
+    dplyr (>= 1.0.10),
+    ggridges (>= 0.5.4)
+Imports:
+    BiocGenerics, 
+    Rsamtools, 
+    DESeq2, 
+    GenomicAlignments,
+    GenomicRanges, 
+    Rsubread
 Suggests: 
     knitr,
     rmarkdown

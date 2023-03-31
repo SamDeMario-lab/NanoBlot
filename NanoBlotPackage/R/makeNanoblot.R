@@ -85,8 +85,6 @@ makeNanoblot <-
 		if (blotType == 'violin') {
 			##Check for multiplexing
 			##Check for unnormalized data
-			## Fix colors
-			## I think there is a bug where the colors appear out of order
 			NanoPlot <- ggplot2::ggplot(data = nanoblotData, ggplot2::aes(x = SampleLanes, y = qwidth, group = SampleLanes, fill = SampleColors))+
 				ggplot2::theme(axis.line = ggplot2::element_line(colour = "white"),
 											 panel.grid.major = ggplot2::element_blank(),
@@ -104,8 +102,6 @@ makeNanoblot <-
 		if (blotType == 'ridge') {
 			##Check for multiplexing
 			##Check for unnormalized data
-			## Fix colors
-			## I think there is a bug where the colors appear out of order
 			NanoPlot <- ggplot2::ggplot(data = nanoblotData, ggplot2::aes(x = qwidth, y = SampleLanes, group = SampleLanes, fill = SampleColors))+
 				ggplot2::theme(axis.line = ggplot2::element_line(colour = "white"),
 											 panel.grid.major = ggplot2::element_blank(),
