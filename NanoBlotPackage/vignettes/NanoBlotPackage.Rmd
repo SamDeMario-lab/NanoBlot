@@ -48,7 +48,7 @@ system2("samtools")
 Checking integrity is a step that should be performed prior to any plotting, to make sure that none of the samples could have potentially been degraded. 
 
 There are some gtf files if you pass into GeneTargets that contain mitochondrial genes, which might produce an error of ```seqlevels(param) not in BAM header```, so in that case you can use the no mitochondrial gtf file as we used in this example. 
-```{r}
+```{r, fig.width=5}
 bamFileList <- Rsamtools::BamFileList(c("./data/example/WT_sorted_merged.bam",
                                         "./data/example/RRP6_sorted_merged.bam"))
 
