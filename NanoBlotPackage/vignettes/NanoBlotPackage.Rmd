@@ -41,8 +41,20 @@ Since the R system path is reset with every session, should the user wish not to
 
 ```{r, include=TRUE}
 # If your environment was set up correctly, there should not be an error from calling this command. If you have an error with the build, that means that the source was not properly set up. Call Sys.getenv("PATH") to check if nanoblot env is in system path. 
-system2("bedtools")
+system2("samtools")
 ```
+
+## Check Integrity 
+Checking integrity is a step that should be performed prior to any plotting, to make sure that none of the samples could have potentially been degraded. 
+```{r}
+bamFileList <- Rsamtools::BamFileList(c("./data/example/WT_sorted_merged.bam",
+                                        "./data/example/RRP6_sorted_merged.bam"))
+
+YeastCDSGFF <- rtracklayer::import.gff("./data/annotations/saccharomyces_cerevisiae.20210411.CDS.no_mito.gff")
+
+checkIntegrity(GeneTargets = YeastCDSGFF, BamFiles = bamFileList)
+```
+
 
 ## Basic Workflow 
 We start by subsetting our example data files to the probe RPL18A   
@@ -97,5 +109,44 @@ This is the violin plot output.
 makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6_plot_info, blotType = "violin")
 ```
 
+## RT-PCR Workflow
+IMPORTANT NOTE: As of 04/03/2023, the anaconda package repository is not yet updated with samtools v.1.17, thus if you were using NanoBlot with the conda environment, the ```samtools ampliconclip``` function is not bug fixed to work for RT-PCR. We will be updating the conda environment once anaconda has updated their repository, but in the meantime if you wish to use the RT-PCR functionality, users must install samtools themselves by following installation instrucitons on their website at https://www.htslib.org/download/.   
+
+This is an example of the RT-PCR that was used in the paper with the BAG1 gene in human sequencing data. Keep in mind that due to the large size of the human sequencing data, we are choosing to subet already subsetted files based on the BAG1_Exon just to show users what the subset command will look like. Thus, this workflow skips normalization steps since there are no original sequencing files to base normalization off of. 
+```{r}
+# Creating BamFileList object with already subsetted BAG1 human bam files 
+originalBamFileList <- 
+	Rsamtools::BamFileList(c(
+"./data/example/scr1_BAG1_Exon.bam",
+"./data/example/scr2_BAG1_Exon.bam",
+"./data/example/upf1_BAG1_Exon.bam",
+"./data/example/smg6_BAG1_Exon.bam",
+"./data/example/smg7_BAG1_Exon.bam",
+"./data/example/smg67_BAG1_Exon.bam"))
+# Renaming file names for better subset file name creation
+names(originalBamFileList) <- c("scr1","scr2","upf1","smg6","smg7","smg67")
+# Subset command that uses the RT-mode since a viewingWindow argument is provided
+subsetNanoblot(originalBamFileList, "./user_input_files/probes.bed", c("BAG1_Exon"), viewingWindow = "BAG1_vw", cDNA = TRUE)
+
+# Creating BamFileList object with subsetted files 
+subsettedBamFileList <- 
+	Rsamtools::BamFileList(c(
+"./temp/scr1_BAG1_Exon.bam", "./temp/scr2_BAG1_Exon.bam",
+"./temp/upf1_BAG1_Exon.bam", "./temp/smg6_BAG1_Exon.bam",
+"./temp/smg7_BAG1_Exon.bam", "./temp/smg67_BAG1_Exon.bam"
+	))
+# Renaming files for easier sample name matching with NanoblotDataInfo data frame
+names(subsettedBamFileList) <- c("scr1","scr2","upf1","smg6","smg7","smg67")
+
+# Converting BamFileList to Nanoblot data
+NanoblotData <- bamFileListToNanoblotData(subsettedBamFileList)
+# Creating info data frame to be usd in makeNanoblot() function
+NanoblotDataInfo <- data.frame(
+	SampleID = c("scr1","scr2","upf1","smg6","smg7","smg67"),
+	SampleLanes = seq_along(c("scr1","scr2","upf1","smg6","smg7","smg67")),
+	SampleColors = rep("black",6))
+# Creating Nanoblot visualization
+makeNanoblot(nanoblotData = NanoblotData, plotInfo = NanoblotDataInfo)
+```
 
 

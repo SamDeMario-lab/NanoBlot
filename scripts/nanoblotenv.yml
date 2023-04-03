@@ -12,6 +12,7 @@ dependencies:
   - bioconductor-genomicranges
   - bioconductor-rsamtools
   - bioconductor-rsubread
+  - bioconductor-rtracklayer
   - r-base>=4.1.3
   - r-biocmanager>=1.30.19
   - r-dplyr>=1.0.10
