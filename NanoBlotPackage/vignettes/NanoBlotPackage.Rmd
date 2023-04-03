@@ -52,7 +52,7 @@ bamFileList <- Rsamtools::BamFileList(c("./data/example/WT_sorted_merged.bam",
 
 YeastCDSGFF <- rtracklayer::import.gff("./data/annotations/saccharomyces_cerevisiae.20210411.CDS.no_mito.gff")
 
-checkIntegrity(GeneTargets = YeastCDSGFF, BamFiles = bamFileList)
+totalCounts <- checkIntegrity(GeneTargets = YeastCDSGFF, BamFiles = bamFileList)
 ```
 
 

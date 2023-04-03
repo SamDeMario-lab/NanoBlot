@@ -54,15 +54,15 @@ checkIntegrity <- function(GeneTargets, BamFiles) {
   }
   setTxtProgressBar(progressBar, totalRecords)
   totalCounts$file <- as.factor(totalCounts$file)
-	
-  for (file_name in levels(totalCounts$file)) {
-  	fileCounts <- totalCounts[totalCounts$file == file_name,]
-  	scatterOutput <- ggplot2::ggplot(data = fileCounts)+
-  		ggplot2::geom_hex(ggplot2::aes(x=width,y=IntactReads), bins = 100) +
-  		ggplot2::ylab(label = "% Integrity")
-  	print(scatterOutput)
-  }
 
+  # Deprecated hexplots
+  # for (file_name in levels(totalCounts$file)) {
+  # 	fileCounts <- totalCounts[totalCounts$file == file_name,]
+  # 	scatterOutput <- ggplot2::ggplot(data = fileCounts)+
+  # 		ggplot2::geom_hex(ggplot2::aes(x=width,y=IntactReads), bins = 100) +
+  # 		ggplot2::ylab(label = "% Integrity")
+  # 	print(scatterOutput)
+  # }
 
   cdfOutput <-ggplot2::ggplot(data = totalCounts)+
     ggplot2::stat_ecdf(ggplot2::aes(x = IntactReads, color = file))+
