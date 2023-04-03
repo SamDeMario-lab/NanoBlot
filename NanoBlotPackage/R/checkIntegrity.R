@@ -5,6 +5,7 @@
 #'
 #' @param GeneTargets A GRanges object with the target genomic regions.
 #' These genomic regions should theoretically have no 5' transcripts ends.
+#' If gff file is specified, make sure that there are no features that your bam file does not contain, like mitochondrial features for example.
 #' @param BamFiles A BamFileList() from Rsamtools
 #' @export
 #' @examples
@@ -54,15 +55,15 @@ checkIntegrity <- function(GeneTargets, BamFiles) {
   }
   setTxtProgressBar(progressBar, totalRecords)
   totalCounts$file <- as.factor(totalCounts$file)
-	
-  for (file_name in levels(totalCounts$file)) {
-  	fileCounts <- totalCounts[totalCounts$file == file_name,]
-  	scatterOutput <- ggplot2::ggplot(data = fileCounts)+
-  		ggplot2::geom_hex(ggplot2::aes(x=width,y=IntactReads), bins = 100) +
-  		ggplot2::ylab(label = "% Integrity")
-  	print(scatterOutput)
-  }
 
+  # Deprecated hexplots
+  # for (file_name in levels(totalCounts$file)) {
+  # 	fileCounts <- totalCounts[totalCounts$file == file_name,]
+  # 	scatterOutput <- ggplot2::ggplot(data = fileCounts)+
+  # 		ggplot2::geom_hex(ggplot2::aes(x=width,y=IntactReads), bins = 100) +
+  # 		ggplot2::ylab(label = "% Integrity")
+  # 	print(scatterOutput)
+  # }
 
   cdfOutput <-ggplot2::ggplot(data = totalCounts)+
     ggplot2::stat_ecdf(ggplot2::aes(x = IntactReads, color = file))+
