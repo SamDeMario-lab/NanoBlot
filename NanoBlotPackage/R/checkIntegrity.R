@@ -5,6 +5,7 @@
 #'
 #' @param GeneTargets A GRanges object with the target genomic regions.
 #' These genomic regions should theoretically have no 5' transcripts ends.
+#' If gff file is specified, make sure that there are no features that your bam file does not contain, like mitochondrial features for example.
 #' @param BamFiles A BamFileList() from Rsamtools
 #' @export
 #' @examples
