@@ -58,6 +58,37 @@ Sys.setenv(PATH = paste(old_path, "{path to conda environment}", sep = ":"))
   <img width="400" src="https://user-images.githubusercontent.com/26608622/225143476-9e22a4f4-a9f3-426b-880d-e477f91dfab9.png">
 </p>
 
+```
+OriginalBamFileList <- Rsamtools::BamFileList(c("./data/example/WT_sorted_merged.bam",
+																 "./data/example/RRP6_sorted_merged.bam"))
+## Then subsetting original bam files based on RPL18A probe
+subsetNanoblot(OriginalBamFileList, "./user_input_files/probes.bed", c("RPL18A_Exon1"), tempFilePath = "./temp")
+
+## Create a new BamFileList object using the newly subsetted bam files
+subsettedBamFileList <- Rsamtools::BamFileList(c("./temp/WT_sorted_merged_RPL18A_Exon1.bam",
+																 "./temp/RRP6_sorted_merged_RPL18A_Exon1.bam"))
+## Change the names of the BamFileList for easier visualization
+names(subsettedBamFileList) <- c("WT","RRP6")
+## Supply annotation file for yeast provided in example annotations
+annotation <- "./data/annotations/Saccharomyces_cerevisiae.R64-1-1.107.gtf"
+# Creating the plot info data table
+WT_RRP6_plot_info <- data.frame(
+	SampleID = c("WT","RRP6"),
+	SampleLanes = c(1,2),
+	SampleColors = c('blue','red')
+)
+
+# First converting the subsettedBamFileList object to Nanoblot data
+NanoblotDataWTRRP6 <- bamFileListToNanoblotData(subsettedBamFileList)
+# Then performing DESeq2 normalization
+unnormalizedLocations <- BiocGenerics::path(OriginalBamFileList)
+ds_size_factors <- normalizeNanoblotData(NanoblotDataWTRRP6, "differential", unnormalizedLocations, annotation)
+
+makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6_plot_info, size_factors = ds_size_factors)
+makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6_plot_info, blotType = "ridge")
+makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6_plot_info, blotType = "violin")
+```
+
 ## Extended Methods
 
 ### Normalization
