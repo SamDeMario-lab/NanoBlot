@@ -98,6 +98,12 @@ makeNanoblot <-
 					show.legend = FALSE
 				)+
 				ggplot2::scale_fill_manual(values=levels(nanoblotData$SampleColors))
+			
+			for (lane in levels(nanoblotData$SampleID)) {
+				reads <- nrow(nanoblotData[nanoblotData$SampleID==lane,])
+				msg <- paste("Number of reads for ", lane, " : ", reads, sep = "")
+				print(msg)
+			}
 		}
 		if (blotType == 'ridge') {
 			##Check for multiplexing
@@ -116,6 +122,12 @@ makeNanoblot <-
 				)+
 				ggplot2::scale_fill_manual(values=levels(nanoblotData$SampleColors))+
 				ggplot2::ggtitle(label = plotTitle)
+			
+			for (lane in levels(nanoblotData$SampleID)) {
+				reads <- nrow(nanoblotData[nanoblotData$SampleID==lane,])
+				msg <- paste("Number of reads for ", lane, " : ", reads, sep = "")
+				print(msg)
+			}
 		}
 
 		return(NanoPlot)
