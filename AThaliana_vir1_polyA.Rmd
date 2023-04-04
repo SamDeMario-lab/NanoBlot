@@ -5,7 +5,7 @@ VirPolyASiteData <- Rsamtools::BamFileList(c("./data/example/col0_AThalChr1.bam"
 												 "./data/example/vir1_AThalChr1.bam"))
 names(VirPolyASiteData) <- c("col0","VIR1c","vir1")
 
-subsetNanoblot(VirPolyASiteData, "/home/guillaume-chanfreau/github/Nano_blot/user_input_files/probes.bed", c("PRPL34"),RACE = TRUE, viewingWindow = "PRPL34")
+subsetNanoblot(VirPolyASiteData, "./user_input_files/probes.bed", c("PRPL34"), RACE = TRUE, viewingWindow = "PRPL34")
 ```
 
 ```{r}
@@ -28,6 +28,8 @@ vir1PRPL34Final <- vir1PRPL34 + ggplot2::scale_x_continuous(limits = c(100,450))
 	ggridges::stat_density_ridges(quantile_lines = TRUE, quantiles = 2) + 
 	ggplot2::ggtitle(label = "1	10151080	10151417	PRPL34	.	+")
 
-ggplot2::ggsave(filename = "./vir1PRPL34Ridge.png", device = "png", plot = vir1PRPL34Final, dpi = 320, units = "in", width = 10, height = 5)
+vir1PRPL34Final
+
+#ggplot2::ggsave(filename = "./vir1PRPL34Ridge.png", device = "png", plot = vir1PRPL34Final, dpi = 320, units = "in", width = 10, height = 5)
 ```
 
