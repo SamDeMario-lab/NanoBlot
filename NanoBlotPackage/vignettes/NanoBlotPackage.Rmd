@@ -150,5 +150,33 @@ NanoblotDataInfo <- data.frame(
 # Creating Nanoblot visualization
 makeNanoblot(nanoblotData = NanoblotData, plotInfo = NanoblotDataInfo)
 ```
+## Arabidopsis Thaliana
+```{r, fig.width=6}
+VirPolyASiteData <- Rsamtools::BamFileList(c("./data/example/col0_AThalChr1.bam",
+												 "./data/example/VIR1c_AThalChr1.bam",
+												 "./data/example/vir1_AThalChr1.bam"))
+names(VirPolyASiteData) <- c("col0","VIR1c","vir1")
+subsetNanoblot(VirPolyASiteData, "./user_input_files/probes.bed", c("PRPL34"), RACE = TRUE, viewingWindow = "PRPL34")
+SubsetBamVirPolyASite <- Rsamtools::BamFileList(c("./temp/col0_PRPL34.bam",
+												 "./temp/VIR1c_PRPL34.bam",
+												 "./temp/vir1_PRPL34.bam"))
+
+names(SubsetBamVirPolyASite) <- c("col0","VIR1c","vir1")
+
+NanoblotData <- bamFileListToNanoblotData(SubsetBamVirPolyASite)
+
+NanoblotDataInfo <- data.frame(
+	SampleID = c("VIR1c","vir1"),
+	SampleLanes = c(2,1),
+	SampleColors = c("#25FAFA5E", "#FA14D77A"))
+
+vir1PRPL34 <- makeNanoblot(nanoblotData = NanoblotData,plotInfo = NanoblotDataInfo, blotType = "ridge")
+
+vir1PRPL34Final <- vir1PRPL34 + ggplot2::scale_x_continuous(limits = c(100,450)) + 
+	ggridges::stat_density_ridges(quantile_lines = TRUE, quantiles = 2) + 
+	ggplot2::ggtitle(label = "1	10151080	10151417	PRPL34	.	+")
+
+vir1PRPL34Final
+```
 
 
