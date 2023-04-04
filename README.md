@@ -59,14 +59,12 @@ Sys.setenv(PATH = paste(old_path, "{path to conda environment}", sep = ":"))
 </p>
 
 ```
-OriginalBamFileList <- Rsamtools::BamFileList(c("./data/example/WT_sorted_merged.bam",
-																 "./data/example/RRP6_sorted_merged.bam"))
+OriginalBamFileList <- Rsamtools::BamFileList(c("./data/example/WT_sorted_merged.bam","./data/example/RRP6_sorted_merged.bam"))
 ## Then subsetting original bam files based on RPL18A probe
 subsetNanoblot(OriginalBamFileList, "./user_input_files/probes.bed", c("RPL18A_Exon1"), tempFilePath = "./temp")
 
 ## Create a new BamFileList object using the newly subsetted bam files
-subsettedBamFileList <- Rsamtools::BamFileList(c("./temp/WT_sorted_merged_RPL18A_Exon1.bam",
-																 "./temp/RRP6_sorted_merged_RPL18A_Exon1.bam"))
+subsettedBamFileList <- Rsamtools::BamFileList(c("./temp/WT_sorted_merged_RPL18A_Exon1.bam","./temp/RRP6_sorted_merged_RPL18A_Exon1.bam"))
 ## Change the names of the BamFileList for easier visualization
 names(subsettedBamFileList) <- c("WT","RRP6")
 ## Supply annotation file for yeast provided in example annotations
