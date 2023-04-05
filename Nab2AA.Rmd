@@ -1,0 +1,30 @@
+```{r}
+library("NanoBlotPackage")
+```
+
+```{r}
+RPL21BBamFileList <- Rsamtools::BamFileList(c("./data/example/Nab2_AA_RPL21B_Exon2.bam"))
+
+subsetNanoblot(RPL21BBamFileList, "./user_input_files/probes.bed", c("RPL21B_Exon2"), targetAntiProbes = c("YPL080C"))
+
+RPL21BFullDataset <- Rsamtools::BamFileList(c("./data/example/Nab2_AA_RPL21B_Exon2.bam",
+																							"./temp/Nab2_AA_RPL21B_Exon2_RPL21B_Exon2_anti_YPL080C.bam"))
+
+names(RPL21BFullDataset) <- c("Nab2AA", "Nab2AAantiYPL080C")
+```
+
+```{r}
+
+Nab2Meta <- data.frame(
+	SampleID = c("Nab2AA", "Nab2AAantiYPL080C"),
+	SampleLanes = c(1,2),
+	SampleColors = c('black','black')
+)
+
+NanoblotDataNab2AA <- bamFileListToNanoblotData(RPL21BFullDataset)
+
+Nab2RPL21Bblot <- makeNanoblot(nanoblotData = NanoblotDataNab2AA, plotInfo = Nab2Meta, blotType = "blot", plotTitle = "RPL21B")
+
+ggplot2::ggsave(filename = "./plots/Nab2/Nab2extenstion.png", device = "png", units = "in", height = 4, width = 2)
+```
+
