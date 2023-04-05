@@ -58,11 +58,18 @@ Sys.setenv(PATH = paste(old_path, "{path to conda environment}", sep = ":"))
   <img width="400" src="https://user-images.githubusercontent.com/26608622/225143476-9e22a4f4-a9f3-426b-880d-e477f91dfab9.png">
 </p>
 
+### Code Example
+We start by subsetting our example data files to the probe RPL18A
+Note that we store this in a specified temp folder. If a temp folder is not specified, one will be created automatically for the user
+
 ```
 OriginalBamFileList <- Rsamtools::BamFileList(c("./data/example/WT_sorted_merged.bam","./data/example/RRP6_sorted_merged.bam"))
 ## Then subsetting original bam files based on RPL18A probe
 subsetNanoblot(OriginalBamFileList, "./user_input_files/probes.bed", c("RPL18A_Exon1"), tempFilePath = "./temp")
+```
 
+We then prepare for plotting by creating the necessary objects such as the BamFileList that contains all the subsetted bam files, the annotation file, as well as the plotInfo table that will be passed to the makeNanoblot function
+```
 ## Create a new BamFileList object using the newly subsetted bam files
 subsettedBamFileList <- Rsamtools::BamFileList(c("./temp/WT_sorted_merged_RPL18A_Exon1.bam","./temp/RRP6_sorted_merged_RPL18A_Exon1.bam"))
 ## Change the names of the BamFileList for easier visualization
@@ -75,15 +82,25 @@ WT_RRP6_plot_info <- data.frame(
 	SampleLanes = c(1,2),
 	SampleColors = c('blue','red')
 )
-
+```
+Before plotting, we need to normalize based on differential expression using DESeq2. We supply the code below for a DESeq2 normalization, but keep in mind that the datasets are truncated so it will not be an accurate representation of the actual normalization with the full complete sequencing data.
+```
 # First converting the subsettedBamFileList object to Nanoblot data
 NanoblotDataWTRRP6 <- bamFileListToNanoblotData(subsettedBamFileList)
 # Then performing DESeq2 normalization
 unnormalizedLocations <- BiocGenerics::path(OriginalBamFileList)
 ds_size_factors <- normalizeNanoblotData(NanoblotDataWTRRP6, "differential", unnormalizedLocations, annotation)
-
+```
+This is the default plot output.
+```
 makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6_plot_info, size_factors = ds_size_factors)
+```
+This is the ridge plot output.
+```
 makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6_plot_info, blotType = "ridge")
+```
+This is the violin plot output.
+```
 makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6_plot_info, blotType = "violin")
 ```
 
