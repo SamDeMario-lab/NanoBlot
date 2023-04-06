@@ -18,4 +18,4 @@ dependencies:
   - r-dplyr>=1.0.10
   - r-ggplot2>=3.4.0
   - r-ggridges>=0.5.4
-  - samtools=1.16.1
+  - samtools>=1.17
