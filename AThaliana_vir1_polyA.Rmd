@@ -33,3 +33,16 @@ vir1PRPL34Final
 #ggplot2::ggsave(filename = "./vir1PRPL34Ridge.png", device = "png", plot = vir1PRPL34Final, dpi = 320, units = "in", width = 10, height = 5)
 ```
 
+```{r}
+NanoblotDataInfo <- data.frame(
+	SampleID = c("VIR1c","vir1"),
+	SampleLanes = c(2,1),
+	SampleColors = c("black", "black"))
+
+vir1PRPL34 <- makeNanoblot(nanoblotData = NanoblotData,plotInfo = NanoblotDataInfo, blotType = "blot") + ggplot2::scale_y_continuous(limits = c(0,800))
+
+ggsave(plot = vir1PRPL34, filename = "./plots/vir1PRPL34blot.png", device = "png", units = "in", height = 5, width = 3)
+```
+
+
+
