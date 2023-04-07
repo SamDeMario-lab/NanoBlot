@@ -112,8 +112,6 @@ makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6_plot_info, bl
 ```
 
 ## RT-PCR Workflow
-IMPORTANT NOTE: As of 04/03/2023, the anaconda package repository is not yet updated with samtools v.1.17, thus if you were using NanoBlot with the conda environment, the ```samtools ampliconclip``` function is not bug fixed to work for RT-PCR. We will be updating the conda environment once anaconda has updated their repository, but in the meantime if you wish to use the RT-PCR functionality, users must install samtools themselves by following installation instrucitons on their website at https://www.htslib.org/download/.   
-
 This is an example of the RT-PCR that was used in the paper with the BAG1 gene in human sequencing data. Keep in mind that due to the large size of the human sequencing data, we are choosing to subet already subsetted files based on the BAG1_Exon just to show users what the subset command will look like. Thus, this workflow skips normalization steps since there are no original sequencing files to base normalization off of. 
 ```{r}
 # Creating BamFileList object with already subsetted BAG1 human bam files 
@@ -150,6 +148,7 @@ NanoblotDataInfo <- data.frame(
 # Creating Nanoblot visualization
 makeNanoblot(nanoblotData = NanoblotData, plotInfo = NanoblotDataInfo)
 ```
+
 ## Arabidopsis Thaliana
 ```{r, fig.width=6}
 VirPolyASiteData <- Rsamtools::BamFileList(c("./data/example/col0_AThalChr1.bam",
@@ -179,4 +178,22 @@ vir1PRPL34Final <- vir1PRPL34 + ggplot2::scale_x_continuous(limits = c(100,450))
 vir1PRPL34Final
 ```
 
+## Nab2 Anchor Away
+```{r, fig.width=2, fig.height=4}
+RPL21BBamFileList <- Rsamtools::BamFileList(c("./data/example/Nab2_AA_RPL21B_Exon2.bam"))
+subsetNanoblot(RPL21BBamFileList, "./user_input_files/probes.bed", c("RPL21B_Exon2"), targetAntiProbes = c("YPL080C"))
+RPL21BFullDataset <- Rsamtools::BamFileList(c("./data/example/Nab2_AA_RPL21B_Exon2.bam",
+																							"./temp/Nab2_AA_RPL21B_Exon2_RPL21B_Exon2_anti_YPL080C.bam"))
+names(RPL21BFullDataset) <- c("Nab2AA", "Nab2AAantiYPL080C")
 
+Nab2Meta <- data.frame(
+	SampleID = c("Nab2AA", "Nab2AAantiYPL080C"),
+	SampleLanes = c(1,2),
+	SampleColors = c('black','black')
+)
+
+NanoblotDataNab2AA <- bamFileListToNanoblotData(RPL21BFullDataset)
+
+makeNanoblot(nanoblotData = NanoblotDataNab2AA, plotInfo = Nab2Meta, blotType = "blot", plotTitle = "RPL21B")
+
+```
