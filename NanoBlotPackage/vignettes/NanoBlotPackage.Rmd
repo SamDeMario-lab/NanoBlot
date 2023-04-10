@@ -111,7 +111,7 @@ This is the violin plot output.
 makeNanoblot(nanoblotData = NanoblotDataWTRRP6, plotInfo = WT_RRP6_plot_info, blotType = "violin")
 ```
 
-## RT-PCR Workflow
+## Example: BAG1 RT-PCR example
 This is an example of the RT-PCR that was used in the paper with the BAG1 gene in human sequencing data. Keep in mind that due to the large size of the human sequencing data, we are choosing to subet already subsetted files based on the BAG1_Exon just to show users what the subset command will look like. Thus, this workflow skips normalization steps since there are no original sequencing files to base normalization off of. 
 ```{r}
 # Creating BamFileList object with already subsetted BAG1 human bam files 
@@ -149,8 +149,8 @@ NanoblotDataInfo <- data.frame(
 makeNanoblot(nanoblotData = NanoblotData, plotInfo = NanoblotDataInfo)
 ```
 
-## Arabidopsis Thaliana
-```{r, fig.width=6}
+## Example: Arabidopsis Thaliana Nanoplots 
+```{r, fig.height=5, fig.width=3}
 VirPolyASiteData <- Rsamtools::BamFileList(c("./data/example/col0_AThalChr1.bam",
 												 "./data/example/VIR1c_AThalChr1.bam",
 												 "./data/example/vir1_AThalChr1.bam"))
@@ -167,6 +167,17 @@ NanoblotData <- bamFileListToNanoblotData(SubsetBamVirPolyASite)
 NanoblotDataInfo <- data.frame(
 	SampleID = c("VIR1c","vir1"),
 	SampleLanes = c(2,1),
+	SampleColors = c("black", "black"))
+
+vir1PRPL34 <- makeNanoblot(nanoblotData = NanoblotData,plotInfo = NanoblotDataInfo, blotType = "blot") + ggplot2::scale_y_continuous(limits = c(0,800))
+vir1PRPL34
+```
+
+## Example: Arabidopsis Thaliana Ridge Plots 
+```{r, fig.width=6}
+NanoblotDataInfo <- data.frame(
+	SampleID = c("VIR1c","vir1"),
+	SampleLanes = c(2,1),
 	SampleColors = c("#25FAFA5E", "#FA14D77A"))
 
 vir1PRPL34 <- makeNanoblot(nanoblotData = NanoblotData,plotInfo = NanoblotDataInfo, blotType = "ridge")
@@ -178,7 +189,7 @@ vir1PRPL34Final <- vir1PRPL34 + ggplot2::scale_x_continuous(limits = c(100,450))
 vir1PRPL34Final
 ```
 
-## Nab2 Anchor Away
+## Example: Nab2 Anchor Away with Antiprobes 
 ```{r, fig.width=2, fig.height=4}
 RPL21BBamFileList <- Rsamtools::BamFileList(c("./data/example/Nab2_AA_RPL21B_Exon2.bam"))
 subsetNanoblot(RPL21BBamFileList, "./user_input_files/probes.bed", c("RPL21B_Exon2"), targetAntiProbes = c("YPL080C"))
@@ -195,5 +206,4 @@ Nab2Meta <- data.frame(
 NanoblotDataNab2AA <- bamFileListToNanoblotData(RPL21BFullDataset)
 
 makeNanoblot(nanoblotData = NanoblotDataNab2AA, plotInfo = Nab2Meta, blotType = "blot", plotTitle = "RPL21B")
-
 ```
