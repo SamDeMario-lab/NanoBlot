@@ -166,7 +166,7 @@ NanoblotData <- bamFileListToNanoblotData(SubsetBamVirPolyASite)
 
 NanoblotDataInfo <- data.frame(
 	SampleID = c("VIR1c","vir1"),
-	SampleLanes = c(2,1),
+	SampleLanes = c(1,2),
 	SampleColors = c("black", "black"))
 
 vir1PRPL34 <- makeNanoblot(nanoblotData = NanoblotData,plotInfo = NanoblotDataInfo, blotType = "blot") + ggplot2::scale_y_continuous(limits = c(0,800))
