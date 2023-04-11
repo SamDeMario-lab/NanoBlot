@@ -12,11 +12,6 @@
   <a href="http://www.htslib.org" target="_blank">
     <img src="https://img.shields.io/badge/Dependencies-Samtools-informational" />
   </a>
-  <a href="http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html" target="_blank">
-      <img src="https://img.shields.io/badge/Bioconductor-DESeq2-important">
-  </a>
-  <a href="https://zenodo.org/badge/latestdoi/459793151"><img src="https://zenodo.org/badge/459793151.svg" alt="DOI"></a>
-  </a>
 </div>
 <br/>
 
