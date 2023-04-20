@@ -1,6 +1,5 @@
 <h1 align="center">
-  <img src="https://i.pinimg.com/736x/86/0f/b9/860fb969002c23702a9db5908e335d8f--healthy-lifestyle-science-safety.jpg" width=200 height=200/><br>
-  Nanoblot
+  <img src="https://user-images.githubusercontent.com/26608622/233225720-2b84b247-147e-41f5-a473-8b957d612fcd.png" width=200/><br>
 </h1>
 
 <h3 align="center">NanoBlot: An R Package for Visualization of RNA Isoforms from Long Read RNA-sequencing Data</h3>
